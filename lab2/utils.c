@@ -3,22 +3,23 @@
 #include <stdint.h>
 
 int(util_get_LSB)(uint16_t val, uint8_t *lsb) {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+    /* To be implemented by the students */
+    printf("%s is not yet implemented!\n", __func__);
 
-  return 1;
+    return 1;
 }
 
 int(util_get_MSB)(uint16_t val, uint8_t *msb) {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+    /* To be implemented by the students */
+    printf("%s is not yet implemented!\n", __func__);
 
-  return 1;
+    return 1;
 }
 
 int (util_sys_inb)(int port, uint8_t *value) {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
-
-  return 1;
+    /* To be implemented by the students */
+    uint32_t n = 0;
+    int ret = sys_inb(port, &n);
+    *value = n;
+    return ret;
 }
