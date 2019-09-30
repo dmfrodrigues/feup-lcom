@@ -21,7 +21,7 @@ int (util_sys_inb)(int port, uint8_t *value) {
     /* To be implemented by the students */
     if(value == NULL) return 1;
     uint32_t n = 0;
-    int ret = sys_inb(port, &n);
+    if(sys_inb(port, &n)) return 1;
     *value = n;
-    return ret;
+    return 0;
 }
