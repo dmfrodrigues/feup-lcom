@@ -61,11 +61,11 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
         }
         if(timer_print_config(timer, field, conf)) return 1;
     }
-    if(field == tsf_all || field == tsf_mode){
+    if(field == tsf_mode){
         conf.count_mode = (st & TIMER_MODE_MASK)>>TIMER_MODE_POS;
         if(timer_print_config(timer, field, conf)) return 1;
     }
-    if(field == tsf_all || field == tsf_base){
+    if(field == tsf_base){
         conf.bcd = st & TIMER_BCD;
         if(timer_print_config(timer, field, conf)) return 1;
     }
