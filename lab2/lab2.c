@@ -29,13 +29,10 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-int(timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
-    /* To be implemented by the students */
-
+int(timer_test_read_config)(uint8_t timer, enum timer_status_field field){
     uint8_t state = 0;
     if(timer_get_conf(timer, &state)) return 1;
-    //printf("%x\n", state);
-
+    if(timer_display_conf(timer, state, field)) return 1;
     return 0;
 }
 
