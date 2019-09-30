@@ -25,19 +25,25 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
     if (sys_outb(TIMER_CTRL, write_cmd)) return 1;
 
     // counter_init = clock/freq
-    // uint16_t counter_init = (uint16_t)(TIMER_FREQ / freq);
+    uint16_t counter_init = (uint16_t)(TIMER_FREQ / freq);
 
     int timer_port = 0;
     switch(timer) {
         case 0: timer_port = TIMER_0; break;
         case 1: timer_port = TIMER_1; break;
         case 2: timer_port = TIMER_2; break;
-        default: return 1;           break;
+        default: return 1;            break;
     }
+    uint8_t lsb = 0, msb = 0;
+    if (util_get_LSB(counter_init, &lsb)) return 1;
+    if (util_get_MSB(counter_init, &msb)) return 1;
 
+    if (sys_outb(timer_port, lsb)) return 1;
+    if (sys_outb(timer_port, msb)) return 1;
 
+    //if (sys_outw(timer_port, counter_init)) return 1;
 
-    return 1;
+    return 0;
 }
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
