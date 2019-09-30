@@ -32,6 +32,7 @@ void (timer_int_handler)() {
 }
 
 int (timer_get_conf)(uint8_t timer, uint8_t *st) {
+    // Write read-back command to TIMER_CTRL
     int write_port = TIMER_CTRL;
     u32_t cmd = TIMER_RB_CMD | TIMER_RB_COUNT_ | TIMER_RB_SEL(timer);
     if(sys_outb(write_port, cmd)) return 1;
@@ -53,10 +54,10 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
     if(field == tsf_all || field == tsf_initial){
         in_mode = (st & TIMER_INMODE_MASK) >> TIMER_INMODE_POS;
         switch(in_mode){
-            case 0: conf.in_mode = INVAL_val    ; break;
-            case 1: conf.in_mode = LSB_only     ; break;
-            case 2: conf.in_mode = MSB_only     ; break;
-            case 3: conf.in_mode = MSB_after_LSB; break;
+            case 0: conf.in_mode = INVAL_val    ; break; //000
+            case 1: conf.in_mode = LSB_only     ; break; //001
+            case 2: conf.in_mode = MSB_only     ; break; //010
+            case 3: conf.in_mode = MSB_after_LSB; break; //011
             default: return 1; break;
         }
         if(timer_print_config(timer, field, conf)) return 1;
