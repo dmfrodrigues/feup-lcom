@@ -25,7 +25,7 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
     if (sys_outb(TIMER_CTRL, write_cmd)) return 1;
 
     // counter_init = clock/freq
-    uint16_t counter_init = (uint16_t)(TIMER_FREQ / freq);
+    // uint16_t counter_init = (uint16_t)(TIMER_FREQ / freq);
 
     int timer_port = 0;
     switch(timer) {
