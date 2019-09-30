@@ -84,24 +84,30 @@ int (timer_get_conf)(uint8_t timer, uint8_t *st) {
 int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field field) {
     union timer_status_field_val conf;
     uint8_t in_mode;
-    if(field == tsf_initial){
-        in_mode = (st & TIMER_INMODE_MASK) >> TIMER_INMODE_POS;
-        switch(in_mode){
-            case 0: conf.in_mode = INVAL_val    ; break; //000
-            case 1: conf.in_mode = LSB_only     ; break; //001
-            case 2: conf.in_mode = MSB_only     ; break; //010
-            case 3: conf.in_mode = MSB_after_LSB; break; //011
-            default: return 1; break;
-        }
-        if(timer_print_config(timer, field, conf)) return 1;
+    switch(field){
+        case tsf_all:
+            conf.byte = st;
+            break;
+        case tsf_initial:
+            in_mode = (st & TIMER_INMODE_MASK) >> TIMER_INMODE_POS;
+            switch(in_mode){
+                case 0: conf.in_mode = INVAL_val    ; break; //000
+                case 1: conf.in_mode = LSB_only     ; break; //001
+                case 2: conf.in_mode = MSB_only     ; break; //010
+                case 3: conf.in_mode = MSB_after_LSB; break; //011
+                default: return 1; break;
+            }
+            break;
+        case tsf_mode:
+            conf.count_mode = (st & TIMER_MODE_MASK)>>TIMER_MODE_POS;
+            if(conf.count_mode == 0x6 || conf.count_mode == 0x7)
+                conf.count_mode &= TIMER_MODE_RED2;
+            break;
+        case tsf_base:
+            conf.bcd = st & TIMER_BCD;
+            break;
+        default: return 1; break;
     }
-    if(field == tsf_mode){
-        conf.count_mode = (st & TIMER_MODE_MASK)>>TIMER_MODE_POS;
-        if(timer_print_config(timer, field, conf)) return 1;
-    }
-    if(field == tsf_base){
-        conf.bcd = st & TIMER_BCD;
-        if(timer_print_config(timer, field, conf)) return 1;
-    }
+    if(timer_print_config(timer, field, conf)) return 1;
     return 0;
 }
