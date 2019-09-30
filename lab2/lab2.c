@@ -38,7 +38,6 @@ int(timer_test_read_config)(uint8_t timer, enum timer_status_field field){
 
 int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
     if (timer_set_frequency(timer, freq)) return 1;
-
   return 0;
 }
 
