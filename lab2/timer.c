@@ -6,8 +6,31 @@
 #include "i8254.h"
 
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
-    /* To be implemented by the students */
-    printf("%s is not yet implemented!\n", __func__);
+
+    // counter_init = clock/feq
+
+    uint8_t status = 0;
+
+    if (timer_get_conf(timer, &status)) return 1;
+    //Make command
+    uint8_t write_cmd = 0;
+    //Select timer
+    switch(timer) {
+        case 0: write_cmd |= TIMER_SEL0;
+            break;
+        case 1: write_cmd |= TIMER_SEL1;
+            break;
+        case 2: write_cmd |= TIMER_SEL2;
+            break;
+        default: return 1; break;
+    }
+    //Change both LSB and MSB
+    write_cmd |= TIMER_LSB_MSB;
+    //Keep 4 least significant bits
+    write_cmd |= (status & (TIMER_MODE_MASK | TIMER_BCD));
+    //Write cmd
+    sys_outb(TIMER_CTRL, )
+
 
     return 1;
 }
@@ -33,9 +56,8 @@ void (timer_int_handler)() {
 
 int (timer_get_conf)(uint8_t timer, uint8_t *st) {
     // Write read-back command to TIMER_CTRL
-    int write_port = TIMER_CTRL;
     u32_t cmd = TIMER_RB_CMD | TIMER_RB_COUNT_ | TIMER_RB_SEL(timer);
-    if(sys_outb(write_port, cmd)) return 1;
+    if(sys_outb(TIMER_CTRL, cmd)) return 1;
 
     int read_port;
     switch(timer) {
