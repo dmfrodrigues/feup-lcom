@@ -37,7 +37,7 @@ int (timer_get_conf)(uint8_t timer, uint8_t *st) {
     if(sys_outb(write_port, cmd)) return 1;
 
     int read_port;
-    switch(timer){
+    switch(timer) {
         case 0: read_port = TIMER_0; break;
         case 1: read_port = TIMER_1; break;
         case 2: read_port = TIMER_2; break;
