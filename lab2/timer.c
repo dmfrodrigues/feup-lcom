@@ -100,7 +100,7 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
             break;
         case tsf_mode:
             conf.count_mode = (st & TIMER_MODE_MASK)>>TIMER_MODE_POS;
-            if(conf.count_mode == 0x6 || conf.count_mode == 0x7)
+            if(conf.count_mode == TIMER_MODE_2ALT || conf.count_mode == TIMER_MODE_3ALT)
                 conf.count_mode &= TIMER_MODE_RED2;
             break;
         case tsf_base:
