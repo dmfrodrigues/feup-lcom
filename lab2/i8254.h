@@ -44,7 +44,10 @@
 #define TIMER_RATE_GEN BIT(2)            /**< @brief Mode 2: rate generator */
 #define TIMER_MODE_MASK 0x0E             /**< @brief Mask for mode */
 #define TIMER_MODE_POS  1                /**< @brief Position of smallest bit from mode */
+#define TIMER_MODE_2ALT 0x6              /**< @brief Alternative notation for mode 2 */
+#define TIMER_MODE_3ALT 0x7              /**< @brief Alternative notation for mode 3 */
 #define TIMER_MODE_RED2 0x03             /**< @brief Reduce 3-bit mode to 2-bit mode */
+
 
 /* Counting mode: bit 0 */
 
