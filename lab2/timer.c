@@ -6,6 +6,10 @@
 #include "i8254.h"
 
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
+
+    // Frequencies out this range are not supported (by limitation of hardware)
+    if (freq > TIMER_FREQ || freq < TIMER_MIN_FREQ) return 1;
+
     uint8_t status = 0;
     if (timer_get_conf(timer, &status)) return 1;
     //Make command
@@ -40,8 +44,6 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 
     if (sys_outb(timer_port, lsb)) return 1;
     if (sys_outb(timer_port, msb)) return 1;
-
-    //if (sys_outw(timer_port, counter_init)) return 1;
 
     return 0;
 }
