@@ -78,7 +78,7 @@ int (timer_get_conf)(uint8_t timer, uint8_t *st) {
 int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field field) {
     union timer_status_field_val conf;
     uint8_t in_mode;
-    if(field == tsf_all || field == tsf_initial){
+    if(field == tsf_initial){
         in_mode = (st & TIMER_INMODE_MASK) >> TIMER_INMODE_POS;
         switch(in_mode){
             case 0: conf.in_mode = INVAL_val    ; break; //000
