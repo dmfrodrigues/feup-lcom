@@ -29,13 +29,13 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 
     int timer_port = 0;
     switch(timer) {
-        case 0: read_port = TIMER_0; break;
-        case 1: read_port = TIMER_1; break;
-        case 2: read_port = TIMER_2; break;
+        case 0: timer_port = TIMER_0; break;
+        case 1: timer_port = TIMER_1; break;
+        case 2: timer_port = TIMER_2; break;
         default: return 1;           break;
     }
 
-    
+
 
     return 1;
 }
