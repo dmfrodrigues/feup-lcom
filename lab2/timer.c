@@ -5,6 +5,8 @@
 
 #include "i8254.h"
 
+int no_interrupts = 0;
+
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 
     // Frequencies out this range are not supported (by limitation of hardware)
@@ -62,8 +64,6 @@ int (timer_unsubscribe_int)() {
 }
 
 void (timer_int_handler)() {
-    int no_interrupts = 0; //should be the global
-
     no_interrupts++;
 }
 

@@ -49,7 +49,6 @@
 #define TIMER_MODE_3ALT 0x7              /**< @brief Alternative notation for mode 3 */
 #define TIMER_MODE_RED2 0x03             /**< @brief Reduce 3-bit mode to 2-bit mode */
 
-
 /* Counting mode: bit 0 */
 
 #define TIMER_BCD 0x01 /**< @brief Count in BCD */
