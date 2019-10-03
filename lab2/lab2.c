@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+int no_interrupts = 0;
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -42,8 +43,39 @@ int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
 }
 
 int(timer_test_int)(uint8_t time) {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+    int ipc_status, r;
+    message msg;
 
-  return 1;
+    uint8_t hook = 0;
+    int no_interrupts = 0;
+    int freq = 60; // better way to get the frequency of the timer????
+
+    timer_subscribe_int(&hook);
+
+    while (no_interrupts < time * freq) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    if (msg.m_notify.interrupts & irq_set) { /* subscribed interrupt */
+                        timer_int_handler();
+                    }
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+        if (!(no_interrupts % freq))
+            timer_print_elapsed_time();
+    }
+
+    timer_unsubscribe_int(&hook);
+
+  return 0;
 }

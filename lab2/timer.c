@@ -63,8 +63,9 @@ int (timer_unsubscribe_int)(uint8_t *bit_no) {
 }
 
 void (timer_int_handler)() {
-    /* To be implemented by the students */
-    printf("%s is not yet implemented!\n", __func__);
+    int no_interrupts = 0; //should be the global
+
+    no_interrupts++;
 }
 
 int (timer_get_conf)(uint8_t timer, uint8_t *st) {
