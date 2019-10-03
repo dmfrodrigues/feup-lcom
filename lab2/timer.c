@@ -48,17 +48,16 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
     return 0;
 }
 
+int hook_id = 2;
+
 int (timer_subscribe_int)(uint8_t *bit_no) {
-    int hook_id = 2;
     if(sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id)) return 1;
     *bit_no = hook_id;
     return 0;
 }
 
-int (timer_unsubscribe_int)(uint8_t *bit_no) {
-    int hook_id = *bit_no;
+int (timer_unsubscribe_int)() {
     if(sys_irqrmpolicy(&hook_id)) return 1;
-    *bit_no = hook_id;
     return 0;
 }
 
