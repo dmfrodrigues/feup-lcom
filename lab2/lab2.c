@@ -76,7 +76,7 @@ int(timer_test_int)(uint8_t time) {
             timer_print_elapsed_time();
     }
 
-    timer_unsubscribe_int(&hook);
+    timer_unsubscribe_int();
 
   return 0;
 }
