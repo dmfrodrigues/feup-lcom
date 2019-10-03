@@ -46,6 +46,7 @@ int(timer_test_int)(uint8_t time) {
     int ipc_status, r;
     message msg;
 
+    uint8_t irq_set = 1;
     uint8_t hook = 0;
     int no_interrupts = 0;
     int freq = 60; // better way to get the frequency of the timer????
