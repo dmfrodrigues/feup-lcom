@@ -45,9 +45,9 @@ int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
 int(timer_test_int)(uint8_t time) {
     int ipc_status, r;
     message msg;
-    uint8_t irq_set = 1;
     uint8_t hook = 0;
     no_interrupts = 0;
+    uint8_t irq_set = 1;
     int freq = 60; // better way to get the frequency of the timer????
 
     timer_subscribe_int(&hook);
