@@ -4,7 +4,6 @@
 
 int(util_get_LSB)(uint16_t val, uint8_t *lsb) {
     if (lsb == NULL) return 1;
-
     *lsb = (uint8_t)val;
     return 0;
 }
