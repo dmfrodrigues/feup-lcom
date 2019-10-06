@@ -5,8 +5,6 @@
 
 #include "i8254.h"
 
-int no_interrupts = 0;
-
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 
     // Frequencies out this range are not supported (by limitation of hardware)
@@ -53,8 +51,8 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 int hook_id = 2;
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
-    if(sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id)) return 1;
     *bit_no = hook_id;
+    if(sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id)) return 1;
     return 0;
 }
 
@@ -63,6 +61,7 @@ int (timer_unsubscribe_int)() {
     return 0;
 }
 
+uint32_t no_interrupts = 0;
 void (timer_int_handler)() {
     no_interrupts++;
 }
