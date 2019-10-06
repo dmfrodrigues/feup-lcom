@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-extern int no_interrupts;
-
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
   lcf_set_language("EN-US");
@@ -42,15 +40,18 @@ int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
   return 0;
 }
 
+extern uint32_t no_interrupts;
+
 int(timer_test_int)(uint8_t time) {
     int ipc_status, r;
     message msg;
     uint8_t hook = 0;
     no_interrupts = 0;
-    uint8_t irq_set = 1;
-    int freq = 60; // better way to get the frequency of the timer????
-
+    int freq = 60; // better way to get the frequency of the timer???
+    printf("Hook pre: %x\n", hook);
     timer_subscribe_int(&hook);
+    printf("Hook pos: %x\n", hook);
+    int irq_set = BIT(hook);
 
     while (time) {
         /* Get a request message. */
@@ -61,8 +62,14 @@ int(timer_test_int)(uint8_t time) {
         if (is_ipc_notify(ipc_status)) { /* received notification */
             switch (_ENDPOINT_P(msg.m_source)) {
                 case HARDWARE: /* hardware interrupt notification */
+                    printf("%x\n", msg.m_notify.interrupts);
                     if (msg.m_notify.interrupts & irq_set) { /* subscribed interrupt */
                         timer_int_handler();
+
+                        if (!(no_interrupts % freq)) {
+                            timer_print_elapsed_time();
+                            time--;
+                        }
                     }
                     break;
                 default:
@@ -70,10 +77,6 @@ int(timer_test_int)(uint8_t time) {
             }
         } else { /* received standart message, not a notification */
             /* no standart message expected: do nothing */
-        }
-        if (!(no_interrupts % freq)) {
-            timer_print_elapsed_time();
-            time--;
         }
     }
 
