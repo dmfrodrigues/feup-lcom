@@ -51,6 +51,7 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 int hook_id = 2;
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
+    if(bit_no == NULL) return 1;
     *bit_no = hook_id;
     if(sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id)) return 1;
     return 0;
@@ -61,16 +62,16 @@ int (timer_unsubscribe_int)() {
     return 0;
 }
 
-uint32_t no_interrupts = 0;
+int no_interrupts = 0;
 void (timer_int_handler)() {
     no_interrupts++;
 }
 
 int (timer_get_conf)(uint8_t timer, uint8_t *st) {
+    if(st == NULL) return 1;
     // Write read-back command to TIMER_CTRL
     u32_t cmd = TIMER_RB_CMD | TIMER_RB_COUNT_ | TIMER_RB_SEL(timer);
     if(sys_outb(TIMER_CTRL, cmd)) return 1;
-
     int read_port;
     switch(timer) {
         case 0: read_port = TIMER_0; break;
