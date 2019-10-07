@@ -43,11 +43,11 @@ int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
 extern int no_interrupts;
 
 int(timer_test_int)(uint8_t time) {
+    const uint32_t frequency = 60; // Frequency asummed at 60Hz
     int ipc_status, r;
     message msg;
     uint8_t hook = 0;
     no_interrupts = 0;
-    int freq = 60; // better way to get the frequency of the timer???
     timer_subscribe_int(&hook);
     int irq_set = BIT(hook);
     while (time) {
@@ -61,7 +61,7 @@ int(timer_test_int)(uint8_t time) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & irq_set) { /* subscribed interrupt */
                         timer_int_handler();
-                        if (!(no_interrupts % freq)) {
+                        if (!(no_interrupts % frequency)) {
                             timer_print_elapsed_time();
                             time--;
                         }
