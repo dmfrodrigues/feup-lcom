@@ -22,7 +22,7 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
         case 0: write_cmd |= TIMER_SEL0; break;
         case 1: write_cmd |= TIMER_SEL1; break;
         case 2: write_cmd |= TIMER_SEL2; break;
-        default: return 1;               break;
+        default: return 1;
     }
     //Change both LSB and MSB
     write_cmd |= TIMER_LSB_MSB;
@@ -39,13 +39,16 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
         case 0: timer_port = TIMER_0; break;
         case 1: timer_port = TIMER_1; break;
         case 2: timer_port = TIMER_2; break;
-        default: return 1;            break;
+        default: return 1;
     }
     uint8_t lsb = 0, msb = 0;
+    /* Split the 16 bits word in two bytes */
     if (util_get_LSB(counter_init, &lsb)) return 1;
     if (util_get_MSB(counter_init, &msb)) return 1;
 
+    /* Write the 8 LSB of the counter */
     if (sys_outb(timer_port, lsb)) return 1;
+    /* Write the 8 MSB of the counter */
     if (sys_outb(timer_port, msb)) return 1;
 
     return 0;
@@ -54,13 +57,15 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 int hook_id;
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
-    hook_id = 2;
     if(bit_no == NULL) return 1;
+    hook_id = 2;
     *bit_no = hook_id;
+    /* Subscribe Timer 0 Interrupts */
     return sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id);
 }
 
 int (timer_unsubscribe_int)() {
+    /* Unsubscribe Timer 0 Interrupts */
     if(sys_irqrmpolicy(&hook_id)) return 1;
     return 0;
 }
@@ -80,7 +85,7 @@ int (timer_get_conf)(uint8_t timer, uint8_t *st) {
         case 0: read_port = TIMER_0; break;
         case 1: read_port = TIMER_1; break;
         case 2: read_port = TIMER_2; break;
-        default: return 1;           break;
+        default: return 1;
     }
     if(util_sys_inb(read_port, st)) return 1;
     return 0;
@@ -91,27 +96,30 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
     uint8_t in_mode;
     switch(field){
         case tsf_all:
-            conf.byte = st;
+            conf.byte = st; /* Full Status Byte */
             break;
         case tsf_initial:
+            /* Counter Initial Value Loading Mode */
             in_mode = (st & TIMER_INMODE_MASK) >> TIMER_INMODE_POS;
             switch(in_mode){
                 case 0: conf.in_mode = INVAL_val    ; break; //000
                 case 1: conf.in_mode = LSB_only     ; break; //001
                 case 2: conf.in_mode = MSB_only     ; break; //010
                 case 3: conf.in_mode = MSB_after_LSB; break; //011
-                default: return 1; break;
+                default: return 1;
             }
             break;
         case tsf_mode:
+            /* Counting Mode */
             conf.count_mode = (st & TIMER_MODE_MASK)>>TIMER_MODE_POS;
             if(conf.count_mode == TIMER_MODE_2ALT || conf.count_mode == TIMER_MODE_3ALT)
                 conf.count_mode &= TIMER_MODE_RED2;
             break;
         case tsf_base:
+            /* Representation of Counter Initial Value */
             conf.bcd = st & TIMER_BCD;
             break;
-        default: return 1; break;
+        default: return 1;
     }
     if(timer_print_config(timer, field, conf)) return 1;
     return 0;

@@ -37,18 +37,18 @@ int(timer_test_read_config)(uint8_t timer, enum timer_status_field field){
 
 int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
     if (timer_set_frequency(timer, freq)) return 1;
-  return 0;
+    return 0;
 }
 
 extern int no_interrupts;
 
 int(timer_test_int)(uint8_t time) {
-    const uint32_t frequency = 60; // Frequency asummed at 60Hz
+    const int frequency = 60; // Frequency asummed at 60Hz
     int ipc_status, r;
     message msg;
     uint8_t hook = 0;
     no_interrupts = 0;
-    timer_subscribe_int(&hook);
+    if (timer_subscribe_int(&hook)) return 1;
     int irq_set = BIT(hook);
     while (time) {
         /* Get a request message. */
@@ -61,7 +61,7 @@ int(timer_test_int)(uint8_t time) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & irq_set) { /* subscribed interrupt */
                         timer_int_handler();
-                        if (!(no_interrupts % frequency)) {
+                        if (!(no_interrupts % frequency)) { /* second elapsed */
                             timer_print_elapsed_time();
                             time--;
                         }
@@ -74,6 +74,6 @@ int(timer_test_int)(uint8_t time) {
             /* no standart message expected: do nothing */
         }
     }
-    timer_unsubscribe_int();
-  return 0;
+    if (timer_unsubscribe_int()) return 1;
+    return 0;
 }
