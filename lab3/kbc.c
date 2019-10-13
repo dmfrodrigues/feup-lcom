@@ -16,17 +16,25 @@ int (unsubscribe_kbc_interrupt)(int *interrupt_id) {
 
 uint8_t scancode[2];
 int two_byte_scancode = 0;
+int got_error = 0;
 
 void (kbc_ih)(void) {
     uint8_t status = 0;
+    got_error = 0;
 
     #ifdef LAB3
     sys_inb_counter(INCREMENT);
     #endif
 
-    if (util_sys_inb(STATUS_REG, &status)) return;
+    if (util_sys_inb(STATUS_REG, &status)) {
+        got_error = 1;
+        return;
+    }
 
-    if (status & (TIME_OUT_REC | PARITY_ERROR)) return;
+    if (status & (TIME_OUT_REC | PARITY_ERROR)) {
+        got_error = 1;
+        return;
+    }
 
     #ifdef LAB3
     sys_inb_counter(INCREMENT);
@@ -34,7 +42,10 @@ void (kbc_ih)(void) {
 
     uint8_t byte = 0;
 
-    if (util_sys_inb(OUTPUT_BUF, &byte)) return;
+    if (util_sys_inb(OUTPUT_BUF, &byte)) {
+        got_error = 1;
+        return;
+    }
 
     if (two_byte_scancode) {
         scancode[1] = byte;
@@ -46,7 +57,7 @@ void (kbc_ih)(void) {
 
 }
 
-uint32_t sys_inb_counter(int increment) {
+uint32_t (sys_inb_counter)(int increment) {
     static uint32_t counter = 0;
     if (increment) return ++counter;
     return counter;

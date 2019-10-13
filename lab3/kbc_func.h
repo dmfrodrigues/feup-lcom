@@ -32,6 +32,6 @@ void (kbc_ih)(void);
  * @param increment Whether the value should be incremented or not
  * @return The current value of the counter
  */
-uint32_t sys_inb_counter(int get_increment);
+uint32_t (sys_inb_counter)(int get_increment);
 
 #endif
