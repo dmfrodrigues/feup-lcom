@@ -1,5 +1,4 @@
 #include <lcom/lcf.h>
-
 #include <lcom/lab3.h>
 
 #include <stdbool.h>
@@ -34,6 +33,7 @@ int main(int argc, char *argv[]) {
 
 extern uint8_t scancode[2];
 extern int two_byte_scancode;
+extern int got_error;
 
 int(kbd_test_scan)() {
 
@@ -60,11 +60,13 @@ int(kbd_test_scan)() {
 
                         kbc_ih();
 
-                        if (!two_byte_scancode) { /* finished processing a scancode */
+                        if (!(two_byte_scancode || got_error)) { /* finished processing a scancode */
                             if (scancode[0] == TWO_BYTE_CODE)
                                 kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
                             else
                                 kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
+                        } else {
+                            break;
                         }
 
                         if (scancode[0] == ESC_BREAK_CODE)
