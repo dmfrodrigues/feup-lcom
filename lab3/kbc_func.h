@@ -28,13 +28,6 @@ int (unsubscribe_kbc_interrupt)(int *interrupt_id);
 void (kbc_ih)(void);
 
 /**
- * @brief Counter for sys_inb calls
- * @param increment Whether the value should be incremented or not
- * @return The current value of the counter
- */
-uint32_t (sys_inb_counter)(int get_increment);
-
-/**
  * @brief High-level function that polls keyboard for scancode
  * High-level function that polls keyboard for scancode of up to 2 bytes. If
  * scancode has only 1 byte, the second byte is set to 0x00.
