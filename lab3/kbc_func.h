@@ -52,6 +52,15 @@ int (kbc_read_cmd)(uint8_t *cmd);
 int (kbc_change_cmd)(uint8_t cmd);
 
 /**
+ * @brief High-level function that restores KBC to normal state
+ * High-level function that restores KBC to normal state, because lcf_start
+ * changes the command byte of KBC. If this function is not used, there is a
+ * chance that the keyboard and keyboard interrupts remain disabled.
+ * @return 1 if operation was successful, 1 otherwise
+ */
+int (kbc_restore_kbd)();
+
+/**
  * @brief Low-level function to issue a command to keyboard
  * @param cmd command to be issued
  * @return 0 if operation was successful, 1 otherwise

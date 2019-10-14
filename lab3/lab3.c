@@ -98,12 +98,9 @@ int(kbd_test_poll)() {
         if(kbd_print_scancode((~c[0])&BREAK_CODE_BIT, size, c)) return 1;
     }while(!(size == 1 && c[0] == ESC_BREAK_CODE));
 
-    uint8_t cmd = 0;
-    if(kbc_read_cmd(&cmd)) return 1;
-    cmd = (cmd | INT_KBD) & (~DIS_KBD);
-    if(kbc_change_cmd(cmd)) return 1;
+    if(kbc_restore_kbd()) return 1;
 
-    if (kbd_print_no_sysinb(sys_inb_counter)) return 1;
+    if(kbd_print_no_sysinb(sys_inb_counter)) return 1;
 
     return 0;
 }
