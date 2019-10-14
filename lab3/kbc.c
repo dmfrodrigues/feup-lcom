@@ -79,14 +79,34 @@ int (kbd_poll)(uint8_t bytes[], uint8_t *size){
     return 0;
 }
 
-int (kbd_read_byte)(uint8_t *value){
+int (kbd_issue_cmd)(uint8_t cmd){
     uint8_t stat;
-    while(1){
+    for(int i = 0; i < 10; ++i){
         if(util_sys_inb(STATUS_REG, &stat)) return 1;
-        if((stat&OUT_BUF_FUL) && ((stat&AUX_MOUSE)^AUX_MOUSE)){
-            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return 1;
-            else return util_sys_inb(OUTPUT_BUF, value);
+        if((stat&IN_BUF_FULL) == 0){
+            if(sys_outb(KBC_CMD, cmd)) return 1;
+            return 0;
         }
         tickdelay(micros_to_ticks(DELAY));
     }
+    return 1;
+}
+
+int (kbd_read_byte)(uint8_t *byte){
+    uint8_t stat;
+    while(true){
+        if(util_sys_inb(STATUS_REG, &stat)) return 1;
+        if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)==0){
+            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return 1;
+            if(util_sys_inb(OUTPUT_BUF, byte)) return 1;
+            else return 0;
+        }
+        tickdelay(micros_to_ticks(DELAY));
+    }
+}
+
+int (kbd_read_cmd)(uint8_t *cmd){
+    if(kbd_issue_cmd(0x20)) return 1;
+    if(kbd_read_byte(cmd)) return 1;
+    return 0;
 }

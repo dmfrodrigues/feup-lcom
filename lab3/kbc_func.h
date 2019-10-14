@@ -44,6 +44,8 @@ uint32_t (sys_inb_counter)(int get_increment);
  */
 int (kbd_poll)(uint8_t bytes[], uint8_t *size);
 
+int (kbd_issue_cmd)(uint8_t cmd);
+
 /**
  * @brief Low-level function for reading byte from keyboard
  * Low-level function for reading byte from keyboard. Waits until output buffer
@@ -51,6 +53,8 @@ int (kbd_poll)(uint8_t bytes[], uint8_t *size);
  * @param value Pointer to variable where byte read from keyboard will be stored
  * @return 0 if operation was successful, 1 otherwise
  */
-int (kbd_read_byte)(uint8_t *value);
+int (kbd_read_byte)(uint8_t *byte);
+
+int (kbd_read_cmd)(uint8_t *cmd);
 
 #endif
