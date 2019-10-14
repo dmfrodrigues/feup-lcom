@@ -1,0 +1,3 @@
+reset
+make depend
+make
