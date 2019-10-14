@@ -100,7 +100,6 @@ int(kbd_test_poll)() {
     uint8_t cmd = 0;
     if(kbc_read_cmd(&cmd)) return 1;
     cmd = (cmd | INT_KBD) & (~DIS_KBD);
-
     if(kbc_change_cmd(cmd)) return 1;
 
     return 0;
