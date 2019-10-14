@@ -62,3 +62,31 @@ uint32_t (sys_inb_counter)(int increment) {
     if (increment) return ++counter;
     return counter;
 }
+
+int (kbd_poll)(uint8_t bytes[], uint8_t *size){
+    if(bytes == NULL || size == NULL) return 1;
+    uint8_t c;
+    if(kbd_read_byte(&c)) return 1;
+    if(c == TWO_BYTE_CODE){
+        if(kbd_read_byte(&bytes[0])) return 1;
+        bytes[1] = c;
+        *size = 2;
+    }else{
+        bytes[1] = 0;
+        bytes[0] = c;
+        *size = 1;
+    }
+    return 0;
+}
+
+int (kbd_read_byte)(uint8_t *value){
+    uint8_t stat;
+    while(1){
+        if(util_sys_inb(STATUS_REG, &stat)) return 1;
+        if((stat&OUT_BUF_FUL) && ((stat&AUX_MOUSE)^AUX_MOUSE)){
+            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return 1;
+            else return util_sys_inb(OUTPUT_BUF, value);
+        }
+        tickdelay(micros_to_ticks(DELAY));
+    }
+}
