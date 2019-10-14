@@ -40,8 +40,9 @@ int(kbd_test_scan)() {
     int ipc_status, r;
     message msg;
 
-    uint8_t kbc_irq_bit = BIT(1);
+    uint8_t kbc_irq_bit = 1;
     int kbc_id = 0;
+    int kbc_irq = BIT(kbc_irq_bit);
 
     int got_esc_breakcode = 0;
 
@@ -56,7 +57,7 @@ int(kbd_test_scan)() {
         if (is_ipc_notify(ipc_status)) { /* received notification */
             switch (_ENDPOINT_P(msg.m_source)) {
                 case HARDWARE: /* hardware interrupt notification */
-                    if (msg.m_notify.interrupts & kbc_irq_bit) { /* subscribed interrupt */
+                    if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
 
                         kbc_ih();
 
