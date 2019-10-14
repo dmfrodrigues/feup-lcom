@@ -90,10 +90,12 @@ int(kbd_test_scan)() {
 }
 
 int(kbd_test_poll)() {
-  /* To be completed by the students */
-  printf("%s is not yet implemented!\n", __func__);
-
-  return 1;
+    uint8_t c[2]; uint8_t size;
+    do{
+        if(kbd_poll(c, &size)) return 1;
+        if(kbd_print_scancode((~c[0])&BREAK_CODE_BIT, size, c)) return 1;
+    }while(!(size == 1 && c[0] == ESC_BREAK_CODE));
+    return 0;
 }
 
 int(kbd_test_timed_scan)(uint8_t n) {

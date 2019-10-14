@@ -34,4 +34,23 @@ void (kbc_ih)(void);
  */
 uint32_t (sys_inb_counter)(int get_increment);
 
+/**
+ * @brief High-level function that polls keyboard for scancode
+ * High-level function that polls keyboard for scancode of up to 2 bytes. If
+ * scancode has only 1 byte, the second byte is set to 0x00.
+ * @param bytes Array of at least 2 bytes to store scancode
+ * @param size Size of scancode in bytes
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbd_poll)(uint8_t bytes[], uint8_t *size);
+
+/**
+ * @brief Low-level function for reading byte from keyboard
+ * Low-level function for reading byte from keyboard. Waits until output buffer
+ * is full
+ * @param value Pointer to variable where byte read from keyboard will be stored
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbd_read_byte)(uint8_t *value);
+
 #endif
