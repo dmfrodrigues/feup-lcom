@@ -41,4 +41,10 @@
 #define TWO_BYTE_CODE   0xE0    /* @brief First byte of a two byte Scancode */
 #define BREAK_CODE_BIT  BIT(7)  /* @brief Bit to distinguish between Make code and Break code */
 
+/* Command byte masks */
+#define INT_KBD         BIT(0)
+#define INT_MOU         BIT(1)
+#define DIS_KBD         BIT(4)
+#define DIS_MOU         BIT(5)
+
 #endif

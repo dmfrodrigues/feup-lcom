@@ -44,7 +44,26 @@ uint32_t (sys_inb_counter)(int get_increment);
  */
 int (kbd_poll)(uint8_t bytes[], uint8_t *size);
 
-int (kbd_issue_cmd)(uint8_t cmd);
+/**
+ * @brief High-level function that reads the command byte of the KBC
+ * @param cmd Pointer to variable where command byte read from KBC will be stored
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbc_read_cmd)(uint8_t *cmd);
+
+/**
+ * @brief High-level function that changes the command byte of the KBC
+ * @param cmd New value for command byte of KBC
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbc_change_cmd)(uint8_t cmd);
+
+/**
+ * @brief Low-level function to issue a command to keyboard
+ * @param cmd command to be issued
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbc_issue_cmd)(uint8_t cmd);
 
 /**
  * @brief Low-level function for reading byte from keyboard
@@ -53,8 +72,7 @@ int (kbd_issue_cmd)(uint8_t cmd);
  * @param value Pointer to variable where byte read from keyboard will be stored
  * @return 0 if operation was successful, 1 otherwise
  */
-int (kbd_read_byte)(uint8_t *byte);
+int (kbc_read_byte)(uint8_t *byte);
 
-int (kbd_read_cmd)(uint8_t *cmd);
 
 #endif
