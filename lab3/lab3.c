@@ -98,8 +98,10 @@ int(kbd_test_poll)() {
     }while(!(size == 1 && c[0] == ESC_BREAK_CODE));
 
     uint8_t cmd = 0;
-    if(kbd_read_cmd(&cmd)) return 1;
-    printf("%x\n", cmd);
+    if(kbc_read_cmd(&cmd)) return 1;
+    cmd = (cmd | INT_KBD) & (~DIS_KBD);
+
+    if(kbc_change_cmd(cmd)) return 1;
 
     return 0;
 }

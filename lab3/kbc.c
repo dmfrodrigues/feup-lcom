@@ -66,9 +66,9 @@ uint32_t (sys_inb_counter)(int increment) {
 int (kbd_poll)(uint8_t bytes[], uint8_t *size){
     if(bytes == NULL || size == NULL) return 1;
     uint8_t c;
-    if(kbd_read_byte(&c)) return 1;
+    if(kbc_read_byte(&c)) return 1;
     if(c == TWO_BYTE_CODE){
-        if(kbd_read_byte(&bytes[0])) return 1;
+        if(kbc_read_byte(&bytes[0])) return 1;
         bytes[1] = c;
         *size = 2;
     }else{
@@ -79,9 +79,21 @@ int (kbd_poll)(uint8_t bytes[], uint8_t *size){
     return 0;
 }
 
-int (kbd_issue_cmd)(uint8_t cmd){
+int (kbc_read_cmd)(uint8_t *cmd){
+    if(kbc_issue_cmd(READ_KBC_CMD)) return 1;
+    if(kbc_read_byte(cmd)) return 1;
+    return 0;
+}
+
+int (kbc_change_cmd)(uint8_t cmd){
+    if(kbc_issue_cmd(WRITE_KBC_CMD)) return 1;
+    if(sys_outb(KBC_CMD_ARG, cmd)) return 1;
+    return 0;
+}
+
+int (kbc_issue_cmd)(uint8_t cmd){
     uint8_t stat;
-    for(int i = 0; i < 10; ++i){
+    while(1){
         if(util_sys_inb(STATUS_REG, &stat)) return 1;
         if((stat&IN_BUF_FULL) == 0){
             if(sys_outb(KBC_CMD, cmd)) return 1;
@@ -92,7 +104,7 @@ int (kbd_issue_cmd)(uint8_t cmd){
     return 1;
 }
 
-int (kbd_read_byte)(uint8_t *byte){
+int (kbc_read_byte)(uint8_t *byte){
     uint8_t stat;
     while(true){
         if(util_sys_inb(STATUS_REG, &stat)) return 1;
@@ -103,10 +115,4 @@ int (kbd_read_byte)(uint8_t *byte){
         }
         tickdelay(micros_to_ticks(DELAY));
     }
-}
-
-int (kbd_read_cmd)(uint8_t *cmd){
-    if(kbd_issue_cmd(0x20)) return 1;
-    if(kbd_read_byte(cmd)) return 1;
-    return 0;
 }
