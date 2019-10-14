@@ -6,7 +6,8 @@
 #define KBC_IRQ     1 /* @brief KBC Controller IRQ Line */
 
 /* Delay for KBC */
-#define DELAY   20000 /* @brief KBC Response Delay */
+#define DELAY           20000 /* @brief KBC Response Delay */
+#define KBC_NUM_TRIES   10    /* @brief Number of tries to issue command before timeout */
 
 /* I/O Ports Addresses */
 

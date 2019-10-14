@@ -68,8 +68,8 @@ int (kbd_poll)(uint8_t bytes[], uint8_t *size){
     uint8_t c;
     if(kbc_read_byte(&c)) return 1;
     if(c == TWO_BYTE_CODE){
-        if(kbc_read_byte(&bytes[0])) return 1;
-        bytes[1] = c;
+        if(kbc_read_byte(&bytes[1])) return 1;
+        bytes[0] = c;
         *size = 2;
     }else{
         bytes[1] = 0;
@@ -93,7 +93,7 @@ int (kbc_change_cmd)(uint8_t cmd){
 
 int (kbc_issue_cmd)(uint8_t cmd){
     uint8_t stat;
-    while(1){
+    for(int i = 0; i < KBC_NUM_TRIES; ++i){
         if(util_sys_inb(STATUS_REG, &stat)) return 1;
         if((stat&IN_BUF_FULL) == 0){
             if(sys_outb(KBC_CMD, cmd)) return 1;
