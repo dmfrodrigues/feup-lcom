@@ -138,6 +138,7 @@ int(kbd_test_timed_scan)(uint8_t idle) {
                             if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
                             else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
                             time = 0;
+                            no_interrupts = 0;
                             if (scancode[0] == ESC_BREAK_CODE) good = 0;
                         }
                     }
