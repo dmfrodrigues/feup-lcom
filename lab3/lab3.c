@@ -96,6 +96,11 @@ int(kbd_test_poll)() {
         if(kbd_poll(c, &size)) return 1;
         if(kbd_print_scancode((~c[0])&BREAK_CODE_BIT, size, c)) return 1;
     }while(!(size == 1 && c[0] == ESC_BREAK_CODE));
+
+    uint8_t cmd = 0;
+    if(kbd_read_cmd(&cmd)) return 1;
+    printf("%x\n", cmd);
+
     return 0;
 }
 
