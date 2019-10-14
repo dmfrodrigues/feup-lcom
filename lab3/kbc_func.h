@@ -15,12 +15,12 @@
 int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
 /**
- * @brief Unsubcribes KBC Interrupts
- * @param interrupt_id KBC Interrupt ID, value via arguments on subscription of the interrupt_id
- * @see subscribe_kbc_interrupt
+ * @brief Unsubcribes Interrupts
+ * @param interrupt_id Interrupt ID, value via arguments on subscription of the interrupt_id
+ * @see subscribe_kbc_interrupt, subscribe_timer_interrupt
  * @return Whether operation was sucessful or not
  */
-int (unsubscribe_kbc_interrupt)(int *interrupt_id);
+int (unsubscribe_interrupt)(int *interrupt_id);
 
 /**
  * @brief KBC Interrupt Handler

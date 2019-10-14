@@ -6,6 +6,7 @@
 
 #include "kbc.h"
 #include "kbc_func.h"
+#include "timer_func.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -37,19 +38,17 @@ extern int got_error;
 extern uint32_t sys_inb_counter;
 
 int(kbd_test_scan)() {
-
+    /// loop stuff
     int ipc_status, r;
     message msg;
-
+    /// Keyboard interrupt handling
     uint8_t kbc_irq_bit = 1;
     int kbc_id = 0;
     int kbc_irq = BIT(kbc_irq_bit);
-
-    int got_esc_breakcode = 0;
-
     if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) return 1;
-
-    while (!got_esc_breakcode) {
+    /// cycle
+    int good = 1;
+    while (good) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
             printf("driver_receive failed with %d", r);
@@ -59,21 +58,12 @@ int(kbd_test_scan)() {
             switch (_ENDPOINT_P(msg.m_source)) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
-
                         kbc_ih();
-
                         if (!(two_byte_scancode || got_error)) { /* finished processing a scancode */
-                            if (scancode[0] == TWO_BYTE_CODE)
-                                kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
-                            else
-                                kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
-                        } else {
-                            break;
-                        }
-
-                        if (scancode[0] == ESC_BREAK_CODE)
-                            got_esc_breakcode = 1;
-
+                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
+                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
+                        } else { break; }
+                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
                     }
                     break;
                 default:
@@ -84,7 +74,7 @@ int(kbd_test_scan)() {
         }
     }
 
-    if (unsubscribe_kbc_interrupt(&kbc_id)) return 1;
+    if (unsubscribe_interrupt(&kbc_id)) return 1;
 
     if (kbd_print_no_sysinb(sys_inb_counter)) return 1;
 
@@ -105,9 +95,63 @@ int(kbd_test_poll)() {
     return 0;
 }
 
-int(kbd_test_timed_scan)(uint8_t n) {
-  /* To be completed by the students */
-  printf("%s is not yet implemented!\n", __func__);
+extern int no_interrupts;
 
-  return 1;
+int(kbd_test_timed_scan)(uint8_t idle) {
+    /// loop stuff
+    int ipc_status, r;
+    message msg;
+    /// Timer interrupt handling
+    const uint32_t frequency = 60; // Frequency asummed at 60Hz
+    uint8_t timer_irq_bit = 0;
+    int timer_id = 0;
+    int timer_irq = BIT(timer_irq_bit);
+    if(subscribe_timer_interrupt(timer_irq_bit, &timer_id)) return 1;
+
+    no_interrupts = 0;
+    int time = 0;
+    /// Keyboard interrupt handling
+    uint8_t kbc_irq_bit = 1;
+    int kbc_id = 0;
+    int kbc_irq = BIT(kbc_irq_bit);
+    if(subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) return 1;
+    /// cycle
+    int good = 1;
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
+                        timer_int_handler();
+                        //printf("no_interrupts: %d\n", no_interrupts);
+                        if (no_interrupts%frequency == 0) time++;
+                        if(time >= idle) good = 0;
+                    }
+                    if (msg.m_notify.interrupts & kbc_irq) { /// subscribed interrupt
+                        kbc_ih();
+                        if (!(two_byte_scancode || got_error)) { /// finished processing a scancode
+                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
+                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
+                            time = 0;
+                            if (scancode[0] == ESC_BREAK_CODE) good = 0;
+                        }
+                    }
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+    }
+
+    if (unsubscribe_interrupt(&kbc_id)) return 1;
+    if (unsubscribe_interrupt(&timer_id)) return 1;
+
+    return 0;
 }
