@@ -22,10 +22,6 @@ void (kbc_ih)(void) {
     uint8_t status = 0;
     got_error = 0;
 
-    #ifdef LAB3
-    sys_inb_counter(INCREMENT);
-    #endif
-
     if (util_sys_inb(STATUS_REG, &status)) {
         got_error = 1;
         return;
@@ -35,10 +31,6 @@ void (kbc_ih)(void) {
         got_error = 1;
         return;
     }
-
-    #ifdef LAB3
-    sys_inb_counter(INCREMENT);
-    #endif
 
     uint8_t byte = 0;
 
@@ -55,12 +47,6 @@ void (kbc_ih)(void) {
         two_byte_scancode = (byte == TWO_BYTE_CODE);
     }
 
-}
-
-uint32_t (sys_inb_counter)(int increment) {
-    static uint32_t counter = 0;
-    if (increment) return ++counter;
-    return counter;
 }
 
 int (kbd_poll)(uint8_t bytes[], uint8_t *size){

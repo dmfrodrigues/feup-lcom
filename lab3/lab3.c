@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 extern uint8_t scancode[2];
 extern int two_byte_scancode;
 extern int got_error;
+extern uint32_t sys_inb_counter;
 
 int(kbd_test_scan)() {
 
@@ -85,7 +86,7 @@ int(kbd_test_scan)() {
 
     if (unsubscribe_kbc_interrupt(&kbc_id)) return 1;
 
-    if (kbd_print_no_sysinb(sys_inb_counter(GET))) return 1;
+    if (kbd_print_no_sysinb(sys_inb_counter)) return 1;
 
     return 0;
 }
@@ -101,6 +102,8 @@ int(kbd_test_poll)() {
     if(kbc_read_cmd(&cmd)) return 1;
     cmd = (cmd | INT_KBD) & (~DIS_KBD);
     if(kbc_change_cmd(cmd)) return 1;
+
+    if (kbd_print_no_sysinb(sys_inb_counter)) return 1;
 
     return 0;
 }
