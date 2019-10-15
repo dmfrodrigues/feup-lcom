@@ -46,7 +46,7 @@ int(timer_test_int)(uint8_t time) {
     const int frequency = 60; // Frequency asummed at 60Hz
     int ipc_status, r;
     message msg;
-    uint8_t hook = 0;
+    uint8_t timer_id = 0;
     no_interrupts = 0;
     if (timer_subscribe_int(&hook)) return 1;
     int irq_set = BIT(hook);
