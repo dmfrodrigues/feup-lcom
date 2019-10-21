@@ -37,6 +37,11 @@ void (kbc_ih)(void) {
         return;
     }
 
+    if ((status & OUT_BUF_FUL) == 0 || (status & AUX_MOUSE) != 0) {
+        got_error = 1;
+        return;
+    }
+
     uint8_t byte = 0;
 
     if (util_sys_inb(OUTPUT_BUF, &byte)) {
@@ -73,7 +78,7 @@ int (kbc_read_cmd)(uint8_t *cmd){
 
 int (kbc_change_cmd)(uint8_t cmd){
     if(kbc_issue_cmd(WRITE_KBC_CMD)) return 1;
-    if(sys_outb(KBC_CMD_ARG, cmd)) return 1;
+    if(kbc_issue_arg(cmd)) return 1;
     return 0;
 }
 
@@ -91,6 +96,19 @@ int (kbc_issue_cmd)(uint8_t cmd){
         if(util_sys_inb(STATUS_REG, &stat)) return 1;
         if((stat&IN_BUF_FULL) == 0){
             if(sys_outb(KBC_CMD, cmd)) return 1;
+            return 0;
+        }
+        tickdelay(micros_to_ticks(DELAY));
+    }
+    return 1;
+}
+
+int (kbc_issue_arg)(uint8_t arg){
+    uint8_t stat;
+    for(int i = 0; i < KBC_NUM_TRIES; ++i){
+        if(util_sys_inb(STATUS_REG, &stat)) return 1;
+        if((stat&IN_BUF_FULL) == 0){
+            if(sys_outb(KBC_CMD_ARG, arg)) return 1;
             return 0;
         }
         tickdelay(micros_to_ticks(DELAY));
