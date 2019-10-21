@@ -16,10 +16,14 @@ int (unsubscribe_interrupt)(int *interrupt_id) {
 
 uint8_t scancode[2];
 int got_error = 0;
-int done = 0;
+int done = 1;
 int sz = 1;
 
 void (kbc_ih)(void) {
+
+    if(done) sz = 1;
+    else     sz++;
+
     uint8_t status = 0;
     got_error = 0;
 
@@ -40,19 +44,8 @@ void (kbc_ih)(void) {
         return;
     }
 
-    if (sz == 2 && done == 0) {
-        scancode[1] = byte;
-        done = 1;
-    } else {
-        scancode[0] = byte;
-        if (byte == TWO_BYTE_CODE) {
-            sz = 2;
-            done = 0;
-        } else {
-            sz = 1;
-            done = 1;
-        }
-    }
+    scancode[sz-1] = byte;
+    done = !(TWO_BYTE_CODE == byte);
 
 }
 
