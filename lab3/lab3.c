@@ -33,7 +33,8 @@ int main(int argc, char *argv[]) {
 }
 
 extern uint8_t scancode[2];
-extern int two_byte_scancode;
+extern int sz;
+extern int done;
 extern int got_error;
 extern uint32_t sys_inb_counter;
 
@@ -59,10 +60,9 @@ int(kbd_test_scan)() {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
                         kbc_ih();
-                        if (!(two_byte_scancode || got_error)) { /* finished processing a scancode */
-                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
-                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
-                        } else { break; }
+                        if(done)
+                            kbd_print_scancode(!(scancode[sz-1] & BREAK_CODE_BIT), sz, scancode);
+
                         if (scancode[0] == ESC_BREAK_CODE) good = 0;
                     }
                     break;
@@ -134,9 +134,8 @@ int(kbd_test_timed_scan)(uint8_t idle) {
                     }
                     if (msg.m_notify.interrupts & kbc_irq) { /// subscribed interrupt
                         kbc_ih();
-                        if (!(two_byte_scancode || got_error)) { /// finished processing a scancode
-                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
-                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
+                        if(done) {
+                            kbd_print_scancode(!(scancode[sz-1] & BREAK_CODE_BIT), sz, scancode);
                             time = 0;
                             no_interrupts = 0;
                             if (scancode[0] == ESC_BREAK_CODE) good = 0;

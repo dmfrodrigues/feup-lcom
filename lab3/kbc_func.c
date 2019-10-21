@@ -15,8 +15,9 @@ int (unsubscribe_interrupt)(int *interrupt_id) {
 }
 
 uint8_t scancode[2];
-int two_byte_scancode = 0;
 int got_error = 0;
+int done = 0;
+int sz = 1;
 
 void (kbc_ih)(void) {
     uint8_t status = 0;
@@ -39,12 +40,18 @@ void (kbc_ih)(void) {
         return;
     }
 
-    if (two_byte_scancode) {
+    if (sz == 2 && done == 0) {
         scancode[1] = byte;
-        two_byte_scancode = 0;
+        done = 1;
     } else {
         scancode[0] = byte;
-        two_byte_scancode = (byte == TWO_BYTE_CODE);
+        if (byte == TWO_BYTE_CODE) {
+            sz = 2;
+            done = 0;
+        } else {
+            sz = 1;
+            done = 1;
+        }
     }
 
 }
