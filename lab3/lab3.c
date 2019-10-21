@@ -85,7 +85,7 @@ int(kbd_test_poll)() {
     uint8_t c[2]; uint8_t size;
     do{
         if(kbd_poll(c, &size)) return 1;
-        if(kbd_print_scancode((~c[0])&BREAK_CODE_BIT, size, c)) return 1;
+        if(kbd_print_scancode((~c[size-1])&BREAK_CODE_BIT, size, c)) return 1;
     }while(!(size == 1 && c[0] == ESC_BREAK_CODE));
 
     if(kbc_restore_kbd()) return 1;
