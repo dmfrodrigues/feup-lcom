@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "mouse_func.h"
-#include "kbc_func.h"
+#include "mouse.h"
+#include "kbc.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -63,13 +63,6 @@ int (mouse_test_packet)(uint32_t cnt) {
                             cnt_now++;
                             if(cnt == cnt_now) good = 0;
                         }
-                        /*
-                        if (!(two_byte_scancode || got_error)) { // finished processing a scancode
-                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
-                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
-                        } else { break; }
-                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
-                        */
                     }
                     break;
                 default:
@@ -81,7 +74,8 @@ int (mouse_test_packet)(uint32_t cnt) {
     }
 
     if (unsubscribe_interrupt(&mouse_id)) return 1;
-    if(kbc_restore_kbd()) return 1;
+
+    if(mouse_set_data_report(false)) return 1;
 
     return 0;
 }
