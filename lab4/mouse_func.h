@@ -1,4 +1,4 @@
-##ifndef _MOUSE_FUNC_H_
+#ifndef _MOUSE_FUNC_H_
 #define _MOUSE_FUNC_H_
 
 #include <stdint.h>
@@ -20,7 +20,5 @@ int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
  * @see {_ERRORS_H_::errors}
  */
 int (unsubscribe_interrupt)(int *interrupt_id);
-
-
 
 #endif /* end of include guard: _MOUSE_FUNC_H_ */
