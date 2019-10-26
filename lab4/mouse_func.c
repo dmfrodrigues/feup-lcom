@@ -12,34 +12,28 @@ int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     return SUCCESS;
 }
 
-int (unsubscribe_interrupt)(int *interrupt_id) {
-    if (interrupt_id == NULL) return NULL_PTR;
-    if (sys_irqrmpolicy(interrupt_id)) return UNSBCR_ERROR;
-    return SUCCESS;
-}
-
-int got_error = 0;
+int got_error_mouse_ih = 0;
 uint8_t packet[3];
 int counter = 0;
 
 void (mouse_ih)(void) {
     uint8_t status = 0;
-    got_error = 0;
+    got_error_mouse_ih = 0;
 
     if (util_sys_inb(STATUS_REG, &status)) {
-        got_error = 1;
+        got_error_mouse_ih = 1;
         return;
     }
 
     if (status & (TIME_OUT_REC | PARITY_ERROR)) {
-        got_error = 1;
+        got_error_mouse_ih = 1;
         return;
     }
 
     uint8_t byte = 0;
 
     if (util_sys_inb(OUTPUT_BUF, &byte)) {
-        got_error = 1;
+        got_error_mouse_ih = 1;
         return;
     }
 
@@ -57,6 +51,9 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
     pp.rb       = pp.bytes[0] & RIGHT_BUTTON;
     pp.mb       = pp.bytes[0] & MIDDLE_BUTTON;
     pp.lb       = pp.bytes[0] & LEFT_BUTTON;
-    //pp.delta_x  = 
+    pp.delta_x  = pp.bytes[1];
+    pp.delta_y  = pp.bytes[2];
+    pp.x_ov     = pp.bytes[0] & X_OVERFLOW;
+    pp.y_ov     = pp.bytes[0] & Y_OVERFLOW;
     return pp;
 }
