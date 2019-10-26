@@ -121,7 +121,6 @@ int(kbd_test_timed_scan)(uint8_t idle) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
                         timer_int_handler();
-                        //printf("no_interrupts: %d\n", no_interrupts);
                         if (no_interrupts%frequency == 0) time++;
                         if(time >= idle) good = 0;
                     }
