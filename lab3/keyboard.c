@@ -12,38 +12,34 @@ int (subscribe_keyboard_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     return (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, interrupt_id));
 }
 
+int done = 1;
+int sz = 1;
 int got_error_keyboard = 0;
-int two_byte_scancode = 0;
 
 void (kbc_ih)(void) {
+    if(done) sz = 1;
+    else     sz++;
     uint8_t status = 0;
     got_error_keyboard = 0;
-
     if (util_sys_inb(STATUS_REG, &status)) {
         got_error_keyboard = 1;
         return;
     }
-
     if (status & (TIME_OUT_REC | PARITY_ERROR)) {
         got_error_keyboard = 1;
         return;
     }
-
+    if ((status & OUT_BUF_FUL) == 0 || (status & AUX_MOUSE) != 0) {
+        got_error_keyboard = 1;
+        return;
+    }
     uint8_t byte = 0;
-
     if (util_sys_inb(OUTPUT_BUF, &byte)) {
         got_error_keyboard = 1;
         return;
     }
-
-    if (two_byte_scancode) {
-        scancode[1] = byte;
-        two_byte_scancode = 0;
-    } else {
-        scancode[0] = byte;
-        two_byte_scancode = (byte == TWO_BYTE_CODE);
-    }
-
+    scancode[sz-1] = byte;
+    done = !(TWO_BYTE_CODE == byte);
 }
 
 int (keyboard_poll)(uint8_t bytes[], uint8_t *size){
