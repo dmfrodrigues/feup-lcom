@@ -5,8 +5,10 @@
 #include <stdint.h>
 
 #include "kbc.h"
-#include "kbc_func.h"
-#include "timer_func.h"
+#include "kbc_macros.h"
+#include "keyboard.h"
+#include "timer.h"
+#include "utils.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -32,12 +34,6 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-extern uint8_t scancode[2];
-extern int sz;
-extern int done;
-extern int got_error;
-extern uint32_t sys_inb_counter;
-
 int(kbd_test_scan)() {
     /// loop stuff
     int ipc_status, r;
@@ -46,7 +42,7 @@ int(kbd_test_scan)() {
     uint8_t kbc_irq_bit = 1;
     int kbc_id = 0;
     int kbc_irq = BIT(kbc_irq_bit);
-    if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) return 1;
+    if (subscribe_keyboard_interrupt(kbc_irq_bit, &kbc_id)) return 1;
     /// cycle
     int good = 1;
     while (good) {
@@ -60,9 +56,12 @@ int(kbd_test_scan)() {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
                         kbc_ih();
+                        if (!(two_byte_scancode || got_error_keyboard)) { /* finished processing a scancode */
+                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
+                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
+                        } else { break; }
                         if(done)
                             kbd_print_scancode(!(scancode[sz-1] & BREAK_CODE_BIT), sz, scancode);
-
                         if (scancode[0] == ESC_BREAK_CODE) good = 0;
                     }
                     break;
@@ -84,18 +83,16 @@ int(kbd_test_scan)() {
 int(kbd_test_poll)() {
     uint8_t c[2]; uint8_t size;
     do{
-        if(kbd_poll(c, &size)) return 1;
+        if(keyboard_poll(c, &size)) return 1;
         if(kbd_print_scancode((~c[size-1])&BREAK_CODE_BIT, size, c)) return 1;
     }while(!(size == 1 && c[0] == ESC_BREAK_CODE));
 
-    if(kbc_restore_kbd()) return 1;
+    if(kbc_restore_keyboard()) return 1;
 
     if(kbd_print_no_sysinb(sys_inb_counter)) return 1;
 
     return 0;
 }
-
-extern int no_interrupts;
 
 int(kbd_test_timed_scan)(uint8_t idle) {
     /// loop stuff
@@ -114,7 +111,7 @@ int(kbd_test_timed_scan)(uint8_t idle) {
     uint8_t kbc_irq_bit = 1;
     int kbc_id = 0;
     int kbc_irq = BIT(kbc_irq_bit);
-    if(subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) return 1;
+    if(subscribe_keyboard_interrupt(kbc_irq_bit, &kbc_id)) return 1;
     /// cycle
     int good = 1;
     while (good) {
@@ -134,6 +131,10 @@ int(kbd_test_timed_scan)(uint8_t idle) {
                     }
                     if (msg.m_notify.interrupts & kbc_irq) { /// subscribed interrupt
                         kbc_ih();
+
+                        if (!(two_byte_scancode || got_error_keyboard)) { /// finished processing a scancode
+                            if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
+                            else                              kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
                         if(done) {
                             kbd_print_scancode(!(scancode[sz-1] & BREAK_CODE_BIT), sz, scancode);
                             time = 0;
