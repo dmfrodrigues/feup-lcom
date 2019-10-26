@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+extern uint8_t packet[3];
+extern int counter;
 
 int (mouse_test_packet)(uint32_t cnt) {
     /// loop stuff
@@ -42,6 +44,7 @@ int (mouse_test_packet)(uint32_t cnt) {
     if(mouse_enable_data_reporting()) return 1;
     /// cycle
     int good = 1;
+    uint32_t cnt_now = 0;
     while (good) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -53,6 +56,12 @@ int (mouse_test_packet)(uint32_t cnt) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & mouse_irq) { /* subscribed interrupt */
                         mouse_ih();
+                        if(counter >= 3){
+                            struct packet pp = mouse_parse_packet(packet);
+                            mouse_print_packet(&pp);
+                            cnt_now++;
+                            if(cnt == cnt_now) good = 0;
+                        }
                         /*
                         if (!(two_byte_scancode || got_error)) { // finished processing a scancode
                             if (scancode[0] == TWO_BYTE_CODE) kbd_print_scancode(!(scancode[1] & BREAK_CODE_BIT), 2, scancode);
