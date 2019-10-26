@@ -2,7 +2,7 @@
 #define _ERRORS_H_
 
 enum errors {
-    SUCESS = 0,     /* @brief Sucessful */
+    SUCCESS = 0,    /* @brief Sucessful */
     NULL_PTR,       /* @brief Null Pointer Error */
     LCF_ERROR,      /* @brief Error originated on LCF */
     SBCR_ERROR,     /* @brief Error on Subscribing Interrupt */
