@@ -48,8 +48,8 @@ int(timer_test_int)(uint8_t time) {
     message msg;
     uint8_t timer_id = 0;
     no_interrupts = 0;
-    if (timer_subscribe_int(&hook)) return 1;
-    int irq_set = BIT(hook);
+    if (timer_subscribe_int(&timer_id)) return 1;
+    int irq_set = BIT(timer_id);
     while (time) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
