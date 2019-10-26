@@ -45,6 +45,13 @@ int (kbc_restore_keyboard)();
 int (kbc_issue_cmd)(uint8_t cmd);
 
 /**
+ * @brief Low-level function to issue an argument of a command
+ * @param cmd argument to be issued
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbc_issue_arg)(uint8_t arg);
+
+/**
  * @brief Low-level function for reading byte from keyboard
  * Low-level function for reading byte from keyboard. Waits until output buffer
  * is full
