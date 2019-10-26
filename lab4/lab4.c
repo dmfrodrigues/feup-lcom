@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "mouse_func.h"
+#include "kbc_func.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -80,6 +81,7 @@ int (mouse_test_packet)(uint32_t cnt) {
     }
 
     if (unsubscribe_interrupt(&mouse_id)) return 1;
+    if(kbc_restore_kbd()) return 1;
 
     return 0;
 }
