@@ -5,11 +5,13 @@
 #include "kbc.h"
 #include "kbc_macros.h"
 #include "utils.h"
+#include "errors.h"
 
 int (subscribe_keyboard_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
-    if (interrupt_id == NULL) return 1;
+    if (interrupt_id == NULL) return NULL_PTR;
     *interrupt_id = interrupt_bit;
-    return (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, interrupt_id));
+    if(sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, interrupt_id)) return SBCR_ERROR;
+    return SUCCESS;
 }
 
 int done = 1;
