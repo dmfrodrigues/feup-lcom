@@ -3,8 +3,8 @@
  * actually also manages the mouse)
  */
 
-#ifndef _KBC_FUNC_H_
-#define _KBC_FUNC_H_
+#ifndef KBC_H_INCLUDED
+#define KBC_H_INCLUDED
 
 /**
  * @brief Unsubcribes Interrupts
@@ -60,5 +60,4 @@ int (kbc_issue_arg)(uint8_t arg);
  */
 int (kbc_read_byte)(uint8_t *byte);
 
-
-#endif
+#endif //KBC_H_INCLUDED

@@ -14,13 +14,12 @@ int (subscribe_keyboard_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     return SUCCESS;
 }
 
-int done = 1;
-int sz = 1;
+int keyboard_done = 1;
+int scancode_sz = 1;
 int got_error_keyboard = 0;
 
 void (kbc_ih)(void) {
-    if(done) sz = 1;
-    else     sz++;
+    if(keyboard_done) scancode_sz = 0;
     uint8_t status = 0;
     got_error_keyboard = 0;
     if (util_sys_inb(STATUS_REG, &status)) {
@@ -40,8 +39,9 @@ void (kbc_ih)(void) {
         got_error_keyboard = 1;
         return;
     }
-    scancode[sz-1] = byte;
-    done = !(TWO_BYTE_CODE == byte);
+    scancode[scancode_sz] = byte;
+    scancode_sz++;
+    keyboard_done = !(TWO_BYTE_CODE == byte);
 }
 
 int (keyboard_poll)(uint8_t bytes[], uint8_t *size){
