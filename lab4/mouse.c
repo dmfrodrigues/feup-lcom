@@ -23,22 +23,16 @@ void (mouse_ih)(void) {
     got_error_mouse_ih = 0;
     if(counter >= 3) counter = 0;
 
-    if (util_sys_inb(STATUS_REG, &status)) {
-        got_error_mouse_ih = 1;
-        return;
-    }
+    if ((got_error_mouse_ih = util_sys_inb(STATUS_REG, &status))) return;
 
     if (status & (TIME_OUT_REC | PARITY_ERROR)) {
-        got_error_mouse_ih = 1;
+        got_error_mouse_ih = OTHER_ERROR;
         return;
     }
 
     uint8_t byte = 0;
 
-    if (util_sys_inb(OUTPUT_BUF, &byte)) {
-        got_error_mouse_ih = 1;
-        return;
-    }
+    if ((got_error_mouse_ih = util_sys_inb(OUTPUT_BUF, &byte))) return;
 
     /// This does not run if: I was expecting the first one but what I get is definitely not the first byte
     if((byte & FIRST_BYTE_ID)  || counter){
@@ -65,6 +59,6 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
 int (mouse_set_data_report)(int on){
     int ret = 0;
     if((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
-    if(sys_outb(KBC_CMD_ARG, DIS_DATA_REP)) return WRITE_ERROR;
+    if((ret = kbc_issue_arg(DIS_DATA_REP))) return ret;
     return SUCCESS;
 }

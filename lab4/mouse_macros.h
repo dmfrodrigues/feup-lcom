@@ -1,5 +1,5 @@
-#ifndef _MOUSE_H_
-#define _MOUSE_H_
+#ifndef MOUSE_MACROS_H_INCLUDED
+#define MOUSE_MACROS_H_INCLUDED
 
 /* Mouse Data Packet */
 // Byte 0 - Button States
@@ -34,4 +34,4 @@
 #define ACK_INVALID 0xFE /* @brief Invalid Byte, first occurence */
 #define ACK_ERROR   0xFC /* @brief Invalid Byte on resend */
 
-#endif // _MOUSE_H_
+#endif // MOUSE_MACROS_H_INCLUDED

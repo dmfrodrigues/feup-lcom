@@ -1,18 +1,10 @@
-#ifndef _KBC_FUNC_H_
-#define _KBC_FUNC_H_
-
-#include <stdint.h>
-
-#define GET         0 /* @brief Argument to get counter without incrementing */
-#define INCREMENT   1 /* @brief Argument for incrementing counter */
-
 /**
- * @brief Subscribes KBC Interrupts and disables Minix Default Keyboard IH
- * @param interrupt_bit Bit of Interrupt Vector that will be set when KBC Interrupt is pending
- * @param interrupt_id KBC Interrupt ID to specify the KBC Interrupt in other calls
- * @return Whether operation was sucessful or not
+ * This file concerns everything related to the KBC (KeyBoard Controller, which
+ * actually also manages the mouse)
  */
-int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
+
+#ifndef KBC_H_INCLUDED
+#define KBC_H_INCLUDED
 
 /**
  * @brief Unsubcribes Interrupts
@@ -21,21 +13,6 @@ int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
  * @return Whether operation was sucessful or not
  */
 int (unsubscribe_interrupt)(int *interrupt_id);
-
-/**
- * @brief KBC Interrupt Handler
- */
-void (kbc_ih)(void);
-
-/**
- * @brief High-level function that polls keyboard for scancode
- * High-level function that polls keyboard for scancode of up to 2 bytes. If
- * scancode has only 1 byte, the second byte is set to 0x00.
- * @param bytes Array of at least 2 bytes to store scancode
- * @param size Size of scancode in bytes
- * @return 0 if operation was successful, 1 otherwise
- */
-int (kbd_poll)(uint8_t bytes[], uint8_t *size);
 
 /**
  * @brief High-level function that reads the command byte of the KBC
@@ -58,7 +35,7 @@ int (kbc_change_cmd)(uint8_t cmd);
  * chance that the keyboard and keyboard interrupts remain disabled.
  * @return 1 if operation was successful, 1 otherwise
  */
-int (kbc_restore_kbd)();
+int (kbc_restore_keyboard)();
 
 /**
  * @brief Low-level function to issue a command to keyboard
@@ -66,6 +43,13 @@ int (kbc_restore_kbd)();
  * @return 0 if operation was successful, 1 otherwise
  */
 int (kbc_issue_cmd)(uint8_t cmd);
+
+/**
+ * @brief Low-level function to issue an argument of a command
+ * @param cmd argument to be issued
+ * @return 0 if operation was successful, 1 otherwise
+ */
+int (kbc_issue_arg)(uint8_t arg);
 
 /**
  * @brief Low-level function for reading byte from keyboard
@@ -76,5 +60,4 @@ int (kbc_issue_cmd)(uint8_t cmd);
  */
 int (kbc_read_byte)(uint8_t *byte);
 
-
-#endif
+#endif //KBC_H_INCLUDED
