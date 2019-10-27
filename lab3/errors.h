@@ -1,5 +1,5 @@
-#ifndef _ERRORS_H_
-#define _ERRORS_H_
+#ifndef ERRORS_H_INCLUDED
+#define ERRORS_H_INCLUDED
 
 enum errors {
     SUCCESS = 0,    /* @brief Sucessful */
@@ -12,4 +12,4 @@ enum errors {
     TIMEOUT_ERROR,  /* @brief Timeout error */
 };
 
-#endif /* end of include guard: _ERRORS_H_ */
+#endif // ERRORS_H_INCLUDED

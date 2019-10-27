@@ -56,8 +56,8 @@ int(kbd_test_scan)() {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
                         kbc_ih();
-                        if(done)
-                            kbd_print_scancode(!(scancode[sz-1] & BREAK_CODE_BIT), sz, scancode);
+                        if(keyboard_done)
+                            kbd_print_scancode(!(scancode[scancode_sz-1] & BREAK_CODE_BIT), scancode_sz, scancode);
                         if (scancode[0] == ESC_BREAK_CODE) good = 0;
                     }
                     break;
@@ -126,8 +126,8 @@ int(kbd_test_timed_scan)(uint8_t idle) {
                     }
                     if (msg.m_notify.interrupts & kbc_irq) { /// subscribed interrupt
                         kbc_ih();
-                        if(done) {
-                            kbd_print_scancode(!(scancode[sz-1] & BREAK_CODE_BIT), sz, scancode);
+                        if(keyboard_done) {
+                            kbd_print_scancode(!(scancode[scancode_sz-1] & BREAK_CODE_BIT), scancode_sz, scancode);
                             time = 0;
                             no_interrupts = 0;
                             if (scancode[0] == ESC_BREAK_CODE) good = 0;

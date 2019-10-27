@@ -14,8 +14,8 @@
 int (subscribe_keyboard_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
 uint8_t scancode[2];
-int done;
-int sz;
+int keyboard_done;
+int scancode_sz;
 int got_error_keyboard;
 
 /**
