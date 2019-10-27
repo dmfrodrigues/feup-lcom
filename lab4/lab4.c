@@ -74,9 +74,8 @@ int (mouse_test_packet)(uint32_t cnt) {
     }
 
     if (unsubscribe_interrupt(&mouse_id)) return 1;
-
-    if(mouse_set_data_report(false)) return 1;
-
+    int ret = mouse_set_data_report(false);
+    printf("%d\n", ret);
     return 0;
 }
 

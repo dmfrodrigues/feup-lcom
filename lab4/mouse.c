@@ -58,7 +58,11 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
 
 int (mouse_set_data_report)(int on){
     int ret = 0;
-    if((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
-    if((ret = kbc_issue_arg(DIS_DATA_REP))) return ret;
+    printf("L61\n");
+    if((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret; printf("L62\n");
+    if((ret = kbc_issue_arg(DIS_DATA_REP))) return ret; printf("L63\n");
+    uint8_t ack = 0;
+    if((ret = kbc_read_byte(&ack))) return ret;printf("L65\n");
+    printf("ACK: %x\n", ack);
     return SUCCESS;
 }
