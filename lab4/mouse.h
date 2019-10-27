@@ -1,5 +1,5 @@
-#ifndef _MOUSE_FUNC_H_
-#define _MOUSE_FUNC_H_
+#ifndef MOUSE_H_INCLUDED
+#define MOUSE_H_INCLUDED
 
 #include <stdint.h>
 
@@ -16,4 +16,4 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes);
 
 int (mouse_set_data_report)(int on);
 
-#endif /* end of include guard: _MOUSE_FUNC_H_ */
+#endif //MOUSE_H_INCLUDED

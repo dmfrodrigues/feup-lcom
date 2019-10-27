@@ -1,5 +1,5 @@
-#ifndef _KBC_H_
-#define _KBC_H_
+#ifndef KBC_MACROS_H_INCLUDED
+#define KBC_MACROS_H_INCLUDED
 
 /* KBC IRQ Line */
 
@@ -53,4 +53,4 @@
 #define DIS_KBD         BIT(4)  /* @brief Disable Keyboard */
 #define DIS_MOU         BIT(5)  /* @brief Disable Mouse */
 
-#endif
+#endif //KBC_MACROS_H_INCLUDED
