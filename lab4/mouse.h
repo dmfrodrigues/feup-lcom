@@ -42,10 +42,19 @@ int (mouse_issue_cmd)(uint32_t cmd);
  * @brief Reads byte from mouse
  * <summary>
  * Reads byte from mouse, giving error if exceeds number of tries to read
+ * </summary>
  * @param byte Pointer to variable where byte read from mouse will be stored
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  * @see {_ERRORS_H_::errors}
  */
 int (mouse_read_byte)(uint8_t *byte);
+
+/**
+ * @brief Converts 9-bit number to 16-bit with sign extension
+ * @param sign_bit  Sign bit identifiying the signal of the number
+ * @param byte      Least significant byte that will be extended
+ * @return Extended 9-bit number
+ */
+int16_t (sign_extend_byte)(uint8_t sign_bit, uint8_t byte);
 
 #endif //MOUSE_H_INCLUDED

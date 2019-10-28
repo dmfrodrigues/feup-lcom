@@ -49,8 +49,8 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
     pp.rb       = pp.bytes[0] & RIGHT_BUTTON;
     pp.mb       = pp.bytes[0] & MIDDLE_BUTTON;
     pp.lb       = pp.bytes[0] & LEFT_BUTTON;
-    pp.delta_x  = pp.bytes[1];
-    pp.delta_y  = pp.bytes[2];
+    pp.delta_x  = sign_extend_byte((packet_bytes[0] & MSB_X_DELTA) != 0, pp.bytes[1]);
+    pp.delta_y  = sign_extend_byte((packet_bytes[0] & MSB_Y_DELTA) != 0, pp.bytes[2]);
     pp.x_ov     = pp.bytes[0] & X_OVERFLOW;
     pp.y_ov     = pp.bytes[0] & Y_OVERFLOW;
     return pp;
@@ -100,4 +100,8 @@ int (mouse_read_byte)(uint8_t *byte) {
         tickdelay(micros_to_ticks(DELAY));
     }
     return TIMEOUT_ERROR;
+}
+
+int16_t (sign_extend_byte)(uint8_t sign_bit, uint8_t byte) {
+    return (int16_t)(((0xFF * sign_bit)<<8) | byte);
 }
