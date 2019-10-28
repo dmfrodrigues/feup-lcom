@@ -66,3 +66,38 @@ int (mouse_set_data_report)(int on){
     printf("ACK: %x\n", ack);
     return SUCCESS;
 }
+
+int (mouse_read_data)(uint8_t *data) {
+    int ret;
+    if ((ret = mouse_issue_cmd(READ_DATA))) return ret;
+    if ((ret = mouse_read_byte(data))) return ret;
+    return SUCCESS;
+}
+
+int (mouse_issue_cmd)(uint32_t cmd) {
+    int ret;
+    uint8_t ack = 0;
+    while (ack != ACK_ERROR) {
+        if ((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
+        if ((ret = kbc_issue_arg(cmd))) return ret;
+        if ((ret = mouse_read_byte(&ack))) return ret;
+        if (ack == ACK_OK) return SUCCESS;
+        tickdelay(micros_to_ticks(DELAY));
+    }
+    return INVALID_COMMAND;
+}
+
+int (mouse_read_byte)(uint8_t *byte) {
+    int ret = 0;
+    uint8_t stat;
+    for(int i = 0; i < KBC_NUM_TRIES; ++i){
+        if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;
+        if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)) {
+            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;
+            if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;
+            else return SUCCESS;
+        }
+        tickdelay(micros_to_ticks(DELAY));
+    }
+    return TIMEOUT_ERROR;
+}

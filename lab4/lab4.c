@@ -5,6 +5,8 @@
 
 #include "mouse.h"
 #include "kbc.h"
+#include "errors.h"
+#include "mouse_macros.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -80,9 +82,46 @@ int (mouse_test_packet)(uint32_t cnt) {
 }
 
 int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
-    /* To be completed */
-    printf("%s(%u, %u): under construction\n", __func__, period, cnt);
-    return 1;
+
+    // Mouse packets data
+    uint8_t packet[3];
+    int sz = 0;
+    uint8_t data = 0;
+    // Cycle
+    int packetCounter = 0;
+    int good = 1;
+    // return value
+    int ret;
+
+    while (good) {
+
+        if ((ret = mouse_read_data(&data))) return ret;
+
+        if ((data & FIRST_BYTE_ID) || sz) {
+            packet[sz] = data;
+            sz++;
+        }
+
+        if (sz == 3) {
+            struct packet pp = mouse_parse_packet(packet);
+            mouse_print_packet(&pp);
+            packetCounter++;
+            sz = 0;
+            if (packetCounter == cnt) good = 0;
+        }
+
+        tickdelay(micros_to_ticks(period*1e3));
+    }
+
+    // Set Stream mode
+    if ((ret = mouse_issue_cmd(SET_STREAM_MD))) return ret;
+    // Disable data reporting
+    if ((ret = mouse_issue_cmd(DIS_DATA_REP))) return ret;
+
+    uint8_t cmd_byte = minix_get_dflt_kbc_cmd_byte();
+    if ((ret = kbc_change_cmd(cmd_byte))) return ret;
+
+    return SUCCESS;
 }
 
 int (mouse_test_async)(uint8_t idle_time) {
