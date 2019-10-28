@@ -16,4 +16,36 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes);
 
 int (mouse_set_data_report)(int on);
 
+/**
+ * @brief Reads data byte from mouse
+ * <summary>
+ * Polls the mouse till data is available for reading
+ * </summary>
+ * @param data Pointer to variable where byte read from mouse will be stored
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ * @see {_ERRORS_H_::errors}
+ */
+int (mouse_read_data)(uint8_t *data);
+
+/**
+ * @brief Issues command to mouse
+ * <summary>
+ * Issues command to mouse, returns error after two consecutive errors reported by the acknowledgment byte
+ * </summary>
+ * @param cmd Command to be issued
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ * @see {_ERRORS_H_::errors}
+ */
+int (mouse_issue_cmd)(uint32_t cmd);
+
+/**
+ * @brief Reads byte from mouse
+ * <summary>
+ * Reads byte from mouse, giving error if exceeds number of tries to read
+ * @param byte Pointer to variable where byte read from mouse will be stored
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ * @see {_ERRORS_H_::errors}
+ */
+int (mouse_read_byte)(uint8_t *byte);
+
 #endif //MOUSE_H_INCLUDED
