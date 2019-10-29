@@ -44,7 +44,7 @@ int (mouse_test_packet)(uint32_t cnt) {
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
-    if (mouse_issue_cmd(ENABLE_DATA_REP)) return 1;
+    if (mouse_set_data_report(true)) return 1;
     /// cycle
     int good = 1;
     uint32_t cnt_now = 0;
@@ -76,7 +76,7 @@ int (mouse_test_packet)(uint32_t cnt) {
     }
 
     if (unsubscribe_interrupt(&mouse_id)) return 1;
-    if (mouse_issue_cmd(DIS_DATA_REP)) return 1;
+    if (mouse_set_data_report(false)) return 1;
 
     return 0;
 }
@@ -116,7 +116,7 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
     // Set Stream mode
     if ((ret = mouse_issue_cmd(SET_STREAM_MD))) return ret;
     // Disable data reporting
-    if ((ret = mouse_issue_cmd(DIS_DATA_REP))) return ret;
+    if ((ret = mouse_set_data_report(false))) return ret;
 
     uint8_t cmd_byte = minix_get_dflt_kbc_cmd_byte();
     if ((ret = kbc_change_cmd(cmd_byte))) return ret;
