@@ -7,6 +7,7 @@
 #include "kbc.h"
 #include "errors.h"
 #include "mouse_macros.h"
+#include "timer.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -39,7 +40,7 @@ int (mouse_test_packet)(uint32_t cnt) {
     /// loop stuff
     int ipc_status, r;
     message msg;
-    /// Keyboard interrupt handling
+    /// Mouse interrupt handling
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
@@ -125,9 +126,64 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
 }
 
 int (mouse_test_async)(uint8_t idle_time) {
-    /* To be completed */
-    printf("%s(%u): under construction\n", __func__, idle_time);
-    return 1;
+    /// loop stuff
+    int ipc_status, r;
+    message msg;
+    /// Timer interrupt handling
+    const uint32_t frequency = sys_hz(); // Frequency asummed at 60Hz
+    uint8_t timer_irq_bit = 0;
+    int timer_id = 0;
+    int timer_irq = BIT(timer_irq_bit);
+    if(subscribe_timer_interrupt(timer_irq_bit, &timer_id)) return 1;
+
+    no_interrupts = 0;
+    int time = 0;
+    /// Mouse interrupt handling
+    uint8_t mouse_irq_bit = 12;
+    int mouse_id = 0;
+    int mouse_irq = BIT(mouse_irq_bit);
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
+    if (mouse_set_data_report(true)) return 1;
+    /// cycle
+    int good = 1;
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
+                        timer_int_handler();
+                        if (no_interrupts%frequency == 0) time++;
+                        if(time >= idle_time) good = 0;
+                    }
+                    if (msg.m_notify.interrupts & mouse_irq) { /// subscribed interrupt
+                        mouse_ih();
+                        if(counter >= 3){
+                            struct packet pp = mouse_parse_packet(packet);
+                            mouse_print_packet(&pp);
+                            time = 0;
+                            no_interrupts = 0;
+                        }
+                    }
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+    }
+
+    if (unsubscribe_interrupt(&mouse_id)) return 1;
+    if (mouse_set_data_report(false)) return 1;
+
+    if (unsubscribe_interrupt(&timer_id)) return 1;
+
+    return 0;
 }
 
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
