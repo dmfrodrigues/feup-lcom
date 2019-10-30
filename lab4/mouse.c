@@ -29,6 +29,10 @@ void (mouse_ih)(void) {
         got_error_mouse_ih = OTHER_ERROR;
         return;
     }
+    if (((status & AUX_MOUSE) == 0) || ((status & OUT_BUF_FUL) == 0)) {
+        got_error_mouse_ih = OTHER_ERROR;
+        return;
+    }
 
     uint8_t byte = 0;
 

@@ -44,8 +44,9 @@ int (mouse_test_packet)(uint32_t cnt) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     if (mouse_set_data_report(true)) return 1;
+
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     /// cycle
     int good = 1;
     uint32_t cnt_now = 0;
@@ -75,7 +76,6 @@ int (mouse_test_packet)(uint32_t cnt) {
             /* no standart message expected: do nothing */
         }
     }
-
     if (unsubscribe_interrupt(&mouse_id)) return 1;
     if (mouse_set_data_report(false)) return 1;
 
@@ -142,8 +142,9 @@ int (mouse_test_async)(uint8_t idle_time) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     if (mouse_set_data_report(true)) return 1;
+
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     /// cycle
     int good = 1;
     while (good) {
