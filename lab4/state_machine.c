@@ -4,6 +4,7 @@
 #include "mouse_macros.h"
 #include "mouse.h"
 #include "errors.h"
+#include "utils.h"
 
 struct mouse_ev* mouse_get_event(struct packet *pp) {
 
@@ -18,8 +19,8 @@ struct mouse_ev* mouse_get_event(struct packet *pp) {
     uint8_t lb_press = pp->bytes[0] & LEFT_BUTTON;
     uint8_t rb_press = pp->bytes[0] & RIGHT_BUTTON;
     uint8_t mb_press = pp->bytes[0] & MIDDLE_BUTTON;
-    int16_t delta_x = sign_extend_byte(pp->bytes[0] & MSB_X_DELTA, pp->bytes[1]);
-    int16_t delta_y = sign_extend_byte(pp->bytes[0] & MSB_Y_DELTA, pp->bytes[2]);
+    int16_t delta_x = pp->delta_x;
+    int16_t delta_y = pp->delta_y;
 
     if (aux) { // first event detected
         if (lb_press && (rb_press | mb_press) == 0 && delta_x == 0 && delta_y == 0)
@@ -70,7 +71,6 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
 
     if (event == NULL)
         return response;
-
     switch (state) {
         case INITIAL:
             if (event->type == LB_PRESSED)
@@ -138,7 +138,6 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
                     state = INITIAL;
                     break;
                 }
-
                 int slope = y_length / x_length;
 
                 if (slope >= -1 || x_length < x_len) {
@@ -149,6 +148,7 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
                 }
 
                 state = FINAL;
+                response = SUCCESS;
                 x_length = 0;
                 y_length = 0;
             } else {
