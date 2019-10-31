@@ -138,6 +138,7 @@ int (mouse_poll_byte)(uint8_t *byte, uint16_t period) {
     uint8_t stat;
     while(true){
         if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;
+        //printf("%x\n",stat);
         if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)) {
             if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;
             if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;

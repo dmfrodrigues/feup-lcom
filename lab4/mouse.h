@@ -12,16 +12,30 @@
  */
 int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
+//These have to do with mouse_ih
 int got_error_mouse_ih;
 uint8_t packet_mouse_ih[3];
 int counter_mouse_ih;
 
+/**
+ * @brief   Parse 3 bytes and returns it as a parsed, struct packet.
+ * @param   packet_bytes    array of bytes to parse
+ * @return  parsed struct packet
+ */
 struct packet (mouse_parse_packet)(const uint8_t *packet_bytes);
 
+/**
+ * @brief Polls mouse for data. Blocks execution until a valid mouse packet is obtained.
+ * @param   pp      pointer to packet struct in which the result will be stored
+ * @param   period  time (in milliseconds) the poller should wait between pollings of bytes
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ */
 int mouse_poll(struct packet *pp, uint16_t period);
 
 /**
- *
+ * @brief Sets data report mode for mouse
+ * @param   on  zero to disable data report, any other value to enable data report
+ * @return  ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  */
 int (mouse_set_data_report)(int on);
 
@@ -58,8 +72,20 @@ int (mouse_issue_cmd)(uint32_t cmd);
  */
 int (mouse_read_byte)(uint8_t *byte);
 
+/**
+ * @brief Same as @ref mouse_read_byte, except it does not wait for output buffer
+ * to be full, since ACK is considered to arrive instantaneously somehow.
+ * @param   byte    pointer to byte where ACK will be stored
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ */
 int (mouse_read_ack)(uint8_t *byte);
 
+/**
+ * @brief Polls OUT_BUF for byte coming from mouse.
+ * @param   byte    pointer to byte read from OUT_BUF
+ * @param   period  time (in milliseconds) the poller should wait between pollings of bytes
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ */
 int (mouse_poll_byte)(uint8_t *byte, uint16_t period);
 
 /**
