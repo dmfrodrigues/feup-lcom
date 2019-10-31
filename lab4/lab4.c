@@ -101,9 +101,6 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
 
     if ((ret = mouse_set_data_report(true))) return ret;
 
-    uint8_t cmd = 0;
-    if ((ret = kbc_read_cmd(&cmd))) return ret;
-
     while (good) {
 
         if ((ret = mouse_read_data(&data))) return ret;
@@ -195,6 +192,7 @@ int (mouse_test_async)(uint8_t idle_time) {
 }
 
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
+    int ret;
     /// loop stuff
     int ipc_status, r;
     message msg;
@@ -202,8 +200,7 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    //if ((ret = mouse_set_data_report(true))) return ret;
-    if (mouse_enable_data_reporting()) return 1;
+    if ((ret = mouse_set_data_report(true))) return ret;
 
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     /// cycle
@@ -213,7 +210,6 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
     struct mouse_ev *event;
     struct packet pp;
     int response;
-
     while (good) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -227,7 +223,7 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
                         mouse_ih();
                         if(counter >= 3) {
                             pp = mouse_parse_packet(packet);
-                            //mouse_print_packet(&pp);
+                            mouse_print_packet(&pp);
                             event = mouse_get_event(&pp);
 
                             response = state_machine(event, x_len, tolerance);

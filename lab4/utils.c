@@ -31,3 +31,7 @@ int (util_sys_inb)(int port, uint8_t *value) {
     #endif
     return SUCCESS;
 }
+
+int16_t abs16(int16_t x) {
+    return (x >= 0) ? (int16_t)(x) : (int16_t)(-x);
+}
