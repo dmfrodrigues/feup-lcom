@@ -12,8 +12,17 @@
  */
 int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
+int got_error_mouse_ih;
+uint8_t packet_mouse_ih[3];
+int counter_mouse_ih;
+
 struct packet (mouse_parse_packet)(const uint8_t *packet_bytes);
 
+int mouse_poll(struct packet *pp, uint16_t period);
+
+/**
+ *
+ */
 int (mouse_set_data_report)(int on);
 
 /**
@@ -25,7 +34,7 @@ int (mouse_set_data_report)(int on);
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  * @see {_ERRORS_H_::errors}
  */
-int (mouse_read_data)(uint8_t *data);
+int (mouse_read_data)(uint8_t *data, uint16_t period);
 
 /**
  * @brief Issues command to mouse
@@ -50,6 +59,8 @@ int (mouse_issue_cmd)(uint32_t cmd);
 int (mouse_read_byte)(uint8_t *byte);
 
 int (mouse_read_ack)(uint8_t *byte);
+
+int (mouse_poll_byte)(uint8_t *byte, uint16_t period);
 
 /**
  * @brief Converts 9-bit number to 16-bit with sign extension

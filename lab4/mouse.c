@@ -15,13 +15,12 @@ int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
 }
 
 int got_error_mouse_ih = 0;
-uint8_t packet[3];
-int counter = 0;
+int counter_mouse_ih = 0;
 
 void (mouse_ih)(void) {
     uint8_t status = 0;
     got_error_mouse_ih = 0;
-    if(counter >= 3) counter = 0;
+    if(counter_mouse_ih >= 3) counter_mouse_ih = 0;
 
     if ((got_error_mouse_ih = util_sys_inb(STATUS_REG, &status))) return;
 
@@ -39,9 +38,9 @@ void (mouse_ih)(void) {
     if ((got_error_mouse_ih = util_sys_inb(OUTPUT_BUF, &byte))) return;
 
     /// This does not run if: I was expecting the first one but what I get is definitely not the first byte
-    if((byte & FIRST_BYTE_ID)  || counter){
-        packet[counter] = byte;
-        counter++;
+    if((byte & FIRST_BYTE_ID)  || counter_mouse_ih){
+        packet_mouse_ih[counter_mouse_ih] = byte;
+        counter_mouse_ih++;
     }
 }
 
@@ -60,21 +59,32 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
     return pp;
 }
 
-int (mouse_set_data_report)(int on){
+int mouse_poll(struct packet *pp, uint16_t period){
     int ret = 0;
-    if(on){
-        if((ret = mouse_issue_cmd(ENABLE_DATA_REP))) return ret;
+
+    int counter = 0;
+    uint8_t packet[3];
+    uint8_t byte;
+    while(counter < 3){
+        if((ret = mouse_read_data(&byte, period))) return ret;
+        if((byte & FIRST_BYTE_ID) || counter){
+            packet[counter] = byte;
+            counter++;
+        }
     }
-    else{
-        if((ret = mouse_issue_cmd(   DIS_DATA_REP))) return ret;
-    }
-    return ret;
+    *pp = mouse_parse_packet(packet);
+    return SUCCESS;
 }
 
-int (mouse_read_data)(uint8_t *data) {
+int (mouse_set_data_report)(int on){
+    if(on) return mouse_issue_cmd(ENABLE_DATA_REP);
+    else   return mouse_issue_cmd(   DIS_DATA_REP);
+}
+
+int (mouse_read_data)(uint8_t *data, uint16_t period) {
     int ret;
     if ((ret = mouse_issue_cmd(READ_DATA))) return ret;
-    if ((ret = mouse_read_byte(data))) return ret;
+    if ((ret = mouse_poll_byte(data, period))) return ret;
     return SUCCESS;
 }
 
@@ -121,6 +131,20 @@ int (mouse_read_ack)(uint8_t *byte) {
         //tickdelay(micros_to_ticks(DELAY));
     //}
     //return TIMEOUT_ERROR;
+}
+
+int (mouse_poll_byte)(uint8_t *byte, uint16_t period) {
+    int ret = 0;
+    uint8_t stat;
+    while(true){
+        if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;
+        if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)) {
+            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;
+            if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;
+            else return SUCCESS;
+        }
+        tickdelay(micros_to_ticks(period*1000));
+    }
 }
 
 int16_t (sign_extend_byte)(uint8_t sign_bit, uint8_t byte) {
