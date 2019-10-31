@@ -7,7 +7,9 @@
 #include "kbc.h"
 #include "errors.h"
 #include "mouse_macros.h"
+#include "kbc_macros.h"
 #include "timer.h"
+#include "state_machine.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -95,6 +97,13 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
     // return value
     int ret;
 
+    if ((ret = mouse_issue_cmd(SET_REMOTE_MD))) return ret;
+
+    if ((ret = mouse_set_data_report(true))) return ret;
+
+    uint8_t cmd = 0;
+    if ((ret = kbc_read_cmd(&cmd))) return ret;
+
     while (good) {
 
         if ((ret = mouse_read_data(&data))) return ret;
@@ -103,7 +112,6 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
             packet[sz] = data;
             sz++;
         }
-
         if (sz == 3) {
             struct packet pp = mouse_parse_packet(packet);
             mouse_print_packet(&pp);
@@ -111,7 +119,6 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
             sz = 0;
             if (packetCounter == cnt) good = 0;
         }
-
         tickdelay(micros_to_ticks(period*1e3));
     }
 
@@ -119,7 +126,6 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
     if ((ret = mouse_issue_cmd(SET_STREAM_MD))) return ret;
     // Disable data reporting
     if ((ret = mouse_set_data_report(false))) return ret;
-
     uint8_t cmd_byte = minix_get_dflt_kbc_cmd_byte();
     if ((ret = kbc_change_cmd(cmd_byte))) return ret;
 
@@ -188,15 +194,7 @@ int (mouse_test_async)(uint8_t idle_time) {
     return 0;
 }
 
-enum state{
-    STATE_NEUTRAL,
-    STATE_FIRST,
-    STATE_MID,
-    STATE_SECOND
-};
-
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
-    int ret = 0;
     /// loop stuff
     int ipc_status, r;
     message msg;
@@ -205,13 +203,17 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
     //if ((ret = mouse_set_data_report(true))) return ret;
-    if ((ret = mouse_enable_data_reporting())) return ret;
+    if (mouse_enable_data_reporting()) return 1;
 
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     /// cycle
     int good = 1;
-    //int st = STATE_NEUTRAL;
-    //int16_t dx, dy;
+
+    // mouse event gesture
+    struct mouse_ev *event;
+    struct packet pp;
+    int response;
+
     while (good) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -223,63 +225,17 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & mouse_irq) { /* subscribed interrupt */
                         mouse_ih();
-                        if(counter >= 3){
-                            struct packet pp = mouse_parse_packet(packet);
-                            mouse_print_packet(&pp);/*
-                            switch(st){
-                                case STATE_NEUTRAL:
-                                    if(pp.lb == 1 && pp.mb == 0 && pp.rb == 0){
-                                        st = STATE_FIRST;
-                                        dx = 0;
-                                        dy = 0;
-                                    }
-                                    break;
-                                case STATE_FIRST:
-                                    if(pp.lb == 1){
-                                        if(pp.delta_x >= -tolerance && pp.delta_y >= -tolerance){
-                                            dx += pp.delta_x;
-                                            dy += pp.delta_y;
-                                        }else{
-                                            st = STATE_NEUTRAL;
-                                        }
-                                    }else{
-                                        if(abs(dx) < abs(dy) && dx > 0 && dy > 0){
-                                            st = STATE_MID;
-                                        }else{
-                                            st = STATE_NEUTRAL;
-                                        }
-                                    }
-                                    break;
-                                case STATE_MID:
-                                    if(pp.lb == 0 && pp.mb == 0 && pp.rb == 1){
-                                        st = STATE_SECOND;
-                                        dx = 0;
-                                        dy = 0;
-                                    }else{
-                                        st = STATE_NEUTRAL;
-                                    }
-                                    break;
-                                case STATE_SECOND:
-                                    if(pp.rb == 1){
-                                        if(pp.delta_x >= -tolerance && pp.delta_y <= tolerance){
-                                            dx += pp.delta_x;
-                                            dy += pp.delta_y;
-                                        }else{
-                                            st = STATE_NEUTRAL;
-                                        }
-                                    }else{
-                                        if(abs(dx) < abs(dy) && dx > 0 && dy < 0){
-                                            st = STATE_NEUTRAL;
-                                            good = false;
-                                        }else{
-                                            st = STATE_NEUTRAL;
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    return OTHER_ERROR;
-                                    break;
-                            }*/
+                        if(counter >= 3) {
+                            pp = mouse_parse_packet(packet);
+                            //mouse_print_packet(&pp);
+                            event = mouse_get_event(&pp);
+
+                            response = state_machine(event, x_len, tolerance);
+
+                            if (response == SUCCESS)
+                                good = 0;
+                            else if (response == INVALID_STATE)
+                                return response;
                         }
                     }
                     break;

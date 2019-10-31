@@ -81,12 +81,16 @@ int (mouse_read_data)(uint8_t *data) {
 int (mouse_issue_cmd)(uint32_t cmd) {
     int ret;
     uint8_t ack = 0;
-    if ((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
-    if ((ret = kbc_issue_arg(cmd))) return ret;
-    if ((ret = mouse_read_ack(&ack))) return ret;
-    if (ack == ACK_OK) return SUCCESS;
-    if (ack == ACK_ERROR) return INVALID_COMMAND;
-    return OTHER_ERROR;
+    for (unsigned int i = 0; i < KBC_NUM_TRIES; i++) {
+        if ((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
+        if ((ret = kbc_issue_arg(cmd))) return ret;
+        if ((ret = mouse_read_ack(&ack))) return ret;
+
+        if (ack == ACK_OK) return SUCCESS;
+        if (ack == ACK_ERROR) return INVALID_COMMAND;
+        tickdelay(micros_to_ticks(DELAY));
+    }
+    return TIMEOUT_ERROR;
 }
 
 int (mouse_read_byte)(uint8_t *byte) {
