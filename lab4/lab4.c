@@ -35,9 +35,6 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-extern uint8_t packet[3];
-extern int counter;
-
 int (mouse_test_packet)(uint32_t cnt) {
     int ret = 0;
     /// loop stuff
@@ -65,8 +62,8 @@ int (mouse_test_packet)(uint32_t cnt) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & mouse_irq) { /* subscribed interrupt */
                         mouse_ih();
-                        if(counter >= 3){
-                            struct packet pp = mouse_parse_packet(packet);
+                        if(counter_mouse_ih >= 3){
+                            struct packet pp = mouse_parse_packet(packet_mouse_ih);
                             mouse_print_packet(&pp);
                             cnt_now++;
                             if(cnt == cnt_now) good = 0;
@@ -86,21 +83,16 @@ int (mouse_test_packet)(uint32_t cnt) {
 }
 
 int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
-
-    // Mouse packets data
-    uint8_t packet[3];
-    int sz = 0;
-    uint8_t data = 0;
-    // Cycle
-    int packetCounter = 0;
-    int good = 1;
-    // return value
     int ret;
+    //if ((ret = mouse_issue_cmd(SET_REMOTE_MD))) return ret;
+    //if ((ret = mouse_set_data_report(true))) return ret;
 
-    if ((ret = mouse_issue_cmd(SET_REMOTE_MD))) return ret;
-
-    if ((ret = mouse_set_data_report(true))) return ret;
-
+    struct packet pp;
+    while(cnt--){
+        if(mouse_poll(&pp, period)) return 1;
+        mouse_print_packet(&pp);
+    }
+    /*
     while (good) {
 
         if ((ret = mouse_read_data(&data))) return ret;
@@ -118,7 +110,7 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
         }
         tickdelay(micros_to_ticks(period*1e3));
     }
-
+    */
     // Set Stream mode
     if ((ret = mouse_issue_cmd(SET_STREAM_MD))) return ret;
     // Disable data reporting
@@ -167,8 +159,8 @@ int (mouse_test_async)(uint8_t idle_time) {
                     }
                     if (msg.m_notify.interrupts & mouse_irq) { /// subscribed interrupt
                         mouse_ih();
-                        if(counter >= 3){
-                            struct packet pp = mouse_parse_packet(packet);
+                        if(counter_mouse_ih >= 3){
+                            struct packet pp = mouse_parse_packet(packet_mouse_ih);
                             mouse_print_packet(&pp);
                             time = 0;
                             no_interrupts = 0;
@@ -221,8 +213,8 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & mouse_irq) { /* subscribed interrupt */
                         mouse_ih();
-                        if(counter >= 3) {
-                            pp = mouse_parse_packet(packet);
+                        if(counter_mouse_ih >= 3) {
+                            pp = mouse_parse_packet(packet_mouse_ih);
                             mouse_print_packet(&pp);
                             event = mouse_get_event(&pp);
 
