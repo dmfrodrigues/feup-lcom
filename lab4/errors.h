@@ -11,6 +11,7 @@ enum errors {
     WRITE_ERROR,        /* @brief Error on Writing to Port */
     TIMEOUT_ERROR,      /* @brief Timeout error */
     INVALID_COMMAND,    /* @brief Invalid Command issued */
+    INVALID_STATE,      /* @brief State machine reached an invalid state */
     OTHER_ERROR,        /* @brief Unspecified error */
 };
 

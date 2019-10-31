@@ -67,10 +67,9 @@ int (kbc_read_byte)(uint8_t *byte){
     int ret = 0;
     uint8_t stat;
     for(int i = 0; i < KBC_NUM_TRIES; ++i){
-        if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;//printf("kbc.c,L71\n");
-        printf("%x %d %d\n", stat, (stat&OUT_BUF_FUL), (stat&AUX_MOUSE));
-        if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)==0){//printf("kbc.c,L72\n");
-            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;//printf("kbc.c,L73\n");
+        if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;
+        if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)==0){
+            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;
             if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;
             else return SUCCESS;
         }
