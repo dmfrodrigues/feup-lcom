@@ -62,15 +62,12 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
 int mouse_poll(struct packet *pp, uint16_t period){
     int ret = 0;
 
-    int counter = 0;
     uint8_t packet[3];
     uint8_t byte;
-    while(counter < 3){
-        if((ret = mouse_read_data(&byte, period))) return ret;
-        if((byte & FIRST_BYTE_ID) || counter){
-            packet[counter] = byte;
-            counter++;
-        }
+    if ((ret = mouse_issue_cmd(READ_DATA))) return ret;
+    for(unsigned i = 0; i < 3; ++i){
+        if((ret = mouse_poll_byte(&byte, period))) return ret;
+        packet[i] = byte;
     }
     *pp = mouse_parse_packet(packet);
     return SUCCESS;
@@ -138,7 +135,6 @@ int (mouse_poll_byte)(uint8_t *byte, uint16_t period) {
     uint8_t stat;
     while(true){
         if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;
-        //printf("%x\n",stat);
         if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)) {
             if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;
             if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;
