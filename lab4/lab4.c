@@ -37,6 +37,7 @@ extern uint8_t packet[3];
 extern int counter;
 
 int (mouse_test_packet)(uint32_t cnt) {
+    int ret = 0;
     /// loop stuff
     int ipc_status, r;
     message msg;
@@ -44,7 +45,8 @@ int (mouse_test_packet)(uint32_t cnt) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    if (mouse_set_data_report(true)) return 1;
+    if ((ret = mouse_set_data_report(true))) return ret;
+    //if ((ret = mouse_enable_data_reporting())) return ret;
 
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     /// cycle
@@ -78,7 +80,6 @@ int (mouse_test_packet)(uint32_t cnt) {
     }
     if (unsubscribe_interrupt(&mouse_id)) return 1;
     if (mouse_set_data_report(false)) return 1;
-
     return 0;
 }
 
@@ -187,8 +188,110 @@ int (mouse_test_async)(uint8_t idle_time) {
     return 0;
 }
 
+enum state{
+    STATE_NEUTRAL,
+    STATE_FIRST,
+    STATE_MID,
+    STATE_SECOND
+};
+
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
-    /* To be completed */
-    printf("%s: under construction\n", __func__);
-    return 1;
+    int ret = 0;
+    /// loop stuff
+    int ipc_status, r;
+    message msg;
+    /// Mouse interrupt handling
+    uint8_t mouse_irq_bit = 12;
+    int mouse_id = 0;
+    int mouse_irq = BIT(mouse_irq_bit);
+    //if ((ret = mouse_set_data_report(true))) return ret;
+    if ((ret = mouse_enable_data_reporting())) return ret;
+
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
+    /// cycle
+    int good = 1;
+    //int st = STATE_NEUTRAL;
+    //int16_t dx, dy;
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    if (msg.m_notify.interrupts & mouse_irq) { /* subscribed interrupt */
+                        mouse_ih();
+                        if(counter >= 3){
+                            struct packet pp = mouse_parse_packet(packet);
+                            mouse_print_packet(&pp);/*
+                            switch(st){
+                                case STATE_NEUTRAL:
+                                    if(pp.lb == 1 && pp.mb == 0 && pp.rb == 0){
+                                        st = STATE_FIRST;
+                                        dx = 0;
+                                        dy = 0;
+                                    }
+                                    break;
+                                case STATE_FIRST:
+                                    if(pp.lb == 1){
+                                        if(pp.delta_x >= -tolerance && pp.delta_y >= -tolerance){
+                                            dx += pp.delta_x;
+                                            dy += pp.delta_y;
+                                        }else{
+                                            st = STATE_NEUTRAL;
+                                        }
+                                    }else{
+                                        if(abs(dx) < abs(dy) && dx > 0 && dy > 0){
+                                            st = STATE_MID;
+                                        }else{
+                                            st = STATE_NEUTRAL;
+                                        }
+                                    }
+                                    break;
+                                case STATE_MID:
+                                    if(pp.lb == 0 && pp.mb == 0 && pp.rb == 1){
+                                        st = STATE_SECOND;
+                                        dx = 0;
+                                        dy = 0;
+                                    }else{
+                                        st = STATE_NEUTRAL;
+                                    }
+                                    break;
+                                case STATE_SECOND:
+                                    if(pp.rb == 1){
+                                        if(pp.delta_x >= -tolerance && pp.delta_y <= tolerance){
+                                            dx += pp.delta_x;
+                                            dy += pp.delta_y;
+                                        }else{
+                                            st = STATE_NEUTRAL;
+                                        }
+                                    }else{
+                                        if(abs(dx) < abs(dy) && dx > 0 && dy < 0){
+                                            st = STATE_NEUTRAL;
+                                            good = false;
+                                        }else{
+                                            st = STATE_NEUTRAL;
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    return OTHER_ERROR;
+                                    break;
+                            }*/
+                        }
+                    }
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+    }
+    if (unsubscribe_interrupt(&mouse_id)) return 1;
+    if (mouse_set_data_report(false)) return 1;
+
+    return 0;
 }

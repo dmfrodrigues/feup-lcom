@@ -61,8 +61,14 @@ struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
 }
 
 int (mouse_set_data_report)(int on){
-    if(on) return mouse_issue_cmd(ENABLE_DATA_REP);
-    else   return mouse_issue_cmd(   DIS_DATA_REP);
+    int ret = 0;
+    if(on){
+        if((ret = mouse_issue_cmd(ENABLE_DATA_REP))) return ret;
+    }
+    else{
+        if((ret = mouse_issue_cmd(   DIS_DATA_REP))) return ret;
+    }
+    return ret;
 }
 
 int (mouse_read_data)(uint8_t *data) {
@@ -75,15 +81,12 @@ int (mouse_read_data)(uint8_t *data) {
 int (mouse_issue_cmd)(uint32_t cmd) {
     int ret;
     uint8_t ack = 0;
-    for(unsigned i = 0; i < KBC_NUM_TRIES; ++i) {
-        if ((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
-        if ((ret = kbc_issue_arg(cmd))) return ret;
-        if ((ret = mouse_read_byte(&ack))) return ret;
-        if (ack == ACK_OK) return SUCCESS;
-        if (ack == ACK_ERROR) return INVALID_COMMAND;
-        tickdelay(micros_to_ticks(DELAY));
-    }
-    return TIMEOUT_ERROR;
+    if ((ret = kbc_issue_cmd(MOUSE_WRITE_B))) return ret;
+    if ((ret = kbc_issue_arg(cmd))) return ret;
+    if ((ret = mouse_read_ack(&ack))) return ret;
+    if (ack == ACK_OK) return SUCCESS;
+    if (ack == ACK_ERROR) return INVALID_COMMAND;
+    return OTHER_ERROR;
 }
 
 int (mouse_read_byte)(uint8_t *byte) {
@@ -99,6 +102,21 @@ int (mouse_read_byte)(uint8_t *byte) {
         tickdelay(micros_to_ticks(DELAY));
     }
     return TIMEOUT_ERROR;
+}
+
+int (mouse_read_ack)(uint8_t *byte) {
+    int ret = 0;
+    uint8_t stat;
+    //for(int i = 0; i < KBC_NUM_TRIES; ++i){
+        if((ret = util_sys_inb(STATUS_REG, &stat))) return ret;
+        //if((stat&OUT_BUF_FUL) && (stat&AUX_MOUSE)) {
+            if(stat & (PARITY_ERROR | TIME_OUT_REC)) return OTHER_ERROR;
+            if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;
+            else return SUCCESS;
+        //}
+        //tickdelay(micros_to_ticks(DELAY));
+    //}
+    //return TIMEOUT_ERROR;
 }
 
 int16_t (sign_extend_byte)(uint8_t sign_bit, uint8_t byte) {

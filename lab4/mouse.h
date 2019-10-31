@@ -49,6 +49,8 @@ int (mouse_issue_cmd)(uint32_t cmd);
  */
 int (mouse_read_byte)(uint8_t *byte);
 
+int (mouse_read_ack)(uint8_t *byte);
+
 /**
  * @brief Converts 9-bit number to 16-bit with sign extension
  * @param sign_bit  Sign bit identifiying the signal of the number
