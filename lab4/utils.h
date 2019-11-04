@@ -11,6 +11,4 @@ int(util_get_MSB)(uint16_t val, uint8_t *msb);
 
 int (util_sys_inb)(int port, uint8_t *value);
 
-int16_t abs16(int16_t x);
-
 #endif //UTILS_H_INCLUDED
