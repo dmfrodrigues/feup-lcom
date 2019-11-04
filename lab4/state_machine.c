@@ -71,6 +71,7 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
 
     if (event == NULL)
         return response;
+
     switch (state) {
         case INITIAL:
             if (event->type == LB_PRESSED)
@@ -78,7 +79,7 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
             break;
         case DRAG_UP:
             if (event->type == MOUSE_MOV) {
-                if (abs(event->delta_x) > tolerance || abs(event->delta_y) > tolerance) {
+                if (event->delta_x < -tolerance || event->delta_y < -tolerance) {
                     state = INITIAL;
                     x_length = 0;
                     y_length = 0;
@@ -124,7 +125,7 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
             break;
         case DRAG_DOWN:
             if (event->type == MOUSE_MOV) {
-                if (abs(event->delta_x) > tolerance || abs(event->delta_y) > tolerance) {
+                if (event->delta_x < -tolerance || event->delta_y > tolerance) {
                     state = INITIAL;
                     x_length = 0;
                     y_length = 0;

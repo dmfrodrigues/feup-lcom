@@ -73,14 +73,6 @@ int (mouse_issue_cmd)(uint32_t cmd);
 int (mouse_read_byte)(uint8_t *byte);
 
 /**
- * @brief Same as @ref mouse_read_byte, except it does not wait for output buffer
- * to be full, since ACK is considered to arrive instantaneously somehow.
- * @param   byte    pointer to byte where ACK will be stored
- * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
- */
-int (mouse_read_ack)(uint8_t *byte);
-
-/**
  * @brief Polls OUT_BUF for byte coming from mouse.
  * @param   byte    pointer to byte read from OUT_BUF
  * @param   period  time (in milliseconds) the poller should wait between pollings of bytes

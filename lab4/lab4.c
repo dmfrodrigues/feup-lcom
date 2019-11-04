@@ -44,12 +44,14 @@ int (mouse_test_packet)(uint32_t cnt) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    if ((ret = mouse_set_data_report(true))) return ret;
-    //if ((ret = mouse_enable_data_reporting())) return ret;
 
-    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1; // subscribes mouse interrupts in exclusive mode
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if ((ret = mouse_set_data_report(true))) return ret; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+
     /// cycle
-    int good = cnt != 0;
+    int good = (cnt != 0);
     uint32_t cnt_now = 0;
     while (good) {
         /* Get a request message. */
@@ -77,8 +79,10 @@ int (mouse_test_packet)(uint32_t cnt) {
             /* no standart message expected: do nothing */
         }
     }
-    if (unsubscribe_interrupt(&mouse_id)) return 1;
-    if (mouse_set_data_report(false)) return 1;
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if (mouse_set_data_report(false)) return 1; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+    if (unsubscribe_interrupt(&mouse_id)) return 1; // unsubscribes interrupts
     return 0;
 }
 
@@ -93,25 +97,6 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
         mouse_print_packet(&pp);
         tickdelay(micros_to_ticks(period*1000));
     }
-    /*
-    while (good) {
-
-        if ((ret = mouse_read_data(&data))) return ret;
-
-        if ((data & FIRST_BYTE_ID) || sz) {
-            packet[sz] = data;
-            sz++;
-        }
-        if (sz == 3) {
-            struct packet pp = mouse_parse_packet(packet);
-            mouse_print_packet(&pp);
-            packetCounter++;
-            sz = 0;
-            if (packetCounter == cnt) good = 0;
-        }
-        tickdelay(micros_to_ticks(period*1e3));
-    }
-    */
     // Set Stream mode
     if ((ret = mouse_issue_cmd(SET_STREAM_MD))) return ret;
     // Disable data reporting
@@ -139,9 +124,12 @@ int (mouse_test_async)(uint8_t idle_time) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    if (mouse_set_data_report(true)) return 1;
 
-    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1; // subscribes mouse interrupts in exclusive mode
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if (mouse_set_data_report(true)) return 1; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+
     /// cycle
     int good = 1;
     while (good) {
@@ -176,8 +164,10 @@ int (mouse_test_async)(uint8_t idle_time) {
         }
     }
 
-    if (unsubscribe_interrupt(&mouse_id)) return 1;
-    if (mouse_set_data_report(false)) return 1;
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if (mouse_set_data_report(false)) return 1; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+    if (unsubscribe_interrupt(&mouse_id)) return 1; // unsubscribes interrupts
 
     if (unsubscribe_interrupt(&timer_id)) return 1;
 
@@ -193,9 +183,12 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
     uint8_t mouse_irq_bit = 12;
     int mouse_id = 0;
     int mouse_irq = BIT(mouse_irq_bit);
-    if ((ret = mouse_set_data_report(true))) return ret;
 
-    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1; // subscribes mouse interrupts in exclusive mode
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if ((ret = mouse_set_data_report(true))) return ret; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+
     /// cycle
     int good = 1;
 
@@ -235,8 +228,11 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
             /* no standart message expected: do nothing */
         }
     }
-    if (unsubscribe_interrupt(&mouse_id)) return 1;
-    if (mouse_set_data_report(false)) return 1;
+
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if (mouse_set_data_report(false)) return 1; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+    if (unsubscribe_interrupt(&mouse_id)) return 1; // unsubscribes interrupts
 
     return 0;
 }
