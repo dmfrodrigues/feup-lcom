@@ -39,8 +39,7 @@ void (mouse_ih)(void) {
 
     /// This does not run if: I was expecting the first one but what I get is definitely not the first byte
     if((byte & FIRST_BYTE_ID)  || counter_mouse_ih){
-        packet_mouse_ih[counter_mouse_ih] = byte;
-        counter_mouse_ih++;
+        packet_mouse_ih[counter_mouse_ih++] = byte;
     }
 }
 
