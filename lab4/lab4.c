@@ -91,6 +91,7 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
     while(cnt--){
         if(mouse_poll(&pp, period)) return 1;
         mouse_print_packet(&pp);
+        tickdelay(micros_to_ticks(period*1000));
     }
     /*
     while (good) {
