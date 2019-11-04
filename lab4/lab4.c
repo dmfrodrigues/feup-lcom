@@ -36,7 +36,6 @@ int main(int argc, char *argv[]) {
 }
 
 int (mouse_test_packet)(uint32_t cnt) {
-    int ret = 0;
     /// loop stuff
     int ipc_status, r;
     message msg;
@@ -47,7 +46,7 @@ int (mouse_test_packet)(uint32_t cnt) {
 
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1; // subscribes mouse interrupts in exclusive mode
     if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
-    if ((ret = mouse_set_data_report(true))) return ret; // enables mouse data reporting
+    if (mouse_set_data_report(true)) return 1; // enables mouse data reporting
     if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
 
     /// cycle
@@ -87,9 +86,8 @@ int (mouse_test_packet)(uint32_t cnt) {
 }
 
 int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
-    int ret;
-    //if ((ret = mouse_issue_cmd(SET_REMOTE_MD))) return ret;
-    //if ((ret = mouse_set_data_report(true))) return ret;
+    //if (mouse_issue_cmd(SET_REMOTE_MD)) return 1;
+    //if (mouse_set_data_report(true)) return 1;
 
     struct packet pp;
     while(cnt--){
@@ -98,11 +96,11 @@ int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
         tickdelay(micros_to_ticks(period*1000));
     }
     // Set Stream mode
-    if ((ret = mouse_issue_cmd(SET_STREAM_MD))) return ret;
+    if (mouse_issue_cmd(SET_STREAM_MD)) return 1;
     // Disable data reporting
-    if ((ret = mouse_set_data_report(false))) return ret;
+    if (mouse_set_data_report(false)) return 1;
     uint8_t cmd_byte = minix_get_dflt_kbc_cmd_byte();
-    if ((ret = kbc_change_cmd(cmd_byte))) return ret;
+    if (kbc_change_cmd(cmd_byte)) return 1;
 
     return SUCCESS;
 }
@@ -175,7 +173,6 @@ int (mouse_test_async)(uint8_t idle_time) {
 }
 
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
-    int ret;
     /// loop stuff
     int ipc_status, r;
     message msg;
@@ -186,7 +183,7 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
 
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1; // subscribes mouse interrupts in exclusive mode
     if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
-    if ((ret = mouse_set_data_report(true))) return ret; // enables mouse data reporting
+    if (mouse_set_data_report(true)) return 1; // enables mouse data reporting
     if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
 
     /// cycle
