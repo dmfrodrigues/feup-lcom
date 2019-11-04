@@ -68,6 +68,7 @@ int mouse_poll(struct packet *pp, uint16_t period){
     for(unsigned i = 0; i < 3; ++i){
         if((ret = mouse_poll_byte(&byte, period))) return ret;
         packet[i] = byte;
+        tickdelay(micros_to_ticks(period*1000));
     }
     *pp = mouse_parse_packet(packet);
     return SUCCESS;
