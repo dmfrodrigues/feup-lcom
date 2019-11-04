@@ -29,7 +29,7 @@ void (kbc_ih)(void) {
         return;
     }
     if ((status & OUT_BUF_FUL) == 0 || (status & AUX_MOUSE) != 0) {
-        got_error_keyboard = OTHER_ERROR;
+        got_error_keyboard = READ_ERROR;
         return;
     }
     uint8_t byte = 0;

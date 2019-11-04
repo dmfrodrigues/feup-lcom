@@ -12,7 +12,6 @@ enum errors {
     TIMEOUT_ERROR,      /* @brief Timeout error */
     INVALID_COMMAND,    /* @brief Invalid Command issued */
     INVALID_STATE,      /* @brief State machine reached an invalid state */
-    INVALID_ARGUMENT,   /* @brief Invalid argument received */
     OTHER_ERROR         /* @brief Unspecified error */
 };
 

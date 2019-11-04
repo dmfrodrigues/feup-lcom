@@ -33,7 +33,7 @@ int (kbc_change_cmd)(uint8_t cmd);
  * High-level function that restores KBC to normal state, because lcf_start
  * changes the command byte of KBC. If this function is not used, there is a
  * chance that the keyboard and keyboard interrupts remain disabled.
- * @return 1 if operation was successful, 1 otherwise
+ * @return 0 if operation was successful, 1 otherwise
  */
 int (kbc_restore_keyboard)();
 
