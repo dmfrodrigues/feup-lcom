@@ -49,7 +49,7 @@ int (mouse_test_packet)(uint32_t cnt) {
 
     if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1;
     /// cycle
-    int good = 1;
+    int good = cnt != 0;
     uint32_t cnt_now = 0;
     while (good) {
         /* Get a request message. */
