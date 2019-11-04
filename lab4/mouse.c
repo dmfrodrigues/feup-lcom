@@ -29,7 +29,7 @@ void (mouse_ih)(void) {
         return;
     }
     if (((status & AUX_MOUSE) == 0) || ((status & OUT_BUF_FUL) == 0)) {
-        got_error_mouse_ih = OTHER_ERROR;
+        got_error_mouse_ih = READ_ERROR;
         return;
     }
 
