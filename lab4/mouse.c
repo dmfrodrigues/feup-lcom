@@ -140,7 +140,7 @@ int (mouse_poll_byte)(uint8_t *byte, uint16_t period) {
             if((ret = util_sys_inb(OUTPUT_BUF, byte))) return ret;
             else return SUCCESS;
         }
-        tickdelay(micros_to_ticks(period*1000));
+        tickdelay(micros_to_ticks(DELAY));
     }
 }
 
