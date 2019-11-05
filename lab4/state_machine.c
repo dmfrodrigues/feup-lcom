@@ -90,14 +90,26 @@ int state_machine(struct mouse_ev* event, uint8_t x_len, uint8_t tolerance) {
             break;
         case VERTEX:
             if (event->type == MOUSE_MOV) {
-                if (abs(event->delta_x) > tolerance || abs(event->delta_y) > tolerance)
+                x_length += event->delta_x;
+                y_length += event->delta_y;
+                if (abs(x_length) > tolerance || abs(y_length) > tolerance) {
                     state = INITIAL;
+                    x_length = 0;
+                    y_length = 0;
+                }
             } else if (event->type == RB_PRESSED) {
                 state = DRAG_DOWN;
+                x_length = 0;
+                y_length = 0;
             } else if (event->type == LB_PRESSED) {
                 state = DRAG_UP;
-            } else
+                x_length = 0;
+                y_length = 0;
+            } else {
                 state = INITIAL;
+                x_length = 0;
+                y_length = 0;
+            }
             break;
         case DRAG_DOWN:
             if (event->type == MOUSE_MOV) {
