@@ -14,9 +14,9 @@ int (set_graphics_mode)(uint16_t mode) {
     int r;
     struct minix_mem_range mmr;
     mmr.mr_base =  0x0;
-    mmr.mr_limit = 0xFFFF;
+    mmr.mr_limit = 0xFFFFF;
 
-    //struct reg86 reg_86;
+    struct reg86 reg_86;
 
     if ((r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mmr)))
         panic("sys_privctl (ADD MEM) failed: %d\n", r);
@@ -43,6 +43,22 @@ int (set_graphics_mode)(uint16_t mode) {
 
     if (video_mem == MAP_FAILED)
         panic("Error: couldn't map video memory.");
+
+        memset(&reg_86, 0, sizeof(reg_86)); // reset struct
+
+        reg_86.intno = VC_BIOS_SERV;
+        reg_86.ah = VBE_CALL;
+        reg_86.al = SET_VBE_MD;
+        reg_86.bx = mode | LINEAR_FRAME_BUFFER_MD;
+
+        // BIOS CALL
+
+        if (sys_int86(&reg_86)) {
+            printf("%s: sys_int86 failed\n", __func__);
+            return BIOS_CALL_ERROR;
+        }
+
+        memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // clear mem_info to initialize it
 
 //    lm_free(&mem_map);
     return SUCCESS;

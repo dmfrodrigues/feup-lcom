@@ -38,7 +38,7 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
 
     set_graphics_mode(mode);
 
-    tickdelay(micros_to_ticks(delay));
+    tickdelay(micros_to_ticks(delay*1e6));
 
     vg_exit();
     return 0;
