@@ -125,9 +125,13 @@ int (set_graphics_mode)(uint16_t mode) {
 int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
 
     //uint8_t color8 = color;
-    set_pixel(x,y,color);
-    set_pixel(x+1,y,color);
-    set_pixel(x+2,y,color);
+    for(uint32_t i = 0; i < 256; ++i){
+        set_pixel(x+i,y,i);
+    }/*
+    set_pixel(x,y,0);
+    set_pixel(x+1,y,1);
+    set_pixel(x+2,y,2);
+    */
     //*(p++) = color8;
     //*(p++) = color8;
     //*(p++) = color8;
