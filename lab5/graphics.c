@@ -85,3 +85,12 @@ int (set_graphics_mode)(uint16_t mode) {
 
     return SUCCESS;
 }
+
+int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
+    /*
+    uint8_t color8 = color;
+    for(uint16_t l = 0; l < len; ++l){
+        *(video_mem+y*1024+x+len) = color8;
+    }*/
+    return 0;
+}
