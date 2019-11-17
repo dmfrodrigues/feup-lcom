@@ -21,6 +21,9 @@ int (set_graphics_mode)(uint16_t mode) {
     if ((r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mmr)))
         panic("sys_privctl (ADD MEM) failed: %d\n", r);
 
+
+    memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // clear mem_info to initialize it
+
     if (vbe_get_mode_info(mode, &vbe_mem_info)) {
         printf("vbe_get_mode_info: Failed to get VBE Mode Info for mode %x\n", mode);
         return LCF_ERROR;
@@ -42,22 +45,18 @@ int (set_graphics_mode)(uint16_t mode) {
     if (video_mem == MAP_FAILED)
         panic("Error: couldn't map video memory.");
 
-        memset(&reg_86, 0, sizeof(reg_86)); // reset struct
+    memset(&reg_86, 0, sizeof(reg_86)); // reset struct
 
-        reg_86.intno = VC_BIOS_SERV;
-        reg_86.ah = VBE_CALL;
-        reg_86.al = SET_VBE_MD;
-        reg_86.bx = mode | LINEAR_FRAME_BUFFER_MD;
+    reg_86.intno = VC_BIOS_SERV;
+    reg_86.ah = VBE_CALL;
+    reg_86.al = SET_VBE_MD;
+    reg_86.bx = mode | LINEAR_FRAME_BUFFER_MD;
 
-        // BIOS CALL
+    // BIOS CALL
 
-        if (sys_int86(&reg_86)) {
-            printf("%s: sys_int86 failed\n", __func__);
-            return BIOS_CALL_ERROR;
-        }
-
-        memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // clear mem_info to initialize it
-
-//    lm_free(&mem_map);
+    if (sys_int86(&reg_86)) {
+        printf("%s: sys_int86 failed\n", __func__);
+        return BIOS_CALL_ERROR;
+    }
     return SUCCESS;
 }
