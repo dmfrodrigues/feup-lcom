@@ -73,17 +73,9 @@ uint16_t get_bytes_pixel(void) {
     return (vbe_mem_info.BitsPerPixel + 7) >> 3;
 }
 
-uint16_t get_RedMaskSize(void){
-    return vbe_mem_info.RedMaskSize;
-}
-
-uint16_t get_GreenMaskSize(void){
-    return vbe_mem_info.GreenMaskSize;
-}
-
-uint16_t get_BlueMaskSize(void){
-    return vbe_mem_info.BlueMaskSize;
-}
+uint16_t get_RedMaskSize  (void){ return vbe_mem_info.RedMaskSize  ; }
+uint16_t get_GreenMaskSize(void){ return vbe_mem_info.GreenMaskSize; }
+uint16_t get_BlueMaskSize (void){ return vbe_mem_info.BlueMaskSize ; }
 
 int (map_vram)(void) {
     int r;
@@ -104,12 +96,12 @@ int (free_memory)(void) {
     return !lm_free(&mem_map);
 }
 
-int (set_pixel)(uint16_t row, uint16_t col, uint32_t color) {
-    if (row >= vbe_mem_info.XResolution || col >= vbe_mem_info.YResolution) {
+int (set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
+    if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
         printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
     }
-    unsigned int pos = (row + col * vbe_mem_info.XResolution) * get_bytes_pixel();
+    unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
     memcpy((void*)((unsigned int)video_mem + pos), &color, get_bytes_pixel());
     return SUCCESS;
 }
@@ -138,7 +130,6 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
     int r;
     for (int i = 0; i < len; i++)
         if ((r = set_pixel(x + i, y, color))) return r;
-
     return SUCCESS;
 }
 
