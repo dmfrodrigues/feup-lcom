@@ -45,7 +45,7 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
         return 1;
     };
-
+    /**
     vbe_mode_info_t vbe_mem_info;
 
     if (vbe_get_mode_information(mode, &vbe_mem_info)) {
@@ -59,7 +59,7 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
     unsigned int vram_size = vbe_mem_info.XResolution * vbe_mem_info.YResolution * ((vbe_mem_info.BitsPerPixel + 7) >> 3);
 
     map_vram(vram_base, vram_size); // if function fails it aborts program
-
+    */
     tickdelay(micros_to_ticks(delay*1e6));
 
     if (vg_exit()) {
@@ -68,12 +68,11 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
             printf("%s: lm_free failed\n", __func__);
         return 1;
     }
-
+    /*
     if (free_memory()) {
         printf("%s: lm_free failed\n", __func__);
         return 1;
-    }
-
+    }*/
     return 0;
 }
 
@@ -87,11 +86,7 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y,
 }
 
 int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, uint8_t step) {
-  /* To be completed */
-  printf("%s(0x%03x, %u, 0x%08x, %d): under construction\n", __func__,
-         mode, no_rectangles, first, step);
-
-  return 1;
+    return 0;
 }
 
 int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
