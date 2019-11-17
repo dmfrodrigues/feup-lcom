@@ -13,7 +13,7 @@ enum errors {
     INVALID_COMMAND,    /* @brief Invalid Command issued */
     INVALID_STATE,      /* @brief State machine reached an invalid state */
     BIOS_CALL_ERROR,    /* @brief Error upon BIOS call */
-    OUT_OF_RANGE,
+    OUT_OF_RANGE,       /* @brief Accessing area out of range of memory */
     OTHER_ERROR         /* @brief Unspecified error */
 };
 
