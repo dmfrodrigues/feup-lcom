@@ -193,10 +193,10 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
             if(get_bytes_pixel() == 1){
                 color = (first + (row * no_rectangles + col) * step) % (1 << get_bits_pixel());
             }else{
-                R = (0xFF&(first>>16) + col*step) % (1 << get_RedMaskSize());
-                G = (0xFF&(first>> 8) + row*step) % (1 << get_GreenMaskSize());
-                B = (0xFF&(first    ) + (col+row)*step) % (1 << get_BlueMaskSize());
-                color = (R<<16) | (G<<8) | (B);
+                R = (GET_RED(first) + col*step) % (1 << get_RedMaskSize());
+                G = (GET_GRE(first) + row*step) % (1 << get_GreenMaskSize());
+                B = (GET_BLU(first) + (col+row)*step) % (1 << get_BlueMaskSize());
+                color = SET_COLOR(R,G,B);
             }
             if (vg_draw_rectangle(col*W,row*H,W,H,color)) {
                 if (vg_exit()) {

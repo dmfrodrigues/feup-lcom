@@ -4,6 +4,14 @@
 #include <lcom/lcf.h>
 #include <stdint.h>
 
+#define GET_RED(n) (0xFF & (n >> 16))
+#define GET_GRE(n) (0xFF & (n >>  8))
+#define GET_BLU(n) (0xFF & (n      ))
+#define SET_RED(n) ((n&0xFF) << 16)
+#define SET_GRE(n) ((n&0xFF) <<  8)
+#define SET_BLU(n) ((n&0xFF)      )
+#define SET_COLOR(r,g,b) (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
+
 int (get_permission)(unsigned int base_addr, unsigned int size);
 
 int (get_permissions_first_mbyte)(void);
