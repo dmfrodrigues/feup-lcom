@@ -109,10 +109,22 @@ int (set_graphics_mode)(uint16_t mode) {
 }
 
 int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
+
+    //uint8_t color8 = color;
+    uint8_t *p = video_mem;
+    p += y*1024+x;
+    //*(p++) = color8;
+    //*(p++) = color8;
+    //*(p++) = color8;
     /*
-    uint8_t color8 = color;
+    for(void *p = video_mem; p-video_mem < len; ++p){
+        *p = color;
+    }
+    */
+    /*
     for(uint16_t l = 0; l < len; ++l){
-        *(video_mem+y*1024+x+len) = color8;
-    }*/
+        *((uint8_t*)(video_mem)+y*1024+x+len) = color8;
+    }
+    */
     return 0;
 }
