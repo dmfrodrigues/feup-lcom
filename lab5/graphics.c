@@ -128,24 +128,6 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
         if ((r = set_pixel(x + i, y, color))) return r;
 
     return SUCCESS;
-
-    //uint8_t color8 = color;
-    //set_pixel(x,y,color);
-    //set_pixel(x+1,y,color);
-    //set_pixel(x+2,y,color);
-    //*(p++) = color8;
-    //*(p++) = color8;
-    //*(p++) = color8;
-    /*
-    for(void *p = video_mem; p-video_mem < len; ++p){
-        *p = color;
-    }
-    */
-    /*
-    for(uint16_t l = 0; l < len; ++l){
-        *((uint8_t*)(video_mem)+y*1024+x+len) = color8;
-    }
-    */
 }
 
 int (vg_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
