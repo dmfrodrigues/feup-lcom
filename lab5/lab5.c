@@ -64,8 +64,8 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
 
     if (vg_exit()) {
         printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-        if (free_memory())
-            printf("%s: lm_free failed\n", __func__);
+        /*if (free_memory())
+            printf("%s: lm_free failed\n", __func__);*/
         return 1;
     }
     /*
