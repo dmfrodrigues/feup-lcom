@@ -123,15 +123,16 @@ int (set_graphics_mode)(uint16_t mode) {
 }
 
 int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
+    int r;
+    for (int i = 0; i < len; i++)
+        if ((r = set_pixel(x + i, y, color))) return r;
+
+    return SUCCESS;
 
     //uint8_t color8 = color;
-    for(uint32_t i = 0; i < 256; ++i){
-        set_pixel(x+i,y,i);
-    }/*
-    set_pixel(x,y,0);
-    set_pixel(x+1,y,1);
-    set_pixel(x+2,y,2);
-    */
+    //set_pixel(x,y,color);
+    //set_pixel(x+1,y,color);
+    //set_pixel(x+2,y,color);
     //*(p++) = color8;
     //*(p++) = color8;
     //*(p++) = color8;
@@ -145,5 +146,12 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
         *((uint8_t*)(video_mem)+y*1024+x+len) = color8;
     }
     */
-    return 0;
+}
+
+int (vg_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
+    int r;
+    for (int i = 0; i < height; i++)
+        if ((r = vg_draw_hline(x, y + i, width, color))) return r;
+
+    return SUCCESS;
 }
