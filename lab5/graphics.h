@@ -22,6 +22,12 @@ uint16_t get_bits_pixel(void);
 
 uint16_t get_bytes_pixel(void);
 
+uint16_t get_RedMaskSize(void);
+
+uint16_t get_GreenMaskSize(void);
+
+uint16_t get_BlueMaskSize(void);
+
 int (map_vram)(void);
 
 int (free_memory)(void);
