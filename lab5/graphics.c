@@ -69,6 +69,10 @@ uint16_t get_bits_pixel(void) {
     return vbe_mem_info.BitsPerPixel;
 }
 
+uint16_t get_bytes_pixel(void) {
+    return (vbe_mem_info.BitsPerPixel + 7) >> 3;
+}
+
 int (map_vram)(void) {
     int r;
     unsigned int vram_base = get_phys_addr();
@@ -86,6 +90,16 @@ int (map_vram)(void) {
 
 int (free_memory)(void) {
     return !lm_free(&mem_map);
+}
+
+int (set_pixel)(uint16_t row, uint16_t col, uint32_t color) {
+    if (row >= vbe_mem_info.XResolution || col >= vbe_mem_info.YResolution) {
+        printf("%s: invalid pixel.\n", __func__);
+        return OUT_OF_RANGE;
+    }
+    unsigned int pos = (row + col * vbe_mem_info.XResolution) * get_bytes_pixel();
+    memcpy((void*)(video_mem + pos), &color, get_bytes_pixel());
+    return SUCCESS;
 }
 
 int (set_graphics_mode)(uint16_t mode) {
