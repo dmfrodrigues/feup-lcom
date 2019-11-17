@@ -184,17 +184,18 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
         if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
         return 1;
     }
+
     uint16_t W = get_XRes()/no_rectangles;
     uint16_t H = get_YRes()/no_rectangles;
     uint32_t color, R, G, B;
     for(uint8_t row = 0; row < no_rectangles; ++row){
         for(uint8_t col = 0; col < no_rectangles; ++col){
-            if(mode == 0x105){
+            if(get_bytes_pixel() == 1){
                 color = (first + (row * no_rectangles + col) * step) % (1 << get_bits_pixel());
             }else{
-                R = (first + col*step) % (1 << get_RedMaskSize());
-                G = (first + row*step) % (1 << get_GreenMaskSize());
-                B = (first + (col+row)*step) % (1 << get_BlueMaskSize());
+                R = (0xFF&(first>>16) + col*step) % (1 << get_RedMaskSize());
+                G = (0xFF&(first>> 8) + row*step) % (1 << get_GreenMaskSize());
+                B = (0xFF&(first    ) + (col+row)*step) % (1 << get_BlueMaskSize());
                 color = (R<<16) | (G<<8) | (B);
             }
             if (vg_draw_rectangle(col*W,row*H,W,H,color)) {
