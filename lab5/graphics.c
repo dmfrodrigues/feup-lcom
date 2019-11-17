@@ -98,7 +98,7 @@ int (set_pixel)(uint16_t row, uint16_t col, uint32_t color) {
         return OUT_OF_RANGE;
     }
     unsigned int pos = (row + col * vbe_mem_info.XResolution) * get_bytes_pixel();
-    memcpy((void*)(video_mem + pos), &color, get_bytes_pixel());
+    memcpy((void*)((unsigned int)video_mem + pos), &color, get_bytes_pixel());
     return SUCCESS;
 }
 
