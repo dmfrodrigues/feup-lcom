@@ -35,12 +35,45 @@ int main(int argc, char *argv[]) {
 }
 
 int(video_test_init)(uint16_t mode, uint8_t delay) {
+    int r;
+    if ((r = get_permissions_first_mbyte()))
+        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
-    set_graphics_mode(mode);
+    if (set_graphics_mode(mode)) {
+        printf("%s: failed to set graphic mode %x.\n", __func__, mode);
+        if (vg_exit())
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        return 1;
+    };
+
+    vbe_mode_info_t vbe_mem_info;
+
+    if (vbe_get_mode_information(mode, &vbe_mem_info)) {
+        printf("%s: failed to get information for mode %x.\n", __func__, mode);
+        if (vg_exit())
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        return 1;
+    }
+
+    unsigned int vram_base = vbe_mem_info.PhysBasePtr;
+    unsigned int vram_size = vbe_mem_info.XResolution * vbe_mem_info.YResolution * ((vbe_mem_info.BitsPerPixel + 7) >> 3);
+
+    map_vram(vram_base, vram_size); // if function fails it aborts program
 
     tickdelay(micros_to_ticks(delay*1e6));
 
-    vg_exit();
+    if (vg_exit()) {
+        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (free_memory())
+            printf("%s: lm_free failed\n", __func__);
+        return 1;
+    }
+
+    if (free_memory()) {
+        printf("%s: lm_free failed\n", __func__);
+        return 1;
+    }
+
     return 0;
 }
 

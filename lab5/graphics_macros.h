@@ -4,6 +4,9 @@
 #define VC_BIOS_SERV  0x10 /** @brief TODO */
 #define VBE_CALL      0x4F /** @brief TODO */
 
+#define MBYTE_BASE  0x0
+#define MBYTE_SIZE  0xFFFFF
+
 // Graphics Functions
 #define VBE_CTRL_INFO       0x00 /** @brief Get VBE Controller Information */
 #define VBE_MD_INFO         0x01 /** @brief Get VBE Mode Information */
