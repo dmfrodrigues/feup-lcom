@@ -21,8 +21,6 @@ int (set_graphics_mode)(uint16_t mode) {
     if ((r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mmr)))
         panic("sys_privctl (ADD MEM) failed: %d\n", r);
 
-    lm_init(true);
-//    lm_alloc(sizeof(vbe_mode_info_t), &mem_map);
     if (vbe_get_mode_info(mode, &vbe_mem_info)) {
         printf("vbe_get_mode_info: Failed to get VBE Mode Info for mode %x\n", mode);
         return LCF_ERROR;
