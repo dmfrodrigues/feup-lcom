@@ -73,6 +73,18 @@ uint16_t get_bytes_pixel(void) {
     return (vbe_mem_info.BitsPerPixel + 7) >> 3;
 }
 
+uint16_t get_RedMaskSize(void){
+    return vbe_mem_info.RedMaskSize;
+}
+
+uint16_t get_GreenMaskSize(void){
+    return vbe_mem_info.GreenMaskSize;
+}
+
+uint16_t get_BlueMaskSize(void){
+    return vbe_mem_info.BlueMaskSize;
+}
+
 int (map_vram)(void) {
     int r;
     unsigned int vram_base = get_phys_addr();
