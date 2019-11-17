@@ -8,9 +8,19 @@ int (get_permission)(unsigned int base_addr, unsigned int size);
 
 int (get_permissions_first_mbyte)(void);
 
-int (vbe_get_mode_information)(uint16_t mode, vbe_mode_info_t *vmi_p);
+int (vbe_get_mode_information)(uint16_t mode);
 
-int (map_vram)(unsigned int vram_base, unsigned int vram_size);
+phys_bytes get_phys_addr(void);
+
+unsigned int get_vram_size(void);
+
+uint16_t get_XRes(void);
+
+uint16_t get_YRes(void);
+
+uint16_t get_bits_pixel(void);
+
+int (map_vram)(void);
 
 int (free_memory)(void);
 

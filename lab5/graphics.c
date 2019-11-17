@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 static void *video_mem; /** @brief Frame-buffer VM address */
-//static vbe_mode_info_t vbe_mem_info;
+static vbe_mode_info_t vbe_mem_info;
 static mmap_t mem_map;
 
 int (get_permission)(unsigned int base_addr, unsigned int size) {
@@ -21,11 +21,11 @@ int (get_permissions_first_mbyte)(void) {
     return get_permission(MBYTE_BASE, MBYTE_SIZE);
 }
 
-int (vbe_get_mode_information)(uint16_t mode, vbe_mode_info_t *vmi_p) {
-    memset(vmi_p, 0, sizeof(vbe_mode_info_t)); // reset values
+int (vbe_get_mode_information)(uint16_t mode) {
+    memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // reset values
 
     struct reg86 reg_86;
-    memset(&reg_86, 0, sizeof(reg_86)); // reset struct
+    memset(&reg_86, 0, sizeof(struct reg86)); // reset struct
 
     vbe_mode_info_t *virtual_addr = lm_alloc(sizeof(vbe_mode_info_t), &mem_map);
 
@@ -45,12 +45,34 @@ int (vbe_get_mode_information)(uint16_t mode, vbe_mode_info_t *vmi_p) {
         return BIOS_CALL_ERROR;
     }
 
-    vmi_p = memcpy((void*)vmi_p, (void*)virtual_addr, mem_map.size);
+    memcpy((void*)&vbe_mem_info, (void*)virtual_addr, mem_map.size);
     return SUCCESS;
 }
 
-int (map_vram)(unsigned int vram_base, unsigned int vram_size) {
+phys_bytes get_phys_addr(void) {
+    return vbe_mem_info.PhysBasePtr;
+}
+
+unsigned int get_vram_size(void) {
+    return vbe_mem_info.XResolution * vbe_mem_info.YResolution * ((vbe_mem_info.BitsPerPixel + 7) >> 3);
+}
+
+uint16_t get_XRes(void) {
+    return vbe_mem_info.XResolution;
+}
+
+uint16_t get_YRes(void) {
+    return vbe_mem_info.YResolution;
+}
+
+uint16_t get_bits_pixel(void) {
+    return vbe_mem_info.BitsPerPixel;
+}
+
+int (map_vram)(void) {
     int r;
+    unsigned int vram_base = get_phys_addr();
+    unsigned int vram_size = get_vram_size();
     if ((r = get_permission(vram_base, vram_size)))
         panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
@@ -63,13 +85,13 @@ int (map_vram)(unsigned int vram_base, unsigned int vram_size) {
 }
 
 int (free_memory)(void) {
-    return lm_free(&mem_map);
+    return !lm_free(&mem_map);
 }
 
 int (set_graphics_mode)(uint16_t mode) {
     struct reg86 reg_86;
 
-    memset(&reg_86, 0, sizeof(reg_86)); // reset struct
+    memset(&reg_86, 0, sizeof(struct reg86)); // reset struct
 
     // Set Reg86
     reg_86.intno = VC_BIOS_SERV;
