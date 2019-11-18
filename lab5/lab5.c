@@ -172,7 +172,8 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
 
     if (vbe_get_mode_information(mode)) {
         printf("%s: failed to get information for mode %x.\n", __func__, mode);
-        if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (vg_exit())
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
         return 1;
     }
 
@@ -182,10 +183,14 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
         printf("%s: failed to set graphic mode %x.\n", __func__, mode);
         if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
         return 1;
-    }
+    };
+
+
+
 
     uint16_t W = get_XRes()/no_rectangles;
     uint16_t H = get_YRes()/no_rectangles;
+
     uint32_t color, R, G, B;
     for(uint8_t row = 0; row < no_rectangles; ++row){
         for(uint8_t col = 0; col < no_rectangles; ++col){
@@ -206,7 +211,6 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
             }
         }
     }
-
     /// loop stuff
     int ipc_status;
     message msg;
