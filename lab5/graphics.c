@@ -49,6 +49,63 @@ int (vbe_get_mode_information)(uint16_t mode) {
     return SUCCESS;
 }
 
+int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
+    memset(info_p, 0, sizeof(vg_vbe_contr_info_t)); // reset values
+
+    mmap_t controller_map;
+
+    struct reg86 reg_86;
+    memset(&reg_86, 0, sizeof(struct reg86)); // reset struct
+
+    VbeInfoBlock *virtual_addr = lm_alloc(sizeof(VbeInfoBlock), &controller_map);
+
+    virtual_addr->VbeSignature[0] = 'V';
+    virtual_addr->VbeSignature[1] = 'B';
+    virtual_addr->VbeSignature[2] = 'E';
+    virtual_addr->VbeSignature[3] = '2';
+
+
+    reg_86.intno = VC_BIOS_SERV;
+    reg_86.ah = VBE_CALL;
+    reg_86.al = VBE_CTRL_INFO;
+    reg_86.es = PB2BASE(controller_map.phys);
+    reg_86.di = PB2OFF(controller_map.phys);
+    // BIOS CALL
+    if (sys_int86(&reg_86)) {
+        printf("%s: sys_int86 failed\n", __func__);
+        if (free_memory()) {
+            printf("%s: lm_free failed\n", __func__);
+            return LCF_ERROR;
+        }
+        return BIOS_CALL_ERROR;
+    }
+
+    info_p->VBESignature[0] = virtual_addr->VbeSignature[0];
+    info_p->VBESignature[1] = virtual_addr->VbeSignature[1];
+    info_p->VBESignature[2] = virtual_addr->VbeSignature[2];
+    info_p->VBESignature[3] = virtual_addr->VbeSignature[3];
+
+    uint8_t lsb, msb;
+    util_get_LSB(virtual_addr->VbeVersion, &lsb);
+    util_get_MSB(virtual_addr->VbeVersion, &msb);
+    info_p->VBEVersion[0] = lsb;
+    info_p->VBEVersion[1] = msb;
+
+    info_p->TotalMemory = (virtual_addr->TotalMemory << 6);
+
+    // Convert Far Far Pointer to Virtual Address
+
+    //uint32_t phys_ptr = FAR2PHYS(virtual_addr->OemStringPtr);
+
+
+
+
+
+
+
+    return SUCCESS;
+}
+
 phys_bytes get_phys_addr(void) {
     return vbe_mem_info.PhysBasePtr;
 }

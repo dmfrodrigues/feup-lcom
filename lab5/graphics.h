@@ -12,13 +12,32 @@
 #define SET_BLU(n)          (((n)&0xFF)      )
 #define SET_COLOR(r,g,b)    (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
 #define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
-#define PHYS2VIRT(n)
+
+typedef struct __attribute__((packed)) {
+
+    char        VbeSignature[4]     ;
+    uint16_t    VbeVersion          ;
+    uint32_t    OemStringPtr        ;
+    uint8_t     Capabilities[4]     ;
+    uint32_t    VideoModePtr        ;
+    uint16_t    TotalMemory         ;
+
+    uint16_t    OemSoftwareRev      ;
+    uint32_t    OemVendorNamePtr    ;
+    uint32_t    OemProductNamePtr   ;
+    uint32_t    OemProductRevPtr    ;
+    char        Reserved[222]       ;
+
+    char        OemData[256]        ;
+} VbeInfoBlock;
 
 int (get_permission)(unsigned int base_addr, unsigned int size);
 
 //int (get_permissions_first_mbyte)(void);
 
 int (vbe_get_mode_information)(uint16_t mode);
+
+int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p);
 
 phys_bytes get_phys_addr(void);
 
