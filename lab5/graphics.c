@@ -17,9 +17,9 @@ int (get_permission)(unsigned int base_addr, unsigned int size) {
     return sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mmr);
 }
 
-int (get_permissions_first_mbyte)(void) {
-    return get_permission(MBYTE_BASE, MBYTE_SIZE);
-}
+//int (get_permissions_first_mbyte)(void) {
+//    return get_permission(MBYTE_BASE, MBYTE_SIZE);
+//}
 
 int (vbe_get_mode_information)(uint16_t mode) {
     memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // reset values
