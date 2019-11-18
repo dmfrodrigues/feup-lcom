@@ -185,9 +185,6 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
         return 1;
     };
 
-
-
-
     uint16_t W = get_XRes()/no_rectangles;
     uint16_t H = get_YRes()/no_rectangles;
 
@@ -272,10 +269,94 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
 }
 
 int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
-    /* To be completed */
-    printf("%s(%8p, %u, %u): under construction\n", __func__, xpm, x, y);
+    int r;
+    if ((r = get_permissions_first_mbyte()))
+        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
-    return 1;
+    if (vbe_get_mode_information(INDEXED_1024_768)) {
+        printf("%s: failed to get information for mode %x.\n", __func__, INDEXED_1024_768);
+        if (vg_exit())
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        return 1;
+    }
+
+    map_vram(); // if function fails it aborts program
+
+    if (set_graphics_mode(INDEXED_1024_768)) {
+        printf("%s: failed to set graphic mode %x.\n", __func__, INDEXED_1024_768);
+        if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        return 1;
+    };
+
+    enum xpm_image_type type = XPM_INDEXED;
+    xpm_image_t img;
+
+    uint8_t *map = xpm_load(xpm, type, &img);
+
+    for (int i = 0; i < img.width; i++) {
+        for (int j = 0; j < img.height; j++) {
+            set_pixel(x + i, y + j, map[i + j * img.width]);
+        }
+    }
+
+    /// loop stuff
+    int ipc_status;
+    message msg;
+    /// Keyboard interrupt handling
+    uint8_t kbc_irq_bit = KBC_IRQ;
+    int kbc_id = 0;
+    int kbc_irq = BIT(kbc_irq_bit);
+    if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) {
+        if (vg_exit()) {
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+            if (free_memory()) printf("%s: lm_free failed\n", __func__);
+        }
+        return 1;
+    }
+    /// cycle
+    int good = 1;
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
+                        kbc_ih();
+                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
+                    }
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+    }
+
+    if (unsubscribe_interrupt(&kbc_id)) {
+        if (vg_exit()) {
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+            if (free_memory()) printf("%s: lm_free failed\n", __func__);
+        }
+        return 1;
+    };
+
+    if (vg_exit()) {
+        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (free_memory()) printf("%s: lm_free failed\n", __func__);
+        return 1;
+    }
+
+    if (free_memory()) {
+        printf("%s: lm_free failed\n", __func__);
+        return 1;
+    }
+
+    return 0;
 }
 
 int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint16_t yf, int16_t speed, uint8_t fr_rate) {
@@ -284,8 +365,8 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
 }
 
 int(video_test_controller)() {
-    /* To be completed */
-    printf("%s(): under construction\n", __func__);
+
+    
 
     return 1;
 }
