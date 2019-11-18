@@ -59,6 +59,8 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
 
     VbeInfoBlock *virtual_addr = lm_alloc(sizeof(VbeInfoBlock), &controller_map);
 
+    uint32_t virtual_base = (uint32_t)(virtual_addr) - controller_map.phys;
+
     virtual_addr->VbeSignature[0] = 'V';
     virtual_addr->VbeSignature[1] = 'B';
     virtual_addr->VbeSignature[2] = 'E';
@@ -95,10 +97,27 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
 
     // Convert Far Far Pointer to Virtual Address
 
-    //uint32_t phys_ptr = FAR2PHYS(virtual_addr->OemStringPtr);
+    uint32_t phys_ptr = FAR2PHYS(virtual_addr->OemStringPtr);
+    uint32_t virtual_ptr = phys_ptr + virtual_base;
+    info_p->OEMString = (char*)(virtual_ptr);
 
+    phys_ptr = FAR2PHYS(virtual_addr->VideoModePtr);
+    virtual_ptr = phys_ptr + virtual_base;
+    info_p->VideoModeList = (uint16_t*)(virtual_ptr);
 
+    phys_ptr = FAR2PHYS(virtual_addr->OemVendorNamePtr);
+    virtual_ptr = phys_ptr + virtual_base;
+    info_p->OEMVendorNamePtr = (char*)(virtual_ptr);
 
+    phys_ptr = FAR2PHYS(virtual_addr->OemProductNamePtr);
+    virtual_ptr = phys_ptr + virtual_base;
+    info_p->OEMProductNamePtr = (char*)(virtual_ptr);
+
+    phys_ptr = FAR2PHYS(virtual_addr->OemProductRevPtr);
+    virtual_ptr = phys_ptr + virtual_base;
+    info_p->OEMProductRevPtr = (char*)(virtual_ptr);
+
+    lm_free(&controller_map);
 
 
 

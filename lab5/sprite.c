@@ -13,7 +13,7 @@ struct sprite{
 sprite_t* sprite_ctor(const xpm_map_t xpm){
     sprite_t *ret = (sprite_t*)malloc(sizeof(sprite_t));
     if(ret == NULL) return NULL;
-    enum xpm_image_type type = XPM_INDEXED;
+    enum xpm_image_type type = XPM_8_8_8;
     xpm_image_t img;
     ret->map = xpm_load(xpm, type, &img);
     if(ret->map == NULL){
