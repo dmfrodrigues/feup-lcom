@@ -13,8 +13,6 @@
 #include "kbc_macros.h"
 #include "timer.h"
 
-#include "foxy.h"
-
 // Any header files included below this line should have been created by you
 
 int main(int argc, char *argv[]) {
