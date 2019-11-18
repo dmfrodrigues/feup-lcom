@@ -270,8 +270,8 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
 
 int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
     int r;
-    if ((r = get_permissions_first_mbyte()))
-        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
+    //if ((r = get_permissions_first_mbyte()))
+    //    panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
     if (vbe_get_mode_information(INDEXED_1024_768)) {
         printf("%s: failed to get information for mode %x.\n", __func__, INDEXED_1024_768);
@@ -292,6 +292,8 @@ int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
     xpm_image_t img;
 
     uint8_t *map = xpm_load(xpm, type, &img);
+
+    
 
     for (int i = 0; i < img.width; i++) {
         for (int j = 0; j < img.height; j++) {
@@ -366,7 +368,7 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
 
 int(video_test_controller)() {
 
-    
+
 
     return 1;
 }
