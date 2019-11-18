@@ -4,13 +4,15 @@
 #include <lcom/lcf.h>
 #include <stdint.h>
 
-#define GET_RED(n) (0xFF & (n >> 16))
-#define GET_GRE(n) (0xFF & (n >>  8))
-#define GET_BLU(n) (0xFF & (n      ))
-#define SET_RED(n) ((n&0xFF) << 16)
-#define SET_GRE(n) ((n&0xFF) <<  8)
-#define SET_BLU(n) ((n&0xFF)      )
-#define SET_COLOR(r,g,b) (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
+#define GET_RED(n)          (0xFF & ((n) >> 16))
+#define GET_GRE(n)          (0xFF & ((n) >>  8))
+#define GET_BLU(n)          (0xFF & (n      ))
+#define SET_RED(n)          (((n)&0xFF) << 16)
+#define SET_GRE(n)          (((n)&0xFF) <<  8)
+#define SET_BLU(n)          (((n)&0xFF)      )
+#define SET_COLOR(r,g,b)    (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
+#define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
+#define PHYS2VIRT(n)
 
 int (get_permission)(unsigned int base_addr, unsigned int size);
 
