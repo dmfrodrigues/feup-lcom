@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
 }
 
 int(video_test_init)(uint16_t mode, uint8_t delay) {
-    int r;
-    if ((r = get_permissions_first_mbyte()))
-        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
+    //int r;
+    //if ((r = get_permissions_first_mbyte()))
+    //    panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
     if (vbe_get_mode_information(mode)) {
         printf("%s: failed to get information for mode %x.\n", __func__, mode);
@@ -79,8 +79,8 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
 // lcom_run lab5 "rectangle 115 100 100 100 100 FF0000"
 int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color) {
     int r;
-    if ((r = get_permissions_first_mbyte()))
-        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
+    //if ((r = get_permissions_first_mbyte()))
+    //    panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
     if (vbe_get_mode_information(mode)) {
         printf("%s: failed to get information for mode %x.\n", __func__, mode);
@@ -167,8 +167,8 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y, uint16_t width,
 
 int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, uint8_t step) {
     int r;
-    if ((r = get_permissions_first_mbyte()))
-        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
+    //if ((r = get_permissions_first_mbyte()))
+    //    panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
 
     if (vbe_get_mode_information(mode)) {
         printf("%s: failed to get information for mode %x.\n", __func__, mode);

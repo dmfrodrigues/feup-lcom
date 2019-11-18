@@ -14,7 +14,7 @@
 
 int (get_permission)(unsigned int base_addr, unsigned int size);
 
-int (get_permissions_first_mbyte)(void);
+//int (get_permissions_first_mbyte)(void);
 
 int (vbe_get_mode_information)(uint16_t mode);
 
