@@ -385,20 +385,20 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         return 1;
     }
     ///
-    uint16_t dx = xf-xi;
-    uint16_t dy = yf-yi;
-    if(xi != xf) dy = 0;
-    else         dx = 0;
-    uint16_t dframe = (speed <= 0 ? 1 : speed);
+    uint16_t Dx = xf-xi;
+    uint16_t Dy = yf-yi;
+    if(xi != xf) Dy = 0;
+    else         Dx = 0;
+    uint16_t v = (speed <= 0 ? 1 : speed);
     uint16_t Nt     = (speed <  0 ? -speed : 1);
-    uint32_t dt     = frequency/(uint32_t)fr_rate;
+    uint32_t ticks_per_frame = frequency/(uint32_t)fr_rate;
 
     /// loop stuff
     int ipc_status;
     message msg;
     /// cycle
     uint16_t x = xi, y = yi;
-    int i = Nt-1;
+    int i = Nt-1; //Nt-1
     int good = 1;
     while (good) {
         /* Get a request message. */
@@ -414,23 +414,21 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                         if (scancode[0] == ESC_BREAK_CODE) good = 0;
                     }
                     if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
-                        if(no_interrupts == dt){
-                            no_interrupts = 0;
+                        if(no_interrupts == 0){
                             i = (i+1)%Nt;
                             if(i == 0){
                                 sprite_set_pos(sp,x,y);
                                 sprite_draw(sp);
-                                static int cnt = 0;
-                                cnt++; printf("printed %d times\n", cnt);
-                                if(dx) draw_rectangle(min(x,x+dframe),y              , abs(dframe)    , sprite_get_h(sp), 0);
-                                if(dy) draw_rectangle(x              ,min(y,y+dframe),sprite_get_w(sp), abs(dframe)     , 0);
-                                if(dx) x += dframe;
-                                if(dy) y += dframe;
-                                if(dx && (x-xi)*(x-xf) >= 0){ x = xf; dx = 0; }
-                                if(dy && (y-yi)*(y-yf) >= 0){ y = yf; dy = 0; }
+                                if(Dx) draw_rectangle(min(x,x+v),y         , abs(v)         , sprite_get_h(sp), 0);
+                                if(Dy) draw_rectangle(x         ,min(y,y+v),sprite_get_w(sp), abs(v)          , 0);
+                                if(Dx) x += v;
+                                if(Dy) y += v;
+                                if(Dx && (x-xi)*(x-xf) >= 0){ x = xf; Dx = 0; }
+                                if(Dy && (y-yi)*(y-yf) >= 0){ y = yf; Dy = 0; }
                             }
                         }
                         timer_int_handler();
+                        no_interrupts %= ticks_per_frame;
                     }
                     break;
                 default:
