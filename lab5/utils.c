@@ -35,3 +35,7 @@ int (util_sys_inb)(int port, uint8_t *value) {
 int16_t abs16(int16_t x) {
     return (x >= 0) ? (int16_t)(x) : (int16_t)(-x);
 }
+
+uint16_t min(uint16_t a, uint16_t b){
+    return (b < a ? b : a);
+}

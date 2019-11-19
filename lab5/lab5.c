@@ -12,6 +12,7 @@
 #include "kbc.h"
 #include "kbc_macros.h"
 #include "timer.h"
+#include "utils.h"
 
 // Any header files included below this line should have been created by you
 
@@ -411,6 +412,26 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                 case HARDWARE: /* hardware interrupt notification */
                     if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
                         timer_int_handler();
+                        if(no_interrupts == dt){
+                            no_interrupts = 0;
+                            i = (i+1)%Nt;
+                            if(i == 0 && (dx || dy)){
+                                if(dx) draw_rectangle(min(x,x+dframe),y              , abs(dframe)    , sprite_get_h(sp), 0);
+                                if(dy) draw_rectangle(x              ,min(y,y+dframe),sprite_get_w(sp), abs(dframe)     , 0);
+                                if(dx) x += dframe;
+                                if(dy) y += dframe;
+                                if(dx && (x-xi)*(x-xf) >= 0){
+                                    x = xf;
+                                    dx = 0;
+                                }
+                                if(dy && (y-yi)*(y-yf) >= 0){
+                                    y = yf;
+                                    dy = 0;
+                                }
+                                sprite_set_pos(sp,x,y);
+                                sprite_draw(sp);
+                            }
+                        }
                     }
                     if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
                         kbc_ih();
@@ -424,26 +445,6 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
             /* no standart message expected: do nothing */
         }
         if(good == 0) continue;
-        if(no_interrupts == dt){
-            no_interrupts = 0;
-            i = (i+1)%Nt;
-            if(i == 0){
-                if(dx) x += dframe;
-                if(dy) y += dframe;
-                if((dx < 0 && x <= xf)||
-                   (dx > 0 && x >= xf)){
-                    x = xf;
-                    good = 0;
-                }
-                if((dy < 0 && y <= yf)||
-                   (dy > 0 && y >= yf)){
-                    y = yf;
-                    good = 0;
-                }
-                sprite_set_pos(sp,x,y);
-                sprite_draw(sp);
-            }
-        }
     }
 
     if (unsubscribe_interrupt(&kbc_id)) {
