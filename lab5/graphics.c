@@ -38,7 +38,7 @@ int (vbe_get_mode_information)(uint16_t mode) {
     // BIOS CALL
     if (sys_int86(&reg_86)) {
         printf("%s: sys_int86 failed\n", __func__);
-        if (free_memory()) {
+        if (free_memory_map()) {
             printf("%s: lm_free failed\n", __func__);
             return LCF_ERROR;
         }
@@ -75,7 +75,7 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
     // BIOS CALL
     if (sys_int86(&reg_86)) {
         printf("%s: sys_int86 failed\n", __func__);
-        if (free_memory()) {
+        if (free_memory_map()) {
             printf("%s: lm_free failed\n", __func__);
             return LCF_ERROR;
         }
@@ -168,7 +168,7 @@ int (map_vram)(void) {
     return SUCCESS;
 }
 
-int (free_memory)(void) {
+int (free_memory_map)(void) {
     return !lm_free(&mem_map);
 }
 
