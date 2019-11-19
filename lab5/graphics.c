@@ -172,16 +172,6 @@ int (free_memory_map)(void) {
     return !lm_free(&mem_map);
 }
 
-int (set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
-    if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
-        printf("%s: invalid pixel.\n", __func__);
-        return OUT_OF_RANGE;
-    }
-    unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
-    memcpy((void*)((unsigned int)video_mem + pos), &color, get_bytes_pixel());
-    return SUCCESS;
-}
-
 int (set_graphics_mode)(uint16_t mode) {
     struct reg86 reg_86;
 
@@ -199,6 +189,17 @@ int (set_graphics_mode)(uint16_t mode) {
         return BIOS_CALL_ERROR;
     }
 
+    return SUCCESS;
+}
+
+
+int (set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
+    if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
+        printf("%s: invalid pixel.\n", __func__);
+        return OUT_OF_RANGE;
+    }
+    unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
+    memcpy((void*)((unsigned int)video_mem + pos), &color, get_bytes_pixel());
     return SUCCESS;
 }
 
@@ -220,4 +221,12 @@ int (draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uin
 }
 int (vg_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color){
     return draw_rectangle(x,y,width,height, color);
+}
+
+int paint_screen(uint32_t color){
+    return draw_rectangle(0,0,get_XRes(),get_YRes(),color);
+}
+
+int clear_screen(){
+    return paint_screen(0);
 }

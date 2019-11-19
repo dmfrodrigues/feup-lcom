@@ -38,6 +38,9 @@ void sprite_set_pos(sprite_t *p, int x, int y){
     sprite_set_y(p, y);
 }
 
+int sprite_get_w(const sprite_t *p){ return p->w; }
+int sprite_get_h(const sprite_t *p){ return p->h; }
+
 void sprite_draw(const sprite_t *p){
     for (int i = 0; i < p->w; i++) {
         for (int j = 0; j < p->h; j++) {
