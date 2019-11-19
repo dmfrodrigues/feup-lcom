@@ -385,11 +385,11 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         return 1;
     }
     ///
-    uint16_t Dx = xf-xi;
-    uint16_t Dy = yf-yi;
-    if(xi != xf) Dy = 0;
-    else         Dx = 0;
-    uint16_t v = (speed <= 0 ? 1 : speed);
+    int16_t v = (speed <= 0 ? 1 : speed);
+    int16_t vx = 0, vy = 0;
+    if(xi != xf) vx = v;
+    else         vy = v;
+
     uint16_t Nt     = (speed <  0 ? -speed : 1);
     uint32_t ticks_per_frame = frequency/(uint32_t)fr_rate;
 
@@ -417,14 +417,14 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                         if(no_interrupts == 0){
                             i = (i+1)%Nt;
                             if(i == 0){
+                                if(vx) draw_rectangle(min(x-v,x),y         , abs(v)         , sprite_get_h(sp), 0);
+                                if(vy) draw_rectangle(x         ,min(y-v,y),sprite_get_w(sp), abs(v)          , 0);
                                 sprite_set_pos(sp,x,y);
                                 sprite_draw(sp);
-                                if(Dx) draw_rectangle(min(x,x+v),y         , abs(v)         , sprite_get_h(sp), 0);
-                                if(Dy) draw_rectangle(x         ,min(y,y+v),sprite_get_w(sp), abs(v)          , 0);
-                                if(Dx) x += v;
-                                if(Dy) y += v;
-                                if(Dx && (x-xi)*(x-xf) >= 0){ x = xf; Dx = 0; }
-                                if(Dy && (y-yi)*(y-yf) >= 0){ y = yf; Dy = 0; }
+                                vx = (vx > 0 ? min(vx, xf-x) : max(vx, xf-x) );
+                                vy = (vy > 0 ? min(vy, yf-y) : max(vy, yf-y) );
+                                x += vx;
+                                y += vy;
                             }
                         }
                         timer_int_handler();
@@ -437,7 +437,6 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         } else { /* received standart message, not a notification */
             /* no standart message expected: do nothing */
         }
-        if(good == 0) continue;
     }
 
     if (unsubscribe_interrupt(&kbc_id)) {
@@ -447,6 +446,8 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         }
         return 1;
     };
+
+    if (unsubscribe_interrupt(&timer_id)) return 1;
 
     if (vg_exit()) {
         printf("%s: vg_exit failed to exit to text mode.\n", __func__);

@@ -36,6 +36,5 @@ int16_t abs16(int16_t x) {
     return (x >= 0) ? (int16_t)(x) : (int16_t)(-x);
 }
 
-uint16_t min(uint16_t a, uint16_t b){
-    return (b < a ? b : a);
-}
+int16_t min(int16_t a, int16_t b){ return (b < a ? b : a); }
+int16_t max(int16_t a, int16_t b){ return (a < b ? b : a); }
