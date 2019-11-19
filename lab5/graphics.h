@@ -59,7 +59,7 @@ uint16_t get_BlueMaskSize(void);
 
 int (map_vram)(void);
 
-int (free_memory)(void);
+int (free_memory_map)(void);
 
 int (set_pixel)(uint16_t row, uint16_t col, uint32_t color);
 
