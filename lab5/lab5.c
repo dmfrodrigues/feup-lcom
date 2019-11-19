@@ -401,7 +401,6 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     int i = Nt-1;
     int good = 1;
     while (good) {
-
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
             printf("driver_receive failed with %d", r);
@@ -410,32 +409,28 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         if (is_ipc_notify(ipc_status)) { /* received notification */
             switch (_ENDPOINT_P(msg.m_source)) {
                 case HARDWARE: /* hardware interrupt notification */
+                    if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
+                        kbc_ih();
+                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
+                    }
                     if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
-                        timer_int_handler();
                         if(no_interrupts == dt){
                             no_interrupts = 0;
                             i = (i+1)%Nt;
-                            if(i == 0 && (dx || dy)){
+                            if(i == 0){
+                                sprite_set_pos(sp,x,y);
+                                sprite_draw(sp);
+                                static int cnt = 0;
+                                cnt++; printf("printed %d times\n", cnt);
                                 if(dx) draw_rectangle(min(x,x+dframe),y              , abs(dframe)    , sprite_get_h(sp), 0);
                                 if(dy) draw_rectangle(x              ,min(y,y+dframe),sprite_get_w(sp), abs(dframe)     , 0);
                                 if(dx) x += dframe;
                                 if(dy) y += dframe;
-                                if(dx && (x-xi)*(x-xf) >= 0){
-                                    x = xf;
-                                    dx = 0;
-                                }
-                                if(dy && (y-yi)*(y-yf) >= 0){
-                                    y = yf;
-                                    dy = 0;
-                                }
-                                sprite_set_pos(sp,x,y);
-                                sprite_draw(sp);
+                                if(dx && (x-xi)*(x-xf) >= 0){ x = xf; dx = 0; }
+                                if(dy && (y-yi)*(y-yf) >= 0){ y = yf; dy = 0; }
                             }
                         }
-                    }
-                    if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
-                        kbc_ih();
-                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
+                        timer_int_handler();
                     }
                     break;
                 default:
