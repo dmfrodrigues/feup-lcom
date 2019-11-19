@@ -29,6 +29,8 @@ int(util_get_MSB)(uint16_t val, uint8_t *msb);
  */
 int (util_sys_inb)(int port, uint8_t *value);
 
-uint16_t min(uint16_t a, uint16_t b);
+int16_t min(int16_t a, int16_t b);
+int16_t max(int16_t a, int16_t b);
+
 
 #endif //UTILS_H_INCLUDED
