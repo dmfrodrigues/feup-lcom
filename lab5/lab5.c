@@ -93,7 +93,7 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y, uint16_t width,
         return 1;
     };
 
-    if (draw_rectangle(x, y, width, height, color)) {
+    if (vg_draw_rectangle(x, y, width, height, color)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
             if (free_memory()) printf("%s: lm_free failed\n", __func__);
@@ -193,7 +193,7 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
                 B = (GET_BLU(first) + (col+row)*step) % (1 << get_BlueMaskSize());
                 color = SET_COLOR(R,G,B);
             }
-            if (draw_rectangle(col*W,row*H,W,H,color)) {
+            if (vg_draw_rectangle(col*W,row*H,W,H,color)) {
                 if (vg_exit()) {
                     printf("%s: vg_exit failed to exit to text mode.\n", __func__);
                     if (free_memory()) printf("%s: lm_free failed\n", __func__);
