@@ -53,8 +53,12 @@ int(video_test_init)(uint16_t mode, uint8_t delay) {
 
     if (set_graphics_mode(mode)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, mode);
-        if (vg_exit())
+        if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         return 1;
     };
 
@@ -90,16 +94,28 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y, uint16_t width,
 
     if (set_graphics_mode(mode)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, mode);
-        if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (vg_exit()) {
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         return 1;
     };
 
-    if (vg_draw_rectangle(x, y, width, height, color)) {
-        if (vg_exit()) {
-            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+    uint16_t w = (x + width > get_XRes()) ? (get_XRes() - x) : (width);
+    uint16_t h = (y + height > get_YRes()) ? (get_YRes() - y) : (height);
+
+    if (x < get_XRes() && y < get_YRes()) {
+        if (vg_draw_rectangle(x, y, w, h, color)) {
+            if (vg_exit()) {
+                printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+            }
+            if (free_memory_map()) {
+                printf("%s: lm_free failed\n", __func__);
+            }
+            return 1;
         }
-        return 1;
     }
 
     /// loop stuff
@@ -112,7 +128,9 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y, uint16_t width,
     if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     }
@@ -143,7 +161,9 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y, uint16_t width,
     if (unsubscribe_interrupt(&kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     };
@@ -177,6 +197,9 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
     if (set_graphics_mode(mode)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, mode);
         if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         return 1;
     };
 
@@ -194,12 +217,21 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
                 B = (GET_BLU(first) + (col+row)*step) % (1 << get_BlueMaskSize());
                 color = SET_COLOR(R,G,B);
             }
-            if (vg_draw_rectangle(col*W,row*H,W,H,color)) {
-                if (vg_exit()) {
-                    printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-                    if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+            uint16_t x = col * W;
+            uint16_t y = row * H;
+            uint16_t w = (x + W > get_XRes()) ? (get_XRes() - x) : (W);
+            uint16_t h = (y + H > get_YRes()) ? (get_YRes() - y) : (H);
+
+            if (x < get_XRes() && y < get_YRes()) {
+                if (vg_draw_rectangle(x,y,w,h,color)) {
+                    if (vg_exit()) {
+                        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+                    }
+                    if (free_memory_map()) {
+                        printf("%s: lm_free failed\n", __func__);
+                    }
+                    return 1;
                 }
-                return 1;
             }
         }
     }
@@ -213,7 +245,9 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
     if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     }
@@ -244,7 +278,9 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
     if (unsubscribe_interrupt(&kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     };
@@ -278,6 +314,9 @@ int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
     if (set_graphics_mode(INDEXED_1024_768)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, INDEXED_1024_768);
         if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         return 1;
     };
 
@@ -295,7 +334,9 @@ int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
     if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     }
@@ -326,7 +367,9 @@ int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
     if (unsubscribe_interrupt(&kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     };
@@ -360,6 +403,9 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     if (set_graphics_mode(INDEXED_1024_768)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, INDEXED_1024_768);
         if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         return 1;
     };
 
@@ -370,7 +416,13 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     uint8_t timer_irq_bit = 0;
     int timer_id = 0;
     int timer_irq = BIT(timer_irq_bit);
-    if(subscribe_timer_interrupt(timer_irq_bit, &timer_id)) return 1;
+    if(subscribe_timer_interrupt(timer_irq_bit, &timer_id)) {
+        if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
+        return 1;
+    }
 
     no_interrupts = 0;
     /// Keyboard interrupt handling
@@ -380,7 +432,9 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     if (subscribe_kbc_interrupt(kbc_irq_bit, &kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     }
@@ -442,12 +496,22 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     if (unsubscribe_interrupt(&kbc_id)) {
         if (vg_exit()) {
             printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-            if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
         }
         return 1;
     };
 
-    if (unsubscribe_interrupt(&timer_id)) return 1;
+    if (unsubscribe_interrupt(&timer_id)) {
+        if (vg_exit()) {
+            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        }
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
+        return 1;
+    }
 
     if (vg_exit()) {
         printf("%s: vg_exit failed to exit to text mode.\n", __func__);
@@ -467,9 +531,15 @@ int(video_test_controller)() {
 
     vg_vbe_contr_info_t cntrl_info;
 
-    vbe_get_controller_information(&cntrl_info);
+    if (vbe_get_controller_information(&cntrl_info)) {
+        printf("%s: vbe_get_controller_information failed to get controller info.\n", __func__);
+        return 1;
+    }
 
-    vg_display_vbe_contr_info(&cntrl_info);
+    if (vg_display_vbe_contr_info(&cntrl_info)) {
+        printf("%s: vg_display_vbe_contr_info failed to display controller info.\n", __func__);
+        return 1;
+    }
 
     return 0;
 }

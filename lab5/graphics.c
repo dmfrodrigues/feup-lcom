@@ -36,11 +36,10 @@ int (vbe_get_mode_information)(uint16_t mode) {
     reg_86.es = PB2BASE(mem_map.phys);
     reg_86.di = PB2OFF(mem_map.phys);
     // BIOS CALL
-    if (sys_int86(&reg_86)) {
+    if (sys_int86(&reg_86) || reg_86.ah != AH_SUCCESS) {
         printf("%s: sys_int86 failed\n", __func__);
         if (free_memory_map()) {
             printf("%s: lm_free failed\n", __func__);
-            return LCF_ERROR;
         }
         return BIOS_CALL_ERROR;
     }
@@ -73,11 +72,10 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
     reg_86.es = PB2BASE(controller_map.phys);
     reg_86.di = PB2OFF(controller_map.phys);
     // BIOS CALL
-    if (sys_int86(&reg_86)) {
+    if (sys_int86(&reg_86) || reg_86.ah != AH_SUCCESS) {
         printf("%s: sys_int86 failed\n", __func__);
-        if (free_memory_map()) {
+        if (!lm_free(&controller_map)) {
             printf("%s: lm_free failed\n", __func__);
-            return LCF_ERROR;
         }
         return BIOS_CALL_ERROR;
     }
@@ -117,10 +115,10 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
     virtual_ptr = phys_ptr + virtual_base;
     info_p->OEMProductRevPtr = (char*)(virtual_ptr);
 
-    lm_free(&controller_map);
-
-
-
+    if (!lm_free(&controller_map)) {
+        printf("%s: lm_free failed\n", __func__);
+        return LCF_ERROR;
+    }
 
     return SUCCESS;
 }
@@ -157,13 +155,21 @@ int (map_vram)(void) {
     int r;
     unsigned int vram_base = get_phys_addr();
     unsigned int vram_size = get_vram_size();
-    if ((r = get_permission(vram_base, vram_size)))
+    if ((r = get_permission(vram_base, vram_size))) {
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
+    }
 
     video_mem = vm_map_phys(SELF, (void *)vram_base, vram_size);
 
-    if (video_mem == MAP_FAILED)
+    if (video_mem == MAP_FAILED) {
+        if (free_memory_map()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
         panic("%s: couldn't map video memory.", __func__);
+    }
 
     return SUCCESS;
 }
@@ -184,7 +190,7 @@ int (set_graphics_mode)(uint16_t mode) {
     reg_86.bx = mode | LINEAR_FRAME_BUFFER_MD;
 
     // BIOS CALL
-    if (sys_int86(&reg_86)) {
+    if (sys_int86(&reg_86) || reg_86.ah != AH_SUCCESS) {
         printf("%s: sys_int86 failed\n", __func__);
         return BIOS_CALL_ERROR;
     }
