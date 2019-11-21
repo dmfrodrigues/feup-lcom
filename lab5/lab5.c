@@ -463,18 +463,15 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         if (is_ipc_notify(ipc_status)) { /* received notification */
             switch (_ENDPOINT_P(msg.m_source)) {
                 case HARDWARE: /* hardware interrupt notification */
-                    if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
-                        kbc_ih();
-                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
-                    }
                     if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
                         if(no_interrupts == 0){
                             i = (i+1)%Nt;
                             if(i == 0){
-                                if(vx) draw_rectangle(min(x-v,x),y         , abs(v)         , sprite_get_h(sp), 0);
-                                if(vy) draw_rectangle(x         ,min(y-v,y),sprite_get_w(sp), abs(v)          , 0);
+                                //if(vx) draw_rectangle(min(x-v,x),y         , abs(v)         , sprite_get_h(sp), 0);
+                                //if(vy) draw_rectangle(x         ,min(y-v,y),sprite_get_w(sp), abs(v)          , 0);
+                                clear_screen();
                                 sprite_set_pos(sp,x,y);
-                                sprite_draw(sp);
+                                sprite_draw(sp); printf("\nnew frame");
                                 vx = (vx > 0 ? min(vx, xf-x) : max(vx, xf-x) );
                                 vy = (vy > 0 ? min(vy, yf-y) : max(vy, yf-y) );
                                 x += vx;
@@ -483,6 +480,10 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                         }
                         timer_int_handler();
                         no_interrupts %= ticks_per_frame;
+                    }
+                    if (msg.m_notify.interrupts & kbc_irq) { /* subscribed interrupt */
+                        kbc_ih();
+                        if (scancode[0] == ESC_BREAK_CODE) good = 0;
                     }
                     break;
                 default:
