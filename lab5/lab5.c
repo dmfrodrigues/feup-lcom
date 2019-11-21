@@ -441,8 +441,8 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     ///
     int16_t v = (speed <= 0 ? 1 : speed);
     int16_t vx = 0, vy = 0;
-    if(xi != xf) vx = v;
-    else         vy = v;
+    if(xi != xf) vx = (xi < xf ? v : -v);
+    else         vy = (yi < yf ? v : -v);
 
     uint16_t Nt     = (speed <  0 ? -speed : 1);
     uint32_t ticks_per_frame = frequency/(uint32_t)fr_rate;
@@ -452,9 +452,11 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
     message msg;
     /// cycle
     uint16_t x = xi, y = yi;
+
     sprite_set_pos(sp,x,y);
     clear_screen();
-    sprite_draw(sp); printf("\nnew frame %d %d", x, y);
+    sprite_draw(sp);
+
     int good = 1;
     while (good) {
         /* Get a request message. */
@@ -478,8 +480,7 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                             y += vy;
                             sprite_set_pos(sp,x,y);
                             clear_screen();
-                            sprite_draw(sp); printf("\nnew frame %d %d", x, y);
-
+                            sprite_draw(sp);
 
                             no_interrupts = 0;
                         }
