@@ -26,4 +26,7 @@
 #define DIRECT_1280_1024_888    0x11B
 #define LINEAR_FRAME_BUFFER_MD  BIT(14)
 
+// Colors
+#define BLACK               0x00
+
 #endif /* end of include guard: GRAPHICS_MACROS_H_INCLUDED */

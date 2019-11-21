@@ -471,15 +471,48 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                         timer_int_handler();
                         if(no_interrupts == Nt*ticks_per_frame){
 
-                            if(vx) draw_rectangle((vx > 0 ? x : x+sprite_get_w(sp)+vx),y                                   , abs(v)         , sprite_get_h(sp), 0);
-                            if(vy) draw_rectangle(x                                   ,(vy > 0 ? y : y+sprite_get_h(sp)+vy),sprite_get_w(sp), abs(v)          , 0);
+                            if(vx) {
+                                uint16_t x_clear = (vx > 0 ? x : x+sprite_get_w(sp)+vx);
+                                uint16_t y_clear = y;
+                                uint16_t w = (x + abs(v) > get_XRes()) ? (get_XRes() - x) : (abs(v));
+                                uint16_t h = (y + sprite_get_h(sp) > get_YRes()) ? (get_YRes() - y) : (sprite_get_h(sp));
+
+                                if (x_clear < get_XRes() && y_clear < get_YRes()) {
+                                    if (draw_rectangle(x_clear,y_clear,w,h, BLACK)) {
+                                        if (vg_exit()) {
+                                            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+                                        }
+                                        if (free_memory_map()) {
+                                            printf("%s: lm_free failed\n", __func__);
+                                        }
+                                        return 1;
+                                    }
+                                }
+                            }
+                            if(vy) {
+                                uint16_t x_clear = x;
+                                uint16_t y_clear = (vy > 0 ? y : y+sprite_get_h(sp)+vy);
+                                uint16_t w = (x + sprite_get_w(sp) > get_XRes()) ? (get_XRes() - x) : (sprite_get_w(sp));
+                                uint16_t h = (y + abs(v) > get_YRes()) ? (get_YRes() - y) : (abs(v));
+
+                                if (x_clear < get_XRes() && y_clear < get_YRes()) {
+                                    if (draw_rectangle(x_clear,y_clear,w,h, BLACK)) {
+                                        if (vg_exit()) {
+                                            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+                                        }
+                                        if (free_memory_map()) {
+                                            printf("%s: lm_free failed\n", __func__);
+                                        }
+                                        return 1;
+                                    }
+                                }
+                            }
 
                             vx = (vx > 0 ? min(vx, xf-x) : max(vx, xf-x) );
                             vy = (vy > 0 ? min(vy, yf-y) : max(vy, yf-y) );
                             x += vx;
                             y += vy;
                             sprite_set_pos(sp,x,y);
-                            //clear_screen();
                             sprite_draw(sp);
 
                             no_interrupts = 0;
