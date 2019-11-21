@@ -234,5 +234,5 @@ int paint_screen(uint32_t color){
 }
 
 int clear_screen(){
-    return paint_screen(0);
+    return paint_screen(BLACK);
 }
