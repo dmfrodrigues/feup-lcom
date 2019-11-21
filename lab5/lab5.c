@@ -471,15 +471,15 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
                         timer_int_handler();
                         if(no_interrupts == Nt*ticks_per_frame){
 
-                            //if(vx) draw_rectangle(min(x-v,x),y         , abs(v)         , sprite_get_h(sp), 0);
-                            //if(vy) draw_rectangle(x         ,min(y-v,y),sprite_get_w(sp), abs(v)          , 0);
+                            if(vx) draw_rectangle((vx > 0 ? x : x+sprite_get_w(sp)+vx),y                                   , abs(v)         , sprite_get_h(sp), 0);
+                            if(vy) draw_rectangle(x                                   ,(vy > 0 ? y : y+sprite_get_h(sp)+vy),sprite_get_w(sp), abs(v)          , 0);
 
                             vx = (vx > 0 ? min(vx, xf-x) : max(vx, xf-x) );
                             vy = (vy > 0 ? min(vy, yf-y) : max(vy, yf-y) );
                             x += vx;
                             y += vy;
                             sprite_set_pos(sp,x,y);
-                            clear_screen();
+                            //clear_screen();
                             sprite_draw(sp);
 
                             no_interrupts = 0;
