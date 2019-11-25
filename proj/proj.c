@@ -109,10 +109,5 @@ int(proj_main_loop)(int argc, char *argv[]) {
         return 1;
     }
 
-
-    #ifdef DIOGO
-        hello
-    #endif
-
     return 0;
 }
