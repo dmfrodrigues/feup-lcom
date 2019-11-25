@@ -26,6 +26,14 @@ int(util_get_MSB)(uint16_t val, uint8_t *msb);
 int (util_sys_inb)(int port, uint8_t *value);
 
 /**
+ * @brief Unsubcribes Interrupts
+ * @param interrupt_id Interrupt ID, value via arguments on subscription of the interrupt_id
+ * @see subscribe_kbc_interrupt, subscribe_timer_interrupt
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ */
+int (unsubscribe_interrupt)(int *interrupt_id);
+
+/**
  * @brief Gets the minimum value out of two values.
  * @param a     First value
  * @param b     Second value

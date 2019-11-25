@@ -1,6 +1,7 @@
 #ifndef ERRORS_H_INCLUDED
 #define ERRORS_H_INCLUDED
 
+/** @brief Error Codes */
 enum errors {
     SUCCESS = 0,        /* @brief Sucessful */
     NULL_PTR,           /* @brief Null Pointer Error */
