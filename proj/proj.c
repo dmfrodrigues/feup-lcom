@@ -8,6 +8,7 @@
 #include "i8254.h"
 #include "kbc_macros.h"
 #include "graphics_macros.h"
+#include "mouse_macros.h"
 #include "proj_macros.h"
 #include "errors.h"
 
@@ -15,6 +16,7 @@
 #include "graphics.h"
 #include "timer.h"
 #include "keyboard.h"
+#include "mouse.h"
 #include "utils.h"
 
 int main(int argc, char* argv[]) {
@@ -58,6 +60,16 @@ int(proj_main_loop)(int argc, char *argv[]) {
         return 1;
     }
 
+    /// Mouse interrupt handling
+    uint8_t mouse_irq_bit = MOUSE_IRQ;
+    int mouse_id = 0;
+    int mouse_irq = BIT(mouse_irq_bit);
+
+    if (subscribe_mouse_interrupt(mouse_irq_bit, &mouse_id)) return 1; // subscribes mouse interrupts in exclusive mode
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if (mouse_set_data_report(true)) return 1; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+
     /// cycle
     int good = 1;
     while (good) {
@@ -75,6 +87,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
                     }
                     if (msg.m_notify.interrupts & timer_irq) { /* subscribed interrupt */
                         timer_int_handler();
+                    }
+
+                    if (msg.m_notify.interrupts & mouse_irq) { /* subscribed interrupt */
+                        mouse_ih();
                     }
                     break;
                 default:
@@ -94,6 +110,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
     if (unsubscribe_interrupt(&timer_id)) {
         return 1;
     }
+
+    // Unsubscribe Mouse Interrupts
+    if (sys_irqdisable(&mouse_id)) return 1; // temporarily disables our interrupts notifications
+    if (mouse_set_data_report(false)) return 1; // enables mouse data reporting
+    if (sys_irqenable(&mouse_id)) return 1; // re-enables our interrupts notifications
+    if (unsubscribe_interrupt(&mouse_id)) return 1; // unsubscribes interrupts
 
     return 0;
 }
