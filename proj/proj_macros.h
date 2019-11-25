@@ -1,5 +1,5 @@
-#ifndef TEMP_MACROS_H_INCLUDED
-#define TEMP_MACROS_H_INCLUDED
+#ifndef PROJ_MACROS_H_INCLUDED
+#define PROJ_MACROS_H_INCLUDED
 
 // WASD Movement Keys
 #define W_MAKE_CODE     0x11    /* @brief W Make Code */
@@ -15,4 +15,4 @@
 #define ESC_MAKE_CODE   0x01    /* @brief ESC Make Code */
 #define ESC_BREAK_CODE  0x81    /* @brief ESC Break Code */
 
-#endif /* end of include guard: TEMP_MACROS_H_INCLUDED */
+#endif /* end of include guard: PROJ_MACROS_H_INCLUDED */
