@@ -1,6 +1,6 @@
 PROG=proj
 
-SRCS= proj.c utils.c
+SRCS= proj.c
 
 CPPFLAGS += -pedantic -D __LCOM_OPTIMIZED_
 

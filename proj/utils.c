@@ -17,10 +17,6 @@ int(util_get_MSB)(uint16_t val, uint8_t *msb) {
     return SUCCESS;
 }
 
-#ifdef LAB3
-    uint32_t sys_inb_counter = 0;
-#endif
-
 int (util_sys_inb)(int port, uint8_t *value) {
     if(value == NULL) return NULL_PTR;
     uint32_t n = 0;
@@ -29,8 +25,10 @@ int (util_sys_inb)(int port, uint8_t *value) {
     return SUCCESS;
 }
 
-int16_t abs16(int16_t x) {
-    return (x >= 0) ? (int16_t)(x) : (int16_t)(-x);
+int (unsubscribe_interrupt)(int *interrupt_id) {
+    if (interrupt_id == NULL) return NULL_PTR;
+    if(sys_irqrmpolicy(interrupt_id)) return UNSBCR_ERROR;
+    return SUCCESS;
 }
 
 int16_t min(int16_t a, int16_t b){ return (b < a ? b : a); }
