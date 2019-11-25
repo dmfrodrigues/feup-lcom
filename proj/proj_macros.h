@@ -15,4 +15,7 @@
 #define ESC_MAKE_CODE   0x01    /* @brief ESC Make Code */
 #define ESC_BREAK_CODE  0x81    /* @brief ESC Break Code */
 
+// Refresh Rate
+#define REFRESH_RATE    60      /** @brief Screen refresh rate */
+
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */
