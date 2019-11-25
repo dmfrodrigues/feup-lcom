@@ -19,6 +19,7 @@
 #include "mouse.h"
 #include "utils.h"
 #include "interrupts_func.h"
+#include "proj_func.h"
 
 int main(int argc, char* argv[]) {
 
@@ -39,8 +40,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     if (vbe_get_mode_information(INDEXED_1024_768)) {
         printf("%s: failed to get information for mode %x.\n", __func__, INDEXED_1024_768);
-        if (vg_exit())
-            printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+        if (cleanup())
+            printf("%s: failed to cleanup.\n", __func__);
         return 1;
     }
 
@@ -48,10 +49,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     if (set_graphics_mode(INDEXED_1024_768)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, INDEXED_1024_768);
-        if (vg_exit()) printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-        if (free_memory_map()) {
-            printf("%s: lm_free failed\n", __func__);
-        }
+        if (cleanup())
+            printf("%s: failed to cleanup.\n", __func__);
         return 1;
     };
 
@@ -61,7 +60,11 @@ int(proj_main_loop)(int argc, char *argv[]) {
     message msg;
 
     /// subscribe interrupts
-    if (subscribe_all()) return 1;
+    if (subscribe_all()) {
+        if (cleanup())
+            printf("%s: failed to cleanup.\n", __func__);
+        return 1;
+    }
 
     /// cycle
     int good = 1;
@@ -90,17 +93,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     // Unsubscribe interrupts
-    if (unsubscribe_all()) return 1;
-
-
-    if (vg_exit()) {
-        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-        if (free_memory_map()) printf("%s: lm_free failed\n", __func__);
+    if (unsubscribe_all()) {
+        if (cleanup())
+            printf("%s: failed to cleanup.\n", __func__);
         return 1;
     }
 
-    if (free_memory_map()) {
-        printf("%s: lm_free failed\n", __func__);
+
+    if (cleanup()) {
+        printf("%s: failed to cleanup.\n", __func__);
         return 1;
     }
 
@@ -108,9 +109,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #ifdef DIOGO
         hello
     #endif
-
-
-    return 0;
 
     return 0;
 }
