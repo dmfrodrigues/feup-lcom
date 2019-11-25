@@ -21,6 +21,10 @@
 #include "interrupts_func.h"
 #include "proj_func.h"
 
+#ifdef DIOGO
+    #include "plus.xpm"
+#endif
+
 int main(int argc, char* argv[]) {
 
     lcf_set_language("EN-US");
@@ -38,8 +42,8 @@ int main(int argc, char* argv[]) {
 
 int(proj_main_loop)(int argc, char *argv[]) {
 
-    if (vbe_get_mode_information(INDEXED_1024_768)) {
-        printf("%s: failed to get information for mode %x.\n", __func__, INDEXED_1024_768);
+    if (vbe_get_mode_information(GRAPH_MODE)) {
+        printf("%s: failed to get information for mode %x.\n", __func__, GRAPH_MODE);
         if (cleanup())
             printf("%s: failed to cleanup.\n", __func__);
         return 1;
@@ -47,8 +51,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     map_vram(); // if function fails it aborts program
 
-    if (set_graphics_mode(INDEXED_1024_768)) {
-        printf("%s: failed to set graphic mode %x.\n", __func__, INDEXED_1024_768);
+    if (set_graphics_mode(GRAPH_MODE)) {
+        printf("%s: failed to set graphic mode %x.\n", __func__, GRAPH_MODE);
         if (cleanup())
             printf("%s: failed to cleanup.\n", __func__);
         return 1;
