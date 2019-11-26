@@ -19,6 +19,6 @@
 #define REFRESH_RATE    60      /** @brief Screen refresh rate */
 
 //Graphics mode
-#define GRAPH_MODE      DIRECT_1280_1024_888 /** @brief Graphic mode used */
+#define GRAPH_MODE      DIRECT_800_600 /** @brief Graphic mode used */
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */
