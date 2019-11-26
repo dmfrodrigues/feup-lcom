@@ -12,6 +12,7 @@
 #include "proj_macros.h"
 #include "errors.h"
 
+#include "sprite.h"
 #include "kbc.h"
 #include "graphics.h"
 #include "timer.h"
@@ -58,6 +59,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
         return 1;
     };
 
+    #ifdef DIOGO
+        sprite_t *sp = sprite_ctor((xpm_map_t)plus_xpm);
+        sprite_draw(sp);
+    #endif
 
     /// loop stuff
     int ipc_status, r;
