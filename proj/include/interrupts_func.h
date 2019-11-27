@@ -1,8 +1,6 @@
 #ifndef INTERRUPTS_FUNC_H_INCLUDED
 #define INTERRUPTS_FUNC_H_INCLUDED
 
-#include <stdint.h>
-
 /**
  * @brief Subscribes all drivers used (timer->keyboard->mouse)
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK

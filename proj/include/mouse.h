@@ -1,8 +1,6 @@
 #ifndef MOUSE_H_INCLUDED
 #define MOUSE_H_INCLUDED
 
-#include <stdint.h>
-
 /**
  * @brief Subscribes Mouse Interrupts and disables Minix Default IH
  * @param interrupt_bit Bit of Interrupt Vector that will be set when Mouse Interrupt is pending

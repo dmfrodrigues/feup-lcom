@@ -1,8 +1,8 @@
+#include <lcom/lcf.h>
+
 #include "graph.h"
 #include "graph_macros.h"
 #include "errors.h"
-
-#include <lcom/lcf.h>
 
 #include <stdio.h>
 
@@ -55,7 +55,7 @@ static int (get_permission)(unsigned int base_addr, unsigned int size) {
 //}
 
 /// MEMORY
-static void    *video_mem = NULL; /** @brief Frame-buffer VM address. */
+static uint8_t *video_mem = NULL; /** @brief Frame-buffer VM address. */
 static uint8_t *video_buf = NULL; /** @brief Primary buffer for drawing before copying to video_mem. */
 static mmap_t mem_map;
 static int (graph_free_memory)(void) {
@@ -276,7 +276,7 @@ int (graph_clear_screen)(void){
 }
 
 int (graph_draw)(void){
-    memcpy((uint8_t*)video_mem, video_buf, graph_get_vram_size());
+    memcpy(video_mem, video_buf, graph_get_vram_size());
     return 0;
 }
 

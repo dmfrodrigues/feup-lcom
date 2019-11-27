@@ -1,3 +1,5 @@
+#include <lcom/lcf.h>
+
 #include "interrupts_func.h"
 #include "timer.h"
 #include "i8254.h"
@@ -6,8 +8,6 @@
 #include "mouse.h"
 #include "utils.h"
 #include "errors.h"
-
-#include <lcom/lcf.h>
 
 static int timer_subscribed = 0, timer_id;
 
