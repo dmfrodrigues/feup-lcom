@@ -198,7 +198,6 @@ int (set_graphics_mode)(uint16_t mode) {
     return SUCCESS;
 }
 
-
 int (set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
         printf("%s: invalid pixel.\n", __func__);
@@ -207,6 +206,17 @@ int (set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
     memcpy((void*)((unsigned int)video_mem + pos), &color, get_bytes_pixel());
     return SUCCESS;
+}
+int (set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
+    unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
+    uint32_t color_;
+    memcpy(&color_, (void*)((unsigned int)video_mem + pos), get_bytes_pixel());
+    float a = 1.0-(alpha&0xFF)/(float)0xFF;
+    uint8_t r = GET_RED(color)*a + GET_RED(color_)*(1.0-a);
+    uint8_t g = GET_GRE(color)*a + GET_GRE(color_)*(1.0-a);
+    uint8_t b = GET_BLU(color)*a + GET_BLU(color_)*(1.0-a);
+    return set_pixel(x,y,SET_RGB(r,g,b));
+    //return set_pixel(x,y,color);
 }
 
 int (draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
