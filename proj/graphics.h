@@ -42,36 +42,38 @@ int (vbe_get_mode_information)(uint16_t mode);
 
 int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p);
 
-phys_bytes (get_phys_addr)    (void);
-unsigned   (get_vram_size)    (void);
-uint16_t   (get_XRes)         (void);
-uint16_t   (get_YRes)         (void);
-uint16_t   (get_bits_pixel)   (void);
-uint16_t   (get_bytes_pixel)  (void);
-uint16_t   (get_RedMaskSize)  (void);
-uint16_t   (get_GreenMaskSize)(void);
-uint16_t   (get_BlueMaskSize) (void);
+phys_bytes (graph_get_phys_addr)    (void);
+unsigned   (graph_get_vram_size)    (void);
+uint16_t   (graph_get_XRes)         (void);
+uint16_t   (graph_get_YRes)         (void);
+uint16_t   (graph_get_bits_pixel)   (void);
+uint16_t   (graph_get_bytes_pixel)  (void);
+uint16_t   (graph_get_RedMaskSize)  (void);
+uint16_t   (graph_get_GreenMaskSize)(void);
+uint16_t   (graph_get_BlueMaskSize) (void);
 
-int (map_vram)(void);
+int (graph_map_vram)(void);
 
-int (free_memory_map)(void);
+int (graph_free_memory_map)(void);
 
-int (set_pixel)      (uint16_t x, uint16_t y, uint32_t color);
-int (set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha);
+int (graph_set_pixel)      (uint16_t x, uint16_t y, uint32_t color);
+int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha);
 
 /**
  * @brief
  * @param mode
  * @return
  */
-int (set_graphics_mode)(uint16_t mode);
+int (graph_set_mode)(uint16_t mode);
 
-int (draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color);
+int (graph_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color);
 
-int (draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color);
+int (graph_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color);
 
-int (paint_screen)(uint32_t color);
+int (graph_paint_screen)(uint32_t color);
 
-int (clear_screen)();
+int (graph_clear_screen)(void);
+
+int (graph_draw)(void);
 
 #endif /* end of include guard: GRAPHICS_H_INCLUDED */

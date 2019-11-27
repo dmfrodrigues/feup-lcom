@@ -38,7 +38,7 @@ int (vbe_get_mode_information)(uint16_t mode) {
     // BIOS CALL
     if (sys_int86(&reg_86) || reg_86.ah != AH_SUCCESS) {
         printf("%s: sys_int86 failed\n", __func__);
-        if (free_memory_map()) {
+        if (graph_free_memory_map()) {
             printf("%s: lm_free failed\n", __func__);
         }
         return BIOS_CALL_ERROR;
@@ -123,40 +123,22 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
     return SUCCESS;
 }
 
-phys_bytes get_phys_addr(void) {
-    return vbe_mem_info.PhysBasePtr;
-}
+phys_bytes (graph_get_phys_addr)    (void){ return vbe_mem_info.PhysBasePtr; }
+unsigned   (graph_get_vram_size)    (void){ return vbe_mem_info.XResolution * vbe_mem_info.YResolution * ((vbe_mem_info.BitsPerPixel + 7) >> 3); }
+uint16_t   (graph_get_XRes)         (void){ return vbe_mem_info.XResolution; }
+uint16_t   (graph_get_YRes)         (void){ return vbe_mem_info.YResolution; }
+uint16_t   (graph_get_bits_pixel)   (void){ return vbe_mem_info.BitsPerPixel; }
+uint16_t   (graph_get_bytes_pixel)  (void){ return (vbe_mem_info.BitsPerPixel + 7) >> 3; }
+uint16_t   (graph_get_RedMaskSize)  (void){ return vbe_mem_info.RedMaskSize  ; }
+uint16_t   (graph_get_GreenMaskSize)(void){ return vbe_mem_info.GreenMaskSize; }
+uint16_t   (graph_get_BlueMaskSize) (void){ return vbe_mem_info.BlueMaskSize ; }
 
-unsigned int get_vram_size(void) {
-    return vbe_mem_info.XResolution * vbe_mem_info.YResolution * ((vbe_mem_info.BitsPerPixel + 7) >> 3);
-}
-
-uint16_t get_XRes(void) {
-    return vbe_mem_info.XResolution;
-}
-
-uint16_t get_YRes(void) {
-    return vbe_mem_info.YResolution;
-}
-
-uint16_t get_bits_pixel(void) {
-    return vbe_mem_info.BitsPerPixel;
-}
-
-uint16_t get_bytes_pixel(void) {
-    return (vbe_mem_info.BitsPerPixel + 7) >> 3;
-}
-
-uint16_t get_RedMaskSize  (void){ return vbe_mem_info.RedMaskSize  ; }
-uint16_t get_GreenMaskSize(void){ return vbe_mem_info.GreenMaskSize; }
-uint16_t get_BlueMaskSize (void){ return vbe_mem_info.BlueMaskSize ; }
-
-int (map_vram)(void) {
+int (graph_map_vram)(void) {
     int r;
-    unsigned int vram_base = get_phys_addr();
-    unsigned int vram_size = get_vram_size();
+    unsigned int vram_base = graph_get_phys_addr();
+    unsigned int vram_size = graph_get_vram_size();
     if ((r = get_permission(vram_base, vram_size))) {
-        if (free_memory_map()) {
+        if (graph_free_memory_map()) {
             printf("%s: lm_free failed\n", __func__);
         }
         panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
@@ -165,7 +147,7 @@ int (map_vram)(void) {
     video_mem = vm_map_phys(SELF, (void *)vram_base, vram_size);
 
     if (video_mem == MAP_FAILED) {
-        if (free_memory_map()) {
+        if (graph_free_memory_map()) {
             printf("%s: lm_free failed\n", __func__);
         }
         panic("%s: couldn't map video memory.", __func__);
@@ -174,11 +156,11 @@ int (map_vram)(void) {
     return SUCCESS;
 }
 
-int (free_memory_map)(void) {
+int (graph_free_memory_map)(void) {
     return !lm_free(&mem_map);
 }
 
-int (set_graphics_mode)(uint16_t mode) {
+int (graph_set_mode)(uint16_t mode) {
     struct reg86 reg_86;
 
     memset(&reg_86, 0, sizeof(struct reg86)); // reset struct
@@ -198,51 +180,55 @@ int (set_graphics_mode)(uint16_t mode) {
     return SUCCESS;
 }
 
-int (set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
+int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
         printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
     }
-    unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
-    memcpy((void*)((unsigned int)video_mem + pos), &color, get_bytes_pixel());
+    unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
+    memcpy((void*)((unsigned int)video_mem + pos), &color, graph_get_bytes_pixel());
     return SUCCESS;
 }
-int (set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
-    unsigned int pos = (x + y * vbe_mem_info.XResolution) * get_bytes_pixel();
+int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
+    unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     uint32_t color_;
-    memcpy(&color_, (void*)((unsigned int)video_mem + pos), get_bytes_pixel());
+    memcpy(&color_, (void*)((unsigned int)video_mem + pos), graph_get_bytes_pixel());
     float a = 1.0-(alpha&0xFF)/(float)0xFF;
     uint8_t r = GET_RED(color)*a + GET_RED(color_)*(1.0-a);
     uint8_t g = GET_GRE(color)*a + GET_GRE(color_)*(1.0-a);
     uint8_t b = GET_BLU(color)*a + GET_BLU(color_)*(1.0-a);
-    return set_pixel(x,y,SET_RGB(r,g,b));
+    return graph_set_pixel(x,y,SET_RGB(r,g,b));
     //return set_pixel(x,y,color);
 }
 
-int (draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
+int (graph_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
     int r;
     for (uint16_t i = 0; i < len; i++)
-        if ((r = set_pixel(x + i, y, color))) return r;
+        if ((r = graph_set_pixel(x + i, y, color))) return r;
     return SUCCESS;
 }
 int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
-    return draw_hline(x,y,len,color);
+    return graph_draw_hline(x,y,len,color);
 }
 
-int (draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
+int (graph_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
     int r;
     for (uint16_t i = 0; i < height; i++)
-        if ((r = draw_hline(x, y + i, width, color))) return r;
+        if ((r = graph_draw_hline(x, y + i, width, color))) return r;
     return SUCCESS;
 }
 int (vg_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color){
-    return draw_rectangle(x,y,width,height, color);
+    return graph_draw_rectangle(x,y,width,height, color);
 }
 
-int paint_screen(uint32_t color){
-    return draw_rectangle(0,0,get_XRes(),get_YRes(),color);
+int (graph_paint_screen)(uint32_t color){
+    return graph_draw_rectangle(0,0,graph_get_XRes(),graph_get_YRes(),color);
 }
 
-int clear_screen(){
-    return paint_screen(BLACK);
+int (graph_clear_screen)(void){
+    return graph_paint_screen(BLACK);
+}
+
+int (graph_draw)(void){
+    return 0;
 }

@@ -12,7 +12,7 @@ int cleanup(void) {
 
     if ((r = vg_exit()))
         printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-    if ((r = free_memory_map()))
+    if ((r = graph_free_memory_map()))
         printf("%s: lm_free failed\n", __func__);
 
     return r;
