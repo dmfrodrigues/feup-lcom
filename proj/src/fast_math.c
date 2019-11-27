@@ -1,3 +1,5 @@
+#include <lcom/lcf.h>
+
 #include "fast_math.h"
 
 #include <math.h>

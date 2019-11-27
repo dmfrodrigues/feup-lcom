@@ -1,9 +1,6 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 
-#include <lcom/lcf.h>
-#include <stdint.h>
-
 /// MACROS
 //#define GET_ALP(n)          (0xFF & ((n) >> 24))
 #define GET_RED(n)          (0xFF & ((n) >> 16))
