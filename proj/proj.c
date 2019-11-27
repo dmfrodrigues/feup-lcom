@@ -23,7 +23,7 @@
 #include "proj_func.h"
 
 #ifdef DIOGO
-    #include "shooter.xpm"
+    #include "shooter.h"
     #include "pistol.xpm"
 #endif
 
@@ -62,14 +62,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifdef DIOGO
         paint_screen(0x777777);
-        sprite_t *shooter = sprite_ctor((xpm_map_t)shooter_xpm); sprite_set_pos(shooter, 100, 100); sprite_set_center(shooter, 25, 25);
+        sprite_t *shooter1 = get_shooter(); sprite_set_pos(shooter1, 100, 100);
         for(double angle = 0; angle < 6.29; angle += 0.01){
-             sprite_set_angle(shooter, angle);
+             sprite_set_angle(shooter1, angle);
              //paint_screen(0x777777);
-             sprite_draw(shooter);
+             sprite_draw(shooter1);
              tickdelay(micros_to_ticks(10000));
         }
-        sprite_draw(shooter);
+        sprite_dtor(shooter1);
     #endif
 
     /// loop stuff

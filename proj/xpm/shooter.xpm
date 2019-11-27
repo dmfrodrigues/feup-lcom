@@ -1,5 +1,5 @@
 /* XPM */
-static char * shooter_xpm[] = {
+const char * shooter_xpm[] = {
 "50 50 6 1",
 " 	c None",
 ".	c #FFE97F",
