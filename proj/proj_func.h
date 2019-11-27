@@ -15,6 +15,12 @@ int cleanup(void);
  */
 void update_movement(void);
 
+void update_mouse_position(struct packet *p);
+
+int32_t get_mouse_X(void);
+
+int32_t get_mouse_Y(void);
+
 /**
  * @brief
  * @param
@@ -22,7 +28,7 @@ void update_movement(void);
  * @param
  * @return Angle
  */
-double get_mouse_angle(sprite_t *p, int32_t mouse_x, int32_t mouse_y);
+double get_mouse_angle(sprite_t *p);
 
 /**
  * @brief Get horizontal movement direction.

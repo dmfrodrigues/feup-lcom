@@ -28,7 +28,6 @@ static int hor_mov = REST, ver_mov = REST;
 void update_movement(void) {
     static int w_pressed = 0, a_pressed = 0, s_pressed = 0, d_pressed = 0;
     if (sz == 1) {
-        kbd_print_scancode(!(scancode[0] & BREAK_CODE_BIT), 1, scancode);
         switch(scancode[0]) {
         case W_MAKE_CODE  : w_pressed = 1;      break;
         case W_BREAK_CODE : w_pressed = 0;      break;
@@ -44,7 +43,21 @@ void update_movement(void) {
     hor_mov = d_pressed - a_pressed;
 }
 
-double get_mouse_angle(sprite_t *p, int32_t mouse_x, int32_t mouse_y) {
+static int32_t mouse_x = 0, mouse_y = 0;
+
+void update_mouse_position(struct packet *p) {
+    mouse_x = max(0, mouse_x + p->delta_x);
+    mouse_x = min(mouse_x, graph_get_XRes() - 1);
+
+    mouse_y = max(0, mouse_y + p->delta_y);
+    mouse_y = min(mouse_y, graph_get_YRes() - 1);
+}
+
+int32_t get_mouse_X(void) { return mouse_x; }
+
+int32_t get_mouse_Y(void) { return mouse_y; }
+
+double get_mouse_angle(sprite_t *p) {
     return atan2(sprite_get_y(p) - mouse_y, mouse_x - sprite_get_x(p));
 }
 
