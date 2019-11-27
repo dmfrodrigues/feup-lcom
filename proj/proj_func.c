@@ -49,7 +49,7 @@ void update_mouse_position(struct packet *p) {
     mouse_x = max(0, mouse_x + p->delta_x);
     mouse_x = min(mouse_x, graph_get_XRes() - 1);
 
-    mouse_y = max(0, mouse_y + p->delta_y);
+    mouse_y = max(0, mouse_y - p->delta_y);
     mouse_y = min(mouse_y, graph_get_YRes() - 1);
 }
 
