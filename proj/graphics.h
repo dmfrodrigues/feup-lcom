@@ -42,23 +42,15 @@ int (vbe_get_mode_information)(uint16_t mode);
 
 int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p);
 
-phys_bytes get_phys_addr(void);
-
-unsigned int get_vram_size(void);
-
-uint16_t get_XRes(void);
-
-uint16_t get_YRes(void);
-
-uint16_t get_bits_pixel(void);
-
-uint16_t get_bytes_pixel(void);
-
-uint16_t get_RedMaskSize(void);
-
-uint16_t get_GreenMaskSize(void);
-
-uint16_t get_BlueMaskSize(void);
+phys_bytes (get_phys_addr)    (void);
+unsigned   (get_vram_size)    (void);
+uint16_t   (get_XRes)         (void);
+uint16_t   (get_YRes)         (void);
+uint16_t   (get_bits_pixel)   (void);
+uint16_t   (get_bytes_pixel)  (void);
+uint16_t   (get_RedMaskSize)  (void);
+uint16_t   (get_GreenMaskSize)(void);
+uint16_t   (get_BlueMaskSize) (void);
 
 int (map_vram)(void);
 
