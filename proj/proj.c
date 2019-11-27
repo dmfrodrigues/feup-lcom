@@ -7,14 +7,14 @@
 
 #include "i8254.h"
 #include "kbc_macros.h"
-#include "graphics_macros.h"
+#include "graph_macros.h"
 #include "mouse_macros.h"
 #include "proj_macros.h"
 #include "errors.h"
 
 #include "sprite.h"
 #include "kbc.h"
-#include "graphics.h"
+#include "graph.h"
 #include "timer.h"
 #include "keyboard.h"
 #include "mouse.h"
@@ -43,22 +43,11 @@ int main(int argc, char* argv[]) {
 }
 
 int(proj_main_loop)(int argc, char *argv[]) {
-
-    if (vbe_get_mode_information(GRAPH_MODE)) {
-        printf("%s: failed to get information for mode %x.\n", __func__, GRAPH_MODE);
-        if (cleanup())
-            printf("%s: failed to cleanup.\n", __func__);
+    if(graph_init(GRAPH_MODE)){
+        printf("%s: failed to initalize graphics.\n", __func__);
+        if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
         return 1;
     }
-
-    graph_map_vram(); // if function fails it aborts program
-
-    if (graph_set_mode(GRAPH_MODE)) {
-        printf("%s: failed to set graphic mode %x.\n", __func__, GRAPH_MODE);
-        if (cleanup())
-            printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    };
 
     #ifdef DIOGO
         graph_paint_screen(0x777777);
