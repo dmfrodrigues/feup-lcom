@@ -115,9 +115,11 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 struct packet pp = mouse_parse_packet(packet_mouse_ih);
                                 update_mouse_position(&pp);
                                 sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
+                                printf("X: %d | Y: %d | XRES: %d | YRES: %d\n", get_mouse_X(), get_mouse_Y(), graph_get_XRes(), graph_get_YRes());
                                 graph_clear_screen();
                                 sprite_draw(crosshair);
                                 graph_draw();
+                                counter_mouse_ih = 0;
                             }
                             #endif
                         }

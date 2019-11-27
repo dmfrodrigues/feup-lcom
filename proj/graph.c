@@ -212,7 +212,7 @@ int (graph_set_mode)(uint16_t mode) {
 
 int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
-        printf("%s: invalid pixel.\n", __func__);
+        //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
     }
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
@@ -220,6 +220,10 @@ int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     return SUCCESS;
 }
 int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
+    if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
+        //printf("%s: invalid pixel.\n", __func__);
+        return OUT_OF_RANGE;
+    }
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     uint32_t color_;
     memcpy(&color_, video_buf + pos, graph_get_bytes_pixel());
