@@ -46,6 +46,13 @@ int main(int argc, char* argv[]) {
 }
 
 int(proj_main_loop)(int argc, char *argv[]) {
+
+    int r;
+
+    /// subscribe interrupts
+    if (subscribe_all()) { return 1; }
+
+    /// initialize graphics
     if(graph_init(GRAPH_MODE)){
         printf("%s: failed to initalize graphics.\n", __func__);
         if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
@@ -72,17 +79,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #endif
 
     /// loop stuff
-    int ipc_status, r;
+    int ipc_status;
     message msg;
-
-    /// subscribe interrupts
-    if (subscribe_all()) {
-        if (cleanup())
-            printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
-
-    /// cycle
     int good = 1;
 
     #ifdef DIOGO
