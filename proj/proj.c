@@ -29,6 +29,9 @@
     #include "shooter.h"
     #include "pistol.xpm"
 #endif
+#ifdef TELMO
+    #include "crosshair.h"
+#endif
 
 int main(int argc, char* argv[]) {
 
@@ -78,6 +81,13 @@ int(proj_main_loop)(int argc, char *argv[]) {
         sprite_dtor(shooter1);
     #endif
 
+    #ifdef TELMO
+    sprite_t *crosshair = get_crosshair();
+    graph_clear_screen();
+    sprite_draw(crosshair);
+    graph_draw();
+    #endif
+
     /// loop stuff
     int ipc_status;
     message msg;
@@ -100,6 +110,16 @@ int(proj_main_loop)(int argc, char *argv[]) {
                         if (msg.m_notify.interrupts & n) {
                             interrupt_handler(i);
                             if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
+                            #ifdef TELMO
+                            if (counter_mouse_ih >= 3) {
+                                struct packet pp = mouse_parse_packet(packet_mouse_ih);
+                                update_mouse_position(&pp);
+                                sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
+                                graph_clear_screen();
+                                sprite_draw(crosshair);
+                                graph_draw();
+                            }
+                            #endif
                         }
                     }
 

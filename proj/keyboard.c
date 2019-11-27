@@ -20,7 +20,7 @@ int sz = 1;
 int got_error_keyboard = SUCCESS;
 
 void (kbc_ih)(void) {
-    if(done) { update_movement(); sz = 1; }
+    if(done) { sz = 1; }
     else     sz++;
     uint8_t status = 0;
     got_error_keyboard = SUCCESS;
@@ -39,6 +39,7 @@ void (kbc_ih)(void) {
     scancode[sz-1] = byte;
     done = !(TWO_BYTE_CODE == byte);
 
+    if (done) update_movement();
 
 }
 
