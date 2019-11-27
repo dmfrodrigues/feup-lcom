@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_H_INCLUDED
-#define GRAPHICS_H_INCLUDED
+#ifndef GRAPH_H_INCLUDED
+#define GRAPH_H_INCLUDED
 
 #include <lcom/lcf.h>
 #include <stdint.h>
@@ -38,6 +38,9 @@ int (get_permission)(unsigned int base_addr, unsigned int size);
 
 //int (get_permissions_first_mbyte)(void);
 
+int (graph_init)(uint16_t mode);
+int (graph_cleanup)(void);
+
 int (vbe_get_mode_information)(uint16_t mode);
 
 int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p);
@@ -54,7 +57,7 @@ uint16_t   (graph_get_BlueMaskSize) (void);
 
 int (graph_map_vram)(void);
 
-int (graph_free_memory_map)(void);
+int (graph_free_memory)(void);
 
 int (graph_set_pixel)      (uint16_t x, uint16_t y, uint32_t color);
 int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha);
@@ -76,4 +79,4 @@ int (graph_clear_screen)(void);
 
 int (graph_draw)(void);
 
-#endif /* end of include guard: GRAPHICS_H_INCLUDED */
+#endif /* end of include guard: GRAPH_H_INCLUDED */

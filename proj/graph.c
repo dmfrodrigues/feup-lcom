@@ -1,12 +1,13 @@
-#include "graphics.h"
-#include "graphics_macros.h"
+#include "graph.h"
+#include "graph_macros.h"
 #include "errors.h"
 
 #include <lcom/lcf.h>
 
 #include <stdio.h>
 
-static void *video_mem; /** @brief Frame-buffer VM address */
+static void *video_mem = NULL; /** @brief Frame-buffer VM address. */
+static uint8_t *video_buf = NULL; /** @brief Primary buffer for drawing before copying to video_mem. */
 static vbe_mode_info_t vbe_mem_info;
 static mmap_t mem_map;
 
@@ -20,6 +21,30 @@ int (get_permission)(unsigned int base_addr, unsigned int size) {
 //int (get_permissions_first_mbyte)(void) {
 //    return get_permission(MBYTE_BASE, MBYTE_SIZE);
 //}
+
+int (graph_init)(uint16_t mode){
+    if (vbe_get_mode_information(mode)) {
+        printf("%s: failed to get information for mode %x.\n", __func__, mode);
+        return 1;
+    }
+
+    graph_map_vram(); // if function fails it aborts program
+
+    if (graph_set_mode(mode)) {
+        printf("%s: failed to set graphic mode %x.\n", __func__, mode);
+        return 1;
+    };
+    return SUCCESS;
+}
+
+int (graph_cleanup)(void){
+    int r = SUCCESS;
+    if ((r = vg_exit()))
+        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+    if ((r = graph_free_memory()))
+        printf("%s: lm_free failed\n", __func__);
+    return r;
+}
 
 int (vbe_get_mode_information)(uint16_t mode) {
     memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // reset values
@@ -38,7 +63,7 @@ int (vbe_get_mode_information)(uint16_t mode) {
     // BIOS CALL
     if (sys_int86(&reg_86) || reg_86.ah != AH_SUCCESS) {
         printf("%s: sys_int86 failed\n", __func__);
-        if (graph_free_memory_map()) {
+        if (graph_free_memory()) {
             printf("%s: lm_free failed\n", __func__);
         }
         return BIOS_CALL_ERROR;
@@ -124,7 +149,7 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
 }
 
 phys_bytes (graph_get_phys_addr)    (void){ return vbe_mem_info.PhysBasePtr; }
-unsigned   (graph_get_vram_size)    (void){ return vbe_mem_info.XResolution * vbe_mem_info.YResolution * ((vbe_mem_info.BitsPerPixel + 7) >> 3); }
+unsigned   (graph_get_vram_size)    (void){ return vbe_mem_info.XResolution * vbe_mem_info.YResolution * graph_get_bytes_pixel(); }
 uint16_t   (graph_get_XRes)         (void){ return vbe_mem_info.XResolution; }
 uint16_t   (graph_get_YRes)         (void){ return vbe_mem_info.YResolution; }
 uint16_t   (graph_get_bits_pixel)   (void){ return vbe_mem_info.BitsPerPixel; }
@@ -135,10 +160,10 @@ uint16_t   (graph_get_BlueMaskSize) (void){ return vbe_mem_info.BlueMaskSize ; }
 
 int (graph_map_vram)(void) {
     int r;
-    unsigned int vram_base = graph_get_phys_addr();
-    unsigned int vram_size = graph_get_vram_size();
+    const unsigned vram_base = graph_get_phys_addr();
+    const unsigned vram_size = graph_get_vram_size();
     if ((r = get_permission(vram_base, vram_size))) {
-        if (graph_free_memory_map()) {
+        if (graph_free_memory()) {
             printf("%s: lm_free failed\n", __func__);
         }
         panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
@@ -147,17 +172,22 @@ int (graph_map_vram)(void) {
     video_mem = vm_map_phys(SELF, (void *)vram_base, vram_size);
 
     if (video_mem == MAP_FAILED) {
-        if (graph_free_memory_map()) {
+        if (graph_free_memory()) {
             printf("%s: lm_free failed\n", __func__);
         }
         panic("%s: couldn't map video memory.", __func__);
     }
 
+    video_buf = malloc(vram_size);
+
     return SUCCESS;
 }
 
-int (graph_free_memory_map)(void) {
-    return !lm_free(&mem_map);
+int (graph_free_memory)(void) {
+    int r = SUCCESS;
+    free(video_buf); video_buf = NULL;
+    r = !lm_free(&mem_map);
+    return r;
 }
 
 int (graph_set_mode)(uint16_t mode) {
@@ -186,13 +216,13 @@ int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
         return OUT_OF_RANGE;
     }
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
-    memcpy((void*)((unsigned int)video_mem + pos), &color, graph_get_bytes_pixel());
+    memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
     return SUCCESS;
 }
 int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     uint32_t color_;
-    memcpy(&color_, (void*)((unsigned int)video_mem + pos), graph_get_bytes_pixel());
+    memcpy(&color_, video_buf + pos, graph_get_bytes_pixel());
     float a = 1.0-(alpha&0xFF)/(float)0xFF;
     uint8_t r = GET_RED(color)*a + GET_RED(color_)*(1.0-a);
     uint8_t g = GET_GRE(color)*a + GET_GRE(color_)*(1.0-a);
@@ -226,9 +256,12 @@ int (graph_paint_screen)(uint32_t color){
 }
 
 int (graph_clear_screen)(void){
-    return graph_paint_screen(BLACK);
+    //return graph_paint_screen(BLACK);
+    memset(video_buf, 0, graph_get_vram_size());
+    return SUCCESS;
 }
 
 int (graph_draw)(void){
+    memcpy((uint8_t*)video_mem, video_buf, graph_get_vram_size());
     return 0;
 }

@@ -22,6 +22,9 @@
 #include "interrupts_func.h"
 #include "proj_func.h"
 
+#include "fast_math.h"
+#include <math.h>
+
 #ifdef DIOGO
     #include "shooter.h"
     #include "pistol.xpm"
@@ -50,16 +53,22 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     #ifdef DIOGO
-        graph_paint_screen(0x777777);
+        printf("%d\n", 1000000-(int)(1000000*fm_sin(0.5*M_PI)));
+        printf("%d\n", (int)(1000000*fm_cos(0.5*M_PI)));
+
+        clock_t t = clock();
         sprite_t *shooter1 = get_shooter(); sprite_set_pos(shooter1, 100, 100);
-        for(double angle = 0; angle < 6.29; angle += 0.01){
+        for(double angle = 0; angle <= 6.283185; angle += 0.006283185){
              sprite_set_angle(shooter1, angle);
-             //paint_screen(0x777777);
+             //graph_paint_screen(0x777777);
+             graph_clear_screen();
              sprite_draw(shooter1);
-             tickdelay(micros_to_ticks(10000));
+             graph_draw();
         }
+        t = clock() - t; //printf("%d\n", CLOCKS_PER_SEC);
+        //double dt = ((double)t)/(double)CLOCKS_PER_SEC;
+        printf("Time taken: %d/%d \n", t, CLOCKS_PER_SEC);
         sprite_dtor(shooter1);
-        graph_draw();
     #endif
 
     /// loop stuff
@@ -75,6 +84,11 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     /// cycle
     int good = 1;
+
+    #ifdef DIOGO
+        good = 0;
+    #endif
+
     while (good) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
