@@ -4,13 +4,16 @@
 #include <lcom/lcf.h>
 #include <stdint.h>
 
+#define GET_ALP(n)          (0xFF & ((n) >> 24))
 #define GET_RED(n)          (0xFF & ((n) >> 16))
 #define GET_GRE(n)          (0xFF & ((n) >>  8))
 #define GET_BLU(n)          (0xFF & (n      ))
+#define SET_ALP(n)          (((n)&0xFF) << 24)
 #define SET_RED(n)          (((n)&0xFF) << 16)
 #define SET_GRE(n)          (((n)&0xFF) <<  8)
 #define SET_BLU(n)          (((n)&0xFF)      )
-#define SET_COLOR(r,g,b)    (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
+#define SET_RGB(r,g,b)      (             SET_RED(r) | SET_GRE(g) | SET_BLU(b))
+#define SET_ARGB(a,r,g,b)   (SET_ALP(a) | SET_RED(r) | SET_GRE(g) | SET_BLU(b))
 #define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
 
 typedef struct __attribute__((packed)) {
@@ -61,7 +64,8 @@ int (map_vram)(void);
 
 int (free_memory_map)(void);
 
-int (set_pixel)(uint16_t row, uint16_t col, uint32_t color);
+int (set_pixel)      (uint16_t x, uint16_t y, uint32_t color);
+int (set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha);
 
 /**
  * @brief
