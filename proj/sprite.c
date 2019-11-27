@@ -60,13 +60,13 @@ void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16
 void (sprite_draw)(const sprite_t *p){
     const int16_t diag = sqrt(p->w*p->w + p->h*p->h)+2;
     int16_t u, v;
-    for(int16_t y = max(0,p->y-diag); y < min(p->y+diag,get_YRes()); ++y){
-        for(int16_t x = max(0,p->x-diag); x < min(p->x+diag,get_XRes()); ++x){
+    for(int16_t y = max(0,p->y-diag); y < min(p->y+diag,graph_get_YRes()); ++y){
+        for(int16_t x = max(0,p->x-diag); x < min(p->x+diag,graph_get_XRes()); ++x){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < p->w && 0 <= v && v < p->h){
                 uint8_t *m = p->map + (v*p->w + u)*4;
                 uint32_t color = SET_RGB(*(m+2), *(m+1), *(m));
-                set_pixel_alpha(p->x + x, p->y + y, color, *(m+3));
+                graph_set_pixel_alpha(p->x + x, p->y + y, color, *(m+3));
             }
         }
     }

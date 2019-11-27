@@ -51,9 +51,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
         return 1;
     }
 
-    map_vram(); // if function fails it aborts program
+    graph_map_vram(); // if function fails it aborts program
 
-    if (set_graphics_mode(GRAPH_MODE)) {
+    if (graph_set_mode(GRAPH_MODE)) {
         printf("%s: failed to set graphic mode %x.\n", __func__, GRAPH_MODE);
         if (cleanup())
             printf("%s: failed to cleanup.\n", __func__);
@@ -61,7 +61,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     };
 
     #ifdef DIOGO
-        paint_screen(0x777777);
+        graph_paint_screen(0x777777);
         sprite_t *shooter1 = get_shooter(); sprite_set_pos(shooter1, 100, 100);
         for(double angle = 0; angle < 6.29; angle += 0.01){
              sprite_set_angle(shooter1, angle);
