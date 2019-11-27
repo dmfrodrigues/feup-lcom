@@ -70,6 +70,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
              tickdelay(micros_to_ticks(10000));
         }
         sprite_dtor(shooter1);
+        graph_draw();
     #endif
 
     /// loop stuff
