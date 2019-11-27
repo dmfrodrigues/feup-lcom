@@ -87,15 +87,33 @@ int(proj_main_loop)(int argc, char *argv[]) {
                     for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
                         if (msg.m_notify.interrupts & n) {
                             interrupt_handler(i);
+                            if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
                         }
                     }
-                    if (scancode[0] == ESC_BREAK_CODE) good = 0;
+
                     break;
                 default:
                     break; /* no other notifications expected: do nothing */
             }
         } else { /* received standart message, not a notification */
             /* no standart message expected: do nothing */
+        }
+
+        switch (get_hor_movement()) {
+            case LEFT:
+                printf("GOING LEFT.\n");
+                break;
+            case RIGHT:
+                printf("GOING RIGHT.\n");
+                break;
+        }
+        switch (get_ver_movement()) {
+            case UP:
+                printf("GOING UP.\n");
+                break;
+            case DOWN:
+                printf("GOING DOWN.\n");
+                break;
         }
     }
 
