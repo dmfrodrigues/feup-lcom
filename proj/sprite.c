@@ -4,13 +4,14 @@
 
 #include "graph.h"
 #include "utils.h"
+#include "fast_math.h"
 #include <math.h>
 
 struct sprite{
     int16_t x, y;
     uint16_t w, h;
     int16_t u0, v0;
-    double theta;
+    float theta;
     uint8_t *map;
 };
 
@@ -53,8 +54,8 @@ int sprite_get_h(const sprite_t *p){ return p->h; }
 void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
     int16_t dx = x - p->x;
     int16_t dy = y - p->y;
-    double s = sin(p->theta);
-    double c = cos(p->theta);
+    double s = fm_sin(p->theta);
+    double c = fm_cos(p->theta);
     *u = dx*c - dy*s + p->u0;
     *v = dx*s + dy*c + p->v0;
 }
