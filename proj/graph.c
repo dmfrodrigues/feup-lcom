@@ -6,47 +6,91 @@
 
 #include <stdio.h>
 
-static void *video_mem = NULL; /** @brief Frame-buffer VM address. */
-static uint8_t *video_buf = NULL; /** @brief Primary buffer for drawing before copying to video_mem. */
-static vbe_mode_info_t vbe_mem_info;
-static mmap_t mem_map;
+/// MACROS
+#define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
 
-int (get_permission)(unsigned int base_addr, unsigned int size) {
+/// STRUCT
+typedef struct __attribute__((packed)) {
+
+    char        VbeSignature[4]     ;
+    uint16_t    VbeVersion          ;
+    uint32_t    OemStringPtr        ;
+    uint8_t     Capabilities[4]     ;
+    uint32_t    VideoModePtr        ;
+    uint16_t    TotalMemory         ;
+
+    uint16_t    OemSoftwareRev      ;
+    uint32_t    OemVendorNamePtr    ;
+    uint32_t    OemProductNamePtr   ;
+    uint32_t    OemProductRevPtr    ;
+    char        Reserved[222]       ;
+
+    char        OemData[256]        ;
+} VbeInfoBlock;
+
+static vbe_mode_info_t vbe_mem_info;
+
+/// PUBLIC GET
+uint16_t   (graph_get_XRes)         (void){ return vbe_mem_info.XResolution; }
+uint16_t   (graph_get_YRes)         (void){ return vbe_mem_info.YResolution; }
+
+/// PRIVATE GET
+static uint16_t   (graph_get_bits_pixel)   (void){ return vbe_mem_info.BitsPerPixel; }
+static uint16_t   (graph_get_bytes_pixel)  (void){ return (graph_get_bits_pixel() + 7) >> 3; }
+static phys_bytes (graph_get_phys_addr)    (void){ return vbe_mem_info.PhysBasePtr; }
+static unsigned   (graph_get_vram_size)    (void){ return vbe_mem_info.XResolution * vbe_mem_info.YResolution * graph_get_bytes_pixel(); }
+//static uint16_t   (graph_get_RedMaskSize)  (void){ return vbe_mem_info.RedMaskSize  ; }
+//static uint16_t   (graph_get_GreenMaskSize)(void){ return vbe_mem_info.GreenMaskSize; }
+//static uint16_t   (graph_get_BlueMaskSize) (void){ return vbe_mem_info.BlueMaskSize ; }
+
+static int (get_permission)(unsigned int base_addr, unsigned int size) {
     struct minix_mem_range mmr;
     mmr.mr_base = base_addr;
     mmr.mr_limit = base_addr + size;
     return sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mmr);
 }
 
-//int (get_permissions_first_mbyte)(void) {
+//static int (get_permissions_first_mbyte)(void) {
 //    return get_permission(MBYTE_BASE, MBYTE_SIZE);
 //}
 
-int (graph_init)(uint16_t mode){
-    if (vbe_get_mode_information(mode)) {
-        printf("%s: failed to get information for mode %x.\n", __func__, mode);
-        return 1;
+/// MEMORY
+static void    *video_mem = NULL; /** @brief Frame-buffer VM address. */
+static uint8_t *video_buf = NULL; /** @brief Primary buffer for drawing before copying to video_mem. */
+static mmap_t mem_map;
+static int (graph_free_memory)(void) {
+    int r = SUCCESS;
+    free(video_buf); video_buf = NULL;
+    r = !lm_free(&mem_map);
+    return r;
+}
+static int (graph_map_vram)(void) {
+    int r;
+    const unsigned vram_base = graph_get_phys_addr();
+    const unsigned vram_size = graph_get_vram_size();
+    if ((r = get_permission(vram_base, vram_size))) {
+        if (graph_free_memory()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
+        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
     }
 
-    graph_map_vram(); // if function fails it aborts program
+    video_mem = vm_map_phys(SELF, (void *)vram_base, vram_size);
 
-    if (graph_set_mode(mode)) {
-        printf("%s: failed to set graphic mode %x.\n", __func__, mode);
-        return 1;
-    };
+    if (video_mem == MAP_FAILED) {
+        if (graph_free_memory()) {
+            printf("%s: lm_free failed\n", __func__);
+        }
+        panic("%s: couldn't map video memory.", __func__);
+    }
+
+    video_buf = malloc(vram_size);
+
     return SUCCESS;
 }
 
-int (graph_cleanup)(void){
-    int r = SUCCESS;
-    if ((r = vg_exit()))
-        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
-    if ((r = graph_free_memory()))
-        printf("%s: lm_free failed\n", __func__);
-    return r;
-}
-
-int (vbe_get_mode_information)(uint16_t mode) {
+/// INFO GET
+static int (vbe_get_mode_information)(uint16_t mode) {
     memset(&vbe_mem_info, 0, sizeof(vbe_mode_info_t)); // reset values
 
     struct reg86 reg_86;
@@ -72,8 +116,8 @@ int (vbe_get_mode_information)(uint16_t mode) {
     memcpy((void*)&vbe_mem_info, (void*)virtual_addr, mem_map.size);
     return SUCCESS;
 }
-
-int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
+/*
+static int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
     memset(info_p, 0, sizeof(vg_vbe_contr_info_t)); // reset values
 
     mmap_t controller_map;
@@ -147,50 +191,15 @@ int (vbe_get_controller_information)(vg_vbe_contr_info_t *info_p) {
 
     return SUCCESS;
 }
+*/
 
-phys_bytes (graph_get_phys_addr)    (void){ return vbe_mem_info.PhysBasePtr; }
-unsigned   (graph_get_vram_size)    (void){ return vbe_mem_info.XResolution * vbe_mem_info.YResolution * graph_get_bytes_pixel(); }
-uint16_t   (graph_get_XRes)         (void){ return vbe_mem_info.XResolution; }
-uint16_t   (graph_get_YRes)         (void){ return vbe_mem_info.YResolution; }
-uint16_t   (graph_get_bits_pixel)   (void){ return vbe_mem_info.BitsPerPixel; }
-uint16_t   (graph_get_bytes_pixel)  (void){ return (vbe_mem_info.BitsPerPixel + 7) >> 3; }
-uint16_t   (graph_get_RedMaskSize)  (void){ return vbe_mem_info.RedMaskSize  ; }
-uint16_t   (graph_get_GreenMaskSize)(void){ return vbe_mem_info.GreenMaskSize; }
-uint16_t   (graph_get_BlueMaskSize) (void){ return vbe_mem_info.BlueMaskSize ; }
-
-int (graph_map_vram)(void) {
-    int r;
-    const unsigned vram_base = graph_get_phys_addr();
-    const unsigned vram_size = graph_get_vram_size();
-    if ((r = get_permission(vram_base, vram_size))) {
-        if (graph_free_memory()) {
-            printf("%s: lm_free failed\n", __func__);
-        }
-        panic("%s: sys_privctl (ADD MEM) failed: %d\n", __func__, r);
-    }
-
-    video_mem = vm_map_phys(SELF, (void *)vram_base, vram_size);
-
-    if (video_mem == MAP_FAILED) {
-        if (graph_free_memory()) {
-            printf("%s: lm_free failed\n", __func__);
-        }
-        panic("%s: couldn't map video memory.", __func__);
-    }
-
-    video_buf = malloc(vram_size);
-
-    return SUCCESS;
-}
-
-int (graph_free_memory)(void) {
-    int r = SUCCESS;
-    free(video_buf); video_buf = NULL;
-    r = !lm_free(&mem_map);
-    return r;
-}
-
-int (graph_set_mode)(uint16_t mode) {
+/// INIT
+/**
+ * @brief
+ * @param mode
+ * @return
+ */
+static int (graph_set_mode)(uint16_t mode) {
     struct reg86 reg_86;
 
     memset(&reg_86, 0, sizeof(struct reg86)); // reset struct
@@ -209,7 +218,32 @@ int (graph_set_mode)(uint16_t mode) {
 
     return SUCCESS;
 }
+int (graph_init)(uint16_t mode){
+    if (vbe_get_mode_information(mode)) {
+        printf("%s: failed to get information for mode %x.\n", __func__, mode);
+        return 1;
+    }
 
+    graph_map_vram(); // if function fails it aborts program
+
+    if (graph_set_mode(mode)) {
+        printf("%s: failed to set graphic mode %x.\n", __func__, mode);
+        return 1;
+    };
+    return SUCCESS;
+}
+
+/// CLEANUP
+int (graph_cleanup)(void){
+    int r = SUCCESS;
+    if ((r = vg_exit()))
+        printf("%s: vg_exit failed to exit to text mode.\n", __func__);
+    if ((r = graph_free_memory()))
+        printf("%s: lm_free failed\n", __func__);
+    return r;
+}
+
+/// PIXEL DRAWING
 int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
         //printf("%s: invalid pixel.\n", __func__);
@@ -235,30 +269,6 @@ int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alph
     //return set_pixel(x,y,color);
 }
 
-int (graph_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
-    int r;
-    for (uint16_t i = 0; i < len; i++)
-        if ((r = graph_set_pixel(x + i, y, color))) return r;
-    return SUCCESS;
-}
-int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
-    return graph_draw_hline(x,y,len,color);
-}
-
-int (graph_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
-    int r;
-    for (uint16_t i = 0; i < height; i++)
-        if ((r = graph_draw_hline(x, y + i, width, color))) return r;
-    return SUCCESS;
-}
-int (vg_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color){
-    return graph_draw_rectangle(x,y,width,height, color);
-}
-
-int (graph_paint_screen)(uint32_t color){
-    return graph_draw_rectangle(0,0,graph_get_XRes(),graph_get_YRes(),color);
-}
-
 int (graph_clear_screen)(void){
     //return graph_paint_screen(BLACK);
     memset(video_buf, 0, graph_get_vram_size());
@@ -268,4 +278,19 @@ int (graph_clear_screen)(void){
 int (graph_draw)(void){
     memcpy((uint8_t*)video_mem, video_buf, graph_get_vram_size());
     return 0;
+}
+
+/// RECTANGLE
+int (graph_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
+    int r;
+    for (uint16_t i = 0; i < len; i++)
+        if ((r = graph_set_pixel(x + i, y, color))) return r;
+    return SUCCESS;
+}
+
+int (graph_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
+    int r;
+    for (uint16_t i = 0; i < height; i++)
+        if ((r = graph_draw_hline(x, y + i, width, color))) return r;
+    return SUCCESS;
 }
