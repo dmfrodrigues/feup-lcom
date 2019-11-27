@@ -2,7 +2,7 @@
 
 #include "sprite.h"
 
-#include "graphics.h"
+#include "graph.h"
 #include "utils.h"
 #include <math.h>
 
