@@ -13,12 +13,12 @@ struct sprite{
     uint8_t *map;
 };
 
-sprite_t* sprite_ctor(const xpm_map_t xpm){
+sprite_t* sprite_ctor(const char **xpm, int u0, int v0){
     sprite_t *ret = (sprite_t*)malloc(sizeof(sprite_t));
     if(ret == NULL) return NULL;
     enum xpm_image_type type = XPM_8_8_8_8;
     xpm_image_t img;
-    ret->map = xpm_load(xpm, type, &img);
+    ret->map = xpm_load((xpm_map_t)xpm, type, &img);
     if(ret->map == NULL){
         free(ret);
         return NULL;
@@ -27,12 +27,11 @@ sprite_t* sprite_ctor(const xpm_map_t xpm){
     ret->y = 0;
     ret->w = img.width;
     ret->h = img.height;
-    ret->u0 = 0;
-    ret->v0 = 0;
+    ret->u0 = u0;
+    ret->v0 = u0;
     ret->theta = 0;
     return ret;
 }
-
 void sprite_dtor(sprite_t *p){
     if(p == NULL) return;
     if(p->map) free(p->map);
@@ -41,15 +40,9 @@ void sprite_dtor(sprite_t *p){
 
 void sprite_set_x(sprite_t *p, int x){ p->x = x; }
 void sprite_set_y(sprite_t *p, int y){ p->y = y; }
-void sprite_set_pos(sprite_t *p, int x, int y){
-    sprite_set_x(p, x);
-    sprite_set_y(p, y);
-}
+void sprite_set_pos(sprite_t *p, int x, int y){ sprite_set_x(p, x); sprite_set_y(p, y); }
 void sprite_set_angle(sprite_t *p, double angle){ p->theta = angle; }
-void sprite_set_center(sprite_t *p, int u0, int v0){
-    p->u0 = u0;
-    p->v0 = v0;
-}
+void sprite_set_center(sprite_t *p, int u0, int v0){ p->u0 = u0; p->v0 = v0; }
 
 int sprite_get_w(const sprite_t *p){ return p->w; }
 int sprite_get_h(const sprite_t *p){ return p->h; }
@@ -57,10 +50,16 @@ int sprite_get_h(const sprite_t *p){ return p->h; }
 void sprite_src2pic(const sprite_t *p, int x, int y, int *u, int *v){
     int dx = x - p->x;
     int dy = y - p->y;
-    int du = dx*cos(p->theta) - dy*sin(p->theta);
-    int dv = dx*sin(p->theta) + dy*cos(p->theta);
-    *u = du + p->u0;
-    *v = dv + p->v0;
+    //int du = dx*cos(p->theta) - dy*sin(p->theta);
+    //int dv = dx*sin(p->theta) + dy*cos(p->theta);
+    //*u = du + p->u0;
+    //*v = dv + p->v0;
+    //*u = dx*cos(p->theta) - dy*sin(p->theta) + p->u0;
+    //*v = dx*sin(p->theta) + dy*cos(p->theta) + p->v0;
+    double s = sin(p->theta);
+    double c = cos(p->theta);
+    *u = dx*c - dy*s + p->u0;
+    *v = dx*s + dy*c + p->v0;
 }
 
 void sprite_draw(const sprite_t *p){
