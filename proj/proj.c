@@ -63,29 +63,28 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     #ifdef DIOGO
-        printf("%d\n", 1000000-(int)(1000000*fm_sin(0.5*M_PI)));
-        printf("%d\n", (int)(1000000*fm_cos(0.5*M_PI)));
-
+        //printf("%d\n", 1000000-(int)(1000000*fm_sin(0.5*M_PI)));
+        //printf("%d\n", (int)(1000000*fm_cos(0.5*M_PI)));
+        /*
         clock_t t = clock();
         sprite_t *shooter1 = get_shooter(); sprite_set_pos(shooter1, 100, 100);
         for(double angle = 0; angle <= 6.283185; angle += 0.006283185){
              sprite_set_angle(shooter1, angle);
-             //graph_paint_screen(0x777777);
              graph_clear_screen();
              sprite_draw(shooter1);
              graph_draw();
         }
-        t = clock() - t; //printf("%d\n", CLOCKS_PER_SEC);
-        //double dt = ((double)t)/(double)CLOCKS_PER_SEC;
+        t = clock() - t;
         printf("Time taken: %d/%d \n", t, CLOCKS_PER_SEC);
         sprite_dtor(shooter1);
+        */
     #endif
 
     #ifdef TELMO
-    sprite_t *crosshair = get_crosshair();
-    graph_clear_screen();
-    sprite_draw(crosshair);
-    graph_draw();
+        sprite_t *crosshair = get_crosshair();
+        graph_clear_screen();
+        sprite_draw(crosshair);
+        graph_draw();
     #endif
 
     /// loop stuff
@@ -132,23 +131,24 @@ int(proj_main_loop)(int argc, char *argv[]) {
         } else { /* received standart message, not a notification */
             /* no standart message expected: do nothing */
         }
-
-        switch (get_hor_movement()) {
-            case LEFT:
-                printf("GOING LEFT.\n");
-                break;
-            case RIGHT:
-                printf("GOING RIGHT.\n");
-                break;
-        }
-        switch (get_ver_movement()) {
-            case UP:
-                printf("GOING UP.\n");
-                break;
-            case DOWN:
-                printf("GOING DOWN.\n");
-                break;
-        }
+        #ifdef TELMO
+            switch (get_hor_movement()) {
+                case LEFT:
+                    printf("GOING LEFT.\n");
+                    break;
+                case RIGHT:
+                    printf("GOING RIGHT.\n");
+                    break;
+            }
+            switch (get_ver_movement()) {
+                case UP:
+                    printf("GOING UP.\n");
+                    break;
+                case DOWN:
+                    printf("GOING DOWN.\n");
+                    break;
+            }
+        #endif
     }
 
     // Unsubscribe interrupts
