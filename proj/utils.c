@@ -31,5 +31,5 @@ int (unsubscribe_interrupt)(int *interrupt_id) {
     return SUCCESS;
 }
 
-int16_t min(int16_t a, int16_t b){ return (b < a ? b : a); }
-int16_t max(int16_t a, int16_t b){ return (a < b ? b : a); }
+int32_t min(int32_t a, int32_t b){ return (b < a ? b : a); }
+int32_t max(int32_t a, int32_t b){ return (a < b ? b : a); }

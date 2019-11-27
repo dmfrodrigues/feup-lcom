@@ -39,7 +39,7 @@ int (unsubscribe_interrupt)(int *interrupt_id);
  * @param b     Second value
  * @return  The minimum of the two values
  */
-int16_t min(int16_t a, int16_t b);
+int32_t min(int32_t a, int32_t b);
 
 /**
  * @brief Gets the maximum value out of two values.
@@ -47,7 +47,7 @@ int16_t min(int16_t a, int16_t b);
  * @param b     Second value
  * @return  The maximum of the two values
  */
-int16_t max(int16_t a, int16_t b);
+int32_t max(int32_t a, int32_t b);
 
 
 #endif //UTILS_H_INCLUDED

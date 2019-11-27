@@ -45,8 +45,10 @@ void (sprite_set_pos)   (sprite_t *p, int16_t x, int16_t y){ sprite_set_x(p, x);
 void (sprite_set_angle) (sprite_t *p, double angle){ p->theta = angle; }
 void (sprite_set_center)(sprite_t *p, int16_t u0, int16_t v0){ p->u0 = u0; p->v0 = v0; }
 
-uint16_t (sprite_get_w)(const sprite_t *p){ return p->w; }
-uint16_t (sprite_get_h)(const sprite_t *p){ return p->h; }
+int sprite_get_x(const sprite_t *p){ return p->x; }
+int sprite_get_y(const sprite_t *p){ return p->y; }
+int sprite_get_w(const sprite_t *p){ return p->w; }
+int sprite_get_h(const sprite_t *p){ return p->h; }
 
 void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
     int16_t dx = x - p->x;

@@ -6,6 +6,7 @@
 #include "kbc_macros.h"
 #include "utils.h"
 #include "errors.h"
+#include "proj_func.h"
 
 int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     if (interrupt_id == NULL) return NULL_PTR;
@@ -19,7 +20,7 @@ int sz = 1;
 int got_error_keyboard = SUCCESS;
 
 void (kbc_ih)(void) {
-    if(done) sz = 1;
+    if(done) { update_movement(); sz = 1; }
     else     sz++;
     uint8_t status = 0;
     got_error_keyboard = SUCCESS;
@@ -37,6 +38,8 @@ void (kbc_ih)(void) {
 
     scancode[sz-1] = byte;
     done = !(TWO_BYTE_CODE == byte);
+
+
 }
 
 int (keyboard_poll)(uint8_t bytes[], uint8_t *size){
