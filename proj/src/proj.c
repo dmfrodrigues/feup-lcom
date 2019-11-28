@@ -14,10 +14,8 @@
 #include "graph.h"
 #include "sprite.h"
 #include "rectangle.h"
+#include "font.h"
 
-#ifdef DIOGO
-    #include "shooter.h"
-#endif
 #ifdef TELMO
     #include "crosshair.h"
 #endif
@@ -85,6 +83,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
         graph_draw();
         */
+
+
+
     #endif
 
     #ifdef TELMO
