@@ -11,7 +11,7 @@ struct sprite{
     int16_t x, y;
     uint16_t w, h;
     int16_t u0, v0;
-    float theta;
+    double theta;
     uint8_t *map;
 };
 

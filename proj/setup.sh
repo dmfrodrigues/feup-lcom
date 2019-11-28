@@ -1,0 +1,2 @@
+cd font
+./setup.sh
