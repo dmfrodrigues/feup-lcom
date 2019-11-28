@@ -1,6 +1,8 @@
 #ifndef PROJ_MACROS_H_INCLUDED
 #define PROJ_MACROS_H_INCLUDED
 
+#include "graph_macros.h"
+
 // WASD Movement Keys
 #define W_MAKE_CODE     0x11    /** @brief W Make Code */
 #define W_BREAK_CODE    0x91    /** @brief W Break Code */
