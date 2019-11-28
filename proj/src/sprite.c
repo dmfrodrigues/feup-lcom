@@ -40,9 +40,7 @@ void (sprite_dtor)(sprite_t *p){
     free(p);
 }
 
-void (sprite_set_x)     (sprite_t *p, int16_t x){ p->x = x; }
-void (sprite_set_y)     (sprite_t *p, int16_t y){ p->y = y; }
-void (sprite_set_pos)   (sprite_t *p, int16_t x, int16_t y){ sprite_set_x(p, x); sprite_set_y(p, y); }
+void (sprite_set_pos)   (sprite_t *p, int16_t x, int16_t y){ p->x = x; p->y = y; }
 void (sprite_set_angle) (sprite_t *p, double angle){ p->theta = angle; }
 void (sprite_set_center)(sprite_t *p, int16_t u0, int16_t v0){ p->u0 = u0; p->v0 = v0; }
 

@@ -2,32 +2,21 @@
 #include <lcom/proj.h>
 #include <lcom/liblm.h>
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "i8254.h"
-#include "kbc_macros.h"
-#include "graph_macros.h"
-#include "mouse_macros.h"
 #include "proj_macros.h"
-#include "errors.h"
+#include "proj_func.h"
 
-#include "sprite.h"
 #include "kbc.h"
-#include "graph.h"
 #include "timer.h"
 #include "keyboard.h"
 #include "mouse.h"
-#include "utils.h"
 #include "interrupts_func.h"
-#include "proj_func.h"
 
-#include "fast_math.h"
-#include <math.h>
+#include "graph.h"
+#include "sprite.h"
+#include "rectangle.h"
 
 #ifdef DIOGO
     #include "shooter.h"
-    #include "pistol.xpm"
 #endif
 #ifdef TELMO
     #include "crosshair.h"
@@ -78,6 +67,24 @@ int(proj_main_loop)(int argc, char *argv[]) {
         printf("Time taken: %d/%d \n", t, CLOCKS_PER_SEC);
         sprite_dtor(shooter1);
         */
+        /*
+        rectangle_t *rect = rectangle_ctor(100, 100, 100, 100);
+        rectangle_set_fill_color   (rect, 0x0000FF);
+        rectangle_set_outline_color(rect, 0xFF0000);
+        rectangle_set_outline_width(rect, 0);
+        rectangle_draw(rect);
+        rectangle_set_pos(rect, 205, 100);
+        rectangle_set_outline_width(rect, 1);
+        rectangle_draw(rect);
+        rectangle_set_pos(rect, 310, 100);
+        rectangle_set_outline_width(rect, 2);
+        rectangle_draw(rect);
+        rectangle_set_pos(rect, 415, 100);
+        rectangle_set_outline_width(rect, 3);
+        rectangle_draw(rect);
+
+        graph_draw();
+        */
     #endif
 
     #ifdef TELMO
@@ -91,10 +98,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     int ipc_status;
     message msg;
     int good = 1;
-
-    #ifdef DIOGO
-        good = 0;
-    #endif
 
     while (good) {
         /* Get a request message. */
