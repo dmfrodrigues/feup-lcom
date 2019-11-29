@@ -1,6 +1,7 @@
 #include <lcom/lcf.h>
 #include <lcom/proj.h>
 #include <lcom/liblm.h>
+#include <math.h>
 
 #include "proj_macros.h"
 #include "proj_func.h"
@@ -159,7 +160,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                             sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
                             double angle = get_mouse_angle(shooter1);
-                            sprite_set_angle(shooter1, angle);
+                            sprite_set_angle(shooter1, angle - M_PI_2);
                                 graph_clear_screen();
                                 sprite_draw(crosshair);
                                 sprite_draw(shooter1);
