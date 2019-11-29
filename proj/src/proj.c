@@ -55,62 +55,40 @@ int(proj_main_loop)(int argc, char *argv[]) {
         return 1;
     }
 
-    #ifdef DIOGO
-        //printf("%d\n", 1000000-(int)(1000000*fm_sin(0.5*M_PI)));
-        //printf("%d\n", (int)(1000000*fm_cos(0.5*M_PI)));
-        /*
-        rectangle_t *rect = rectangle_ctor(0,0,graph_get_XRes(), graph_get_YRes());
-        rectangle_set_fill_color(rect, WHITE);
+    font_t *consolas = font_ctor("/home/lcom/labs/proj/font/xpm2");
 
-        clock_t t = clock();
-        sprite_t *shooter1 = get_shooter(); sprite_set_pos(shooter1, 100, 100);
-        for(double angle = 0; angle <= 6.283185; angle += 0.006283185){
-             sprite_set_angle(shooter1, angle);
-             graph_clear_screen();
-             rectangle_draw(rect);
-             sprite_draw(shooter1);
-             graph_draw();
-        }
-        t = clock() - t;
-        printf("Time taken: %d/%d \n", t, CLOCKS_PER_SEC);
-        sprite_dtor(shooter1);
-        */
-        /*
-        rectangle_t *rect = rectangle_ctor(100, 100, 100, 100);
-        rectangle_set_fill_color   (rect, 0x0000FF);
-        rectangle_set_outline_color(rect, 0xFF0000);
-        rectangle_set_outline_width(rect, 0);
-        rectangle_draw(rect);
-        rectangle_set_pos(rect, 205, 100);
-        rectangle_set_outline_width(rect, 1);
-        rectangle_draw(rect);
-        rectangle_set_pos(rect, 310, 100);
-        rectangle_set_outline_width(rect, 2);
-        rectangle_draw(rect);
-        rectangle_set_pos(rect, 415, 100);
-        rectangle_set_outline_width(rect, 3);
-        rectangle_draw(rect);
-
+    /// Load stuff
+    {
+        graph_clear_screen();
+        text_t *txt = text_ctor(consolas, "Loading...");
+        text_draw(txt);
+        text_dtor(txt);
         graph_draw();
-        */
+    }
+    #ifdef DIOGO
+        graph_clear_screen();
 
-        font_t      *fnt  = font_ctor("/home/lcom/labs/proj/font/xpm2");
-
-
-        rectangle_t *rect = rectangle_ctor(100,100,100, 100);
-        rectangle_set_fill_color(rect, WHITE);
+        rectangle_t *rect = rectangle_ctor(0,0,400,100);
+        rectangle_set_pos(rect,
+                          graph_get_XRes()/2    - rectangle_get_w(rect)/2,
+                          graph_get_YRes()*0.25 - rectangle_get_h(rect)/2);
+        rectangle_set_fill_color(rect, BLACK);
+        rectangle_set_outline_width(rect, 2);
+        rectangle_set_outline_color(rect, WHITE);
         rectangle_draw(rect);
-        rectangle_dtor(rect);
 
-        text_t      *txt  = text_ctor(fnt, "Hello world!");
-        text_set_color(txt, 0x00FF00);
-        text_set_pos(txt, 100, 100);
+        text_t *txt  = text_ctor(consolas, "Hello world!");
+        text_set_color(txt, 0x888888);
+
+        text_set_pos(txt, rectangle_get_x(rect)+rectangle_get_w(rect)/2,
+                          rectangle_get_y(rect)+rectangle_get_h(rect)/2);
+        text_set_valign(txt, text_valign_center);
+        text_set_halign(txt, text_halign_center);
         text_draw(txt);
         text_dtor(txt);
 
         graph_draw();
-
-        font_dtor(fnt);
+        rectangle_dtor(rect);
 
         tickdelay(micros_to_ticks(1000000));
 
@@ -199,6 +177,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
             }
         #endif
     }
+
+    font_dtor(consolas);
 
     // Unsubscribe interrupts
     if (unsubscribe_all()) {

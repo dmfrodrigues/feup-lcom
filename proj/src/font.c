@@ -6,6 +6,7 @@
 #include "graph.h"
 #include "utils.h"
 #include "errors.h"
+#include <assert.h>
 
 struct glyph{
     uint16_t w, h;
@@ -93,6 +94,8 @@ struct text{
     int16_t x, y;
     int size;
     uint32_t color;
+    enum text_valign valign;
+    enum text_halign halign;
 };
 text_t* (text_ctor)(const font_t *fnt, const char *txt){
     if(fnt == NULL) return NULL;
@@ -103,8 +106,10 @@ text_t* (text_ctor)(const font_t *fnt, const char *txt){
     text_set_text(ret, txt);
     ret->x = 0;
     ret->y = 0;
-    ret->size = 70;
+    ret->size = 25;
     ret->color = BLACK;
+    ret->valign = text_valign_top;
+    ret->halign = text_halign_left;
     return ret;
 }
 void (text_dtor)(text_t *p){
@@ -118,55 +123,81 @@ void (text_set_text) (text_t *p, const char *txt){
     if(p->txt == NULL) return;
     strcpy(p->txt, txt);
 }
-void (text_set_pos)  (text_t *p, int16_t x, int16_t y){ p->x = x; p->y = y; }
-void (text_set_size) (text_t *p, unsigned size       ){ p->size = size;     }
-void (text_set_color)(text_t *p, uint32_t color      ){ p->color = color;   }
-void (text_draw)(const text_t *p){
-    printf("-%s-\n", p->txt);
-    const size_t len = strlen(p->txt);
-    uint16_t W = 0, H = 0;
-    for(size_t i = 0; i < len; ++i){
-        const glyph_t *g = p->fnt->glyphs[(size_t)p->txt[i]];
-        if(g != NULL){ W += g->w; H = max(H, g->h); }
-    }
-    printf("%d %d\n", W, H);
+void (text_set_pos)   (text_t *p, int16_t x, int16_t y   ){ p->x = x; p->y = y; }
+void (text_set_size)  (text_t *p, unsigned size          ){ p->size = size    ; }
+void (text_set_color) (text_t *p, uint32_t color         ){ p->color = color  ; }
+void (text_set_valign)(text_t *p, enum text_valign valign){ p->valign = valign; }
+void (text_set_halign)(text_t *p, enum text_halign halign){ p->halign = halign; }
 
-    uint8_t *alp_buf = malloc(W*H);
-
-    {
-        int16_t y = H;
-        int16_t x = 0;
-        for(size_t i = 0; i < len; ++i){
-            const glyph_t *g = p->fnt->glyphs[(size_t)p->txt[i]];
-            if(g != NULL){
-                if(glyph_draw_to_alpha_buffer(g, x, y, alp_buf, W, H)) return;
-                x += g->w;
+int (text_draw)(const text_t *p){
+    if(p == NULL) return NULL_PTR;
+    int ret = SUCCESS;
+    // Get buffer with rescaled text
+    uint8_t *alp_new_buf = NULL;
+    uint16_t newH, newW;{
+        const size_t len = strlen(p->txt);
+        uint16_t W = 0, H = 0; {
+            for(size_t i = 0; i < len; ++i){
+                const glyph_t *g = p->fnt->glyphs[(size_t)p->txt[i]];
+                if(g != NULL){ W += g->w; H = max(H, g->h); }
             }
         }
+        uint8_t *alp_buf = malloc(W*H);
+        if(alp_buf == NULL) return ALLOC_ERROR;{
+            int16_t y = H;
+            int16_t x = 0;
+            for(size_t i = 0; i < len; ++i){
+                const glyph_t *g = p->fnt->glyphs[(size_t)p->txt[i]];
+                if(g != NULL){
+                    if((ret = glyph_draw_to_alpha_buffer(g, x, y, alp_buf, W, H))) return ret;
+                    x += g->w;
+                }
+            }
+        }
+
+        double factor = (double)p->size/(double)H;
+
+        newH = H*factor;
+        newW = W*factor;
+        alp_new_buf = malloc(newW*newH);
+        if(alp_new_buf == NULL) return ALLOC_ERROR;
+
+        for(size_t newy = 0; newy < newH; ++newy){
+            size_t y = newy/factor;
+            for(size_t newx = 0; newx < newW; ++newx){
+                size_t x = newx/factor;
+                *(alp_new_buf+newx+newy*newW) = *(alp_buf+x+y*W);
+            }
+        }
+        free(alp_buf);
+
+
     }
-    double factor = (double)p->size/(double)H;
-
-    uint16_t newH = H*factor;
-    uint16_t newW = W*factor;
-
-    for(size_t newy = 0; newy < newH; ++newy){
-        size_t y = newy/factor;
-        for(size_t newx = 0; newx < newW; ++newx){
-            size_t x = newx/factor;
-            *(alp_buf+newx+newy*W) = *(alp_buf+x+y*W);
-            (void)x;
-            (void)y;
+    // Get initial value of x
+    int16_t initx;{
+        switch(p->halign){
+            case text_halign_left  : initx = p->x         ; break;
+            case text_halign_center: initx = p->x - newW/2; break;
+            case text_halign_right : initx = p->x - newW  ; break;
+            default: return LOGIC_ERROR;
         }
     }
-
-    printf("L163\n");
-    for(int16_t y = 0; y < newH; ++y){ //printf("L163,%d\n", y);
-        for(int16_t x = 0; x < newW; ++x){ //if(y > 147) printf("L164, %d %d\n", x, y);
-            uint8_t a = *(alp_buf+x+y*W); //if(y > 147) printf("L165\n");
-            graph_set_pixel_alpha(x+p->x,y+p->y,p->color, a); //if(y > 147) printf("L166\n");
+    // Get initial value of y
+    int16_t inity;{
+        switch(p->valign){
+            case text_valign_top   : inity = p->y         ; break;
+            case text_valign_center: inity = p->y - newH/2; break;
+            case text_valign_bottom: inity = p->y - newH  ; break;
+            default: return LOGIC_ERROR;
         }
     }
-    printf("L170\n");
-    free(alp_buf);
-    printf("L172\n");
+    // Draw text
+    for(int16_t newy = 0; newy < newH; ++newy){
+        for(int16_t newx = 0; newx < newW; ++newx){
+            uint8_t a = *(alp_new_buf+newx+newy*newW);
+            graph_set_pixel_alpha(initx+newx,inity+newy,p->color, a);
+        }
+    }
+    free(alp_new_buf);
+    return SUCCESS;
 }

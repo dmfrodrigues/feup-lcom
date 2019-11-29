@@ -1,43 +1,24 @@
 import os
+import sys
 import glob
 from PIL import Image
 
-im = Image.open("Consolas.png")
+f = sys.argv[1]
+WCHAR = int(sys.argv[2])
+HCHAR = int(sys.argv[3])
+Nw    = int(sys.argv[4])
+Nh    = int(sys.argv[5])
+i     = int(sys.argv[6])
 
+os.system("mkdir -p %s/png"%f)
+im = Image.open("%s/%s.png"%(f,f))
 W, H = im.size
-
-Nw = 16
-Nh = 6
-
-i = 32
-
-includes = ""
-lst = ""
-
-for j in range(i):
-    if lst != "": lst += ","
-    lst += "NULL"
-
-
 for h in range(Nh):
-    t = int(H/Nh)*h
-    b = int(H/Nh)*(h+1)
+    t = HCHAR*h
+    b = HCHAR*(h+1)
     for w in range(Nw):
-        #l = int((W*w)/Nw)
-        #r = int((W*(w+1))/Nw)
-        l = 59*w
-        r = 59*(w+1)
+        l = WCHAR*w
+        r = WCHAR*(w+1)
         im1 = im.crop((l,t,r,b))
-        im1.save("png/ascii%03d.png"%i)
-        os.system("convert png/ascii%03d.png xpm/ascii%03d.xpm"%(i,i))
-        
-        includes += '#include "%03d.xpm"\n'%i
-        if lst != "": lst += ","
-        lst += "%03d_xpm"%i
-
-        #DEV
-        os.system("rm png/ascii%03d.png"%i)
-
+        im1.save("%s/png/ascii%03d.png"%(f,i))
         i += 1
-
-os.system('sed -i "s/black/#000000/g" xpm/*.xpm')
