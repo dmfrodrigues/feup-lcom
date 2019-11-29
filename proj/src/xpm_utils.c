@@ -32,15 +32,20 @@ char** xpm_load_xpm2(const char *fpath){
         sscanf(line_buf, "%d %d %d %d", &w, &h, &num_colors, &chars_per_pixel);
         ret = malloc((1+num_colors+h)*sizeof(char*));
     }
-    ret[0] = malloc((sz+1)*sizeof(char));
+    ret[0] = malloc((sz+1)*sizeof(char)); if(ret[0] == NULL){ free(ret); return NULL; }
     strcpy(ret[0], line_buf);
-    
+
     for(int i = 1; i < 1+num_colors+h; ++i){
         sz = getline(&line_buf, &len, f);
         ret[i] = malloc((sz+1)*sizeof(char));
+        if(ret[i] == NULL){
+            for(int j = 0; j < i; ++j)
+                free(ret[i]);
+            free(ret);
+            return NULL;
+        }
         strcpy(ret[i], line_buf);
         ret[i][sz-1] = '\0';
-        printf("%s\n", ret[i]);
     }
     fclose(f); f = NULL;
     return ret;
