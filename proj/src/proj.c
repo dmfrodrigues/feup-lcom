@@ -22,6 +22,7 @@
 
 #ifdef TELMO
     #include "crosshair.h"
+    #include "shooter.h"
 #endif
 
 int main(int argc, char* argv[]) {
@@ -116,8 +117,11 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifdef TELMO
         sprite_t *crosshair = get_crosshair();
+        sprite_t *shooter1 = get_shooter();
+        sprite_set_pos(shooter1, 100, 100);
         graph_clear_screen();
         sprite_draw(crosshair);
+        sprite_draw(shooter1);
         graph_draw();
     #endif
 
@@ -144,16 +148,22 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             interrupt_handler(i);
                             if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
                             #ifdef TELMO
+                            update_movement(shooter1);
+                            printf("POS: %d %d\n", sprite_get_x(shooter1), sprite_get_y(shooter1));
                             if (counter_mouse_ih >= 3) {
                                 struct packet pp = mouse_parse_packet(packet_mouse_ih);
                                 update_mouse_position(&pp);
-                                sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
                                 printf("X: %d | Y: %d | XRES: %d | YRES: %d\n", get_mouse_X(), get_mouse_Y(), graph_get_XRes(), graph_get_YRes());
-                                graph_clear_screen();
-                                sprite_draw(crosshair);
-                                graph_draw();
                                 counter_mouse_ih = 0;
                             }
+
+                            sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
+                            double angle = get_mouse_angle(shooter1);
+                            sprite_set_angle(shooter1, angle);
+                                graph_clear_screen();
+                                sprite_draw(crosshair);
+                                sprite_draw(shooter1);
+                                graph_draw();
                             #endif
                         }
                     }

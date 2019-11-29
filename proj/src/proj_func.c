@@ -25,7 +25,7 @@ int cleanup(void) {
 
 static int hor_mov = REST, ver_mov = REST;
 
-void update_movement(void) {
+void update_key_presses(void) {
     static int w_pressed = 0, a_pressed = 0, s_pressed = 0, d_pressed = 0;
     if (sz == 1) {
         switch(scancode[0]) {
@@ -41,6 +41,12 @@ void update_movement(void) {
     }
     ver_mov = s_pressed - w_pressed;
     hor_mov = d_pressed - a_pressed;
+}
+
+void update_movement(sprite_t *p) {
+
+    static const int speed = 5;
+    sprite_set_pos(p, sprite_get_x(p) + speed * hor_mov, sprite_get_y(p) + speed * ver_mov);
 }
 
 static int32_t mouse_x = 0, mouse_y = 0;
