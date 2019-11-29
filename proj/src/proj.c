@@ -149,25 +149,29 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             interrupt_handler(i);
                             if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
                             #ifdef TELMO
-                            update_movement(shooter1);
-                            printf("POS: %d %d\n", sprite_get_x(shooter1), sprite_get_y(shooter1));
-                            if (counter_mouse_ih >= 3) {
-                                struct packet pp = mouse_parse_packet(packet_mouse_ih);
-                                update_mouse_position(&pp);
-                                printf("X: %d | Y: %d | XRES: %d | YRES: %d\n", get_mouse_X(), get_mouse_Y(), graph_get_XRes(), graph_get_YRes());
-                                counter_mouse_ih = 0;
+                            if (i == 0) {
+                                uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+                                if (no_interrupts % refresh_count_value == 0) {
+                                    update_movement(shooter1);
+                                    sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
+                                    double angle = get_mouse_angle(shooter1);
+                                    sprite_set_angle(shooter1, angle - M_PI_2);
+                                    graph_clear_screen();
+                                    sprite_draw(crosshair);
+                                    sprite_draw(shooter1);
+                                    graph_draw();
+                                }
                             }
-
-                            sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
-                            double angle = get_mouse_angle(shooter1);
-                            sprite_set_angle(shooter1, angle - M_PI_2);
-                                graph_clear_screen();
-                                sprite_draw(crosshair);
-                                sprite_draw(shooter1);
-                                graph_draw();
                             #endif
                         }
                     }
+                    #ifdef TELMO
+                    if (counter_mouse_ih >= 3) {
+                        struct packet pp = mouse_parse_packet(packet_mouse_ih);
+                        update_mouse_position(&pp);
+                        counter_mouse_ih = 0;
+                    }
+                    #endif
 
                     break;
                 default:
