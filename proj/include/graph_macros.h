@@ -28,5 +28,6 @@
 
 // Colors in RBG (8 bit)
 #define BLACK               0x000000
+#define WHITE               0xFFFFFF
 
 #endif /* end of include guard: GRAPHICS_MACROS_H_INCLUDED */

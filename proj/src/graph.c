@@ -1,9 +1,8 @@
 #include <lcom/lcf.h>
 
 #include "graph.h"
-#include "graph_macros.h"
-#include "errors.h"
 
+#include "errors.h"
 #include <stdio.h>
 
 /// MACROS
@@ -245,12 +244,33 @@ int (graph_cleanup)(void){
 
 /// PIXEL DRAWING
 int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
-    if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
+    /*
+    if (x < 0 || vbe_mem_info.XResolution <= x || y < 0 || vbe_mem_info.YResolution <= y) {
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
     }
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
+    return SUCCESS;
+    */
+    return graph_set_pixel_buffer(x, y, color, video_buf, graph_get_XRes(), graph_get_YRes());
+}
+int (graph_set_pixel_buffer)(uint16_t x, uint16_t y, uint32_t color, uint8_t *buf, uint16_t W, uint16_t H) {
+    if (x < 0 || W <= x || y < 0 || H <= y) {
+        //printf("%s: invalid pixel.\n", __func__);
+        return OUT_OF_RANGE;
+    }
+    unsigned int pos = (x + y * W) * graph_get_bytes_pixel();
+    memcpy(buf + pos, &color, graph_get_bytes_pixel());
+    return SUCCESS;
+}
+int (graph_set_pixel_alpha_buffer)(uint16_t x, uint16_t y, uint8_t alpha, uint8_t *alp_buf, uint16_t W, uint16_t H) {
+    if (x < 0 || W <= x || y < 0 || H <= y) {
+        //printf("%s: invalid pixel.\n", __func__);
+        return OUT_OF_RANGE;
+    }
+    unsigned int pos = x + y * W;
+    memcpy(alp_buf + pos, &alpha, 1);
     return SUCCESS;
 }
 int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
@@ -258,6 +278,7 @@ int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alph
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
     }
+    //printf("COLOR= %X, ALPHA = %X\n", color, alpha);
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     uint32_t color_;
     memcpy(&color_, video_buf + pos, graph_get_bytes_pixel());

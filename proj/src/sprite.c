@@ -65,9 +65,8 @@ void (sprite_draw)(const sprite_t *p){
         for(int16_t x = max(0,p->x-diag); x < min(p->x+diag,graph_get_XRes()); ++x){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < p->w && 0 <= v && v < p->h){
-                uint8_t *m = p->map + (v*p->w + u)*4;
-                uint32_t color = SET_RGB(*(m+2), *(m+1), *(m));
-                graph_set_pixel_alpha(p->x + x, p->y + y, color, *(m+3));
+                uint32_t c = *(uint32_t*)(p->map + (v*p->w + u)*4);
+                graph_set_pixel_alpha(p->x + x, p->y + y, GET_COLOR(c), GET_ALP(c));
             }
         }
     }
