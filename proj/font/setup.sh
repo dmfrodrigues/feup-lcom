@@ -1,2 +1,1 @@
-python3 split_font.py
-python3 xpm_to_xpm2.py
+./process_font.sh Consolas 59 147 16 6 32

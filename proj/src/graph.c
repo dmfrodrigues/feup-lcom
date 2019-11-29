@@ -256,6 +256,7 @@ int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     return graph_set_pixel_buffer(x, y, color, video_buf, graph_get_XRes(), graph_get_YRes());
 }
 int (graph_set_pixel_buffer)(uint16_t x, uint16_t y, uint32_t color, uint8_t *buf, uint16_t W, uint16_t H) {
+    if(buf == NULL) return NULL_PTR;
     if (x < 0 || W <= x || y < 0 || H <= y) {
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
@@ -265,6 +266,7 @@ int (graph_set_pixel_buffer)(uint16_t x, uint16_t y, uint32_t color, uint8_t *bu
     return SUCCESS;
 }
 int (graph_set_pixel_alpha_buffer)(uint16_t x, uint16_t y, uint8_t alpha, uint8_t *alp_buf, uint16_t W, uint16_t H) {
+    if(alp_buf == NULL) return NULL_PTR;
     if (x < 0 || W <= x || y < 0 || H <= y) {
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
