@@ -39,7 +39,7 @@ void (kbc_ih)(void) {
     scancode[sz-1] = byte;
     done = !(TWO_BYTE_CODE == byte);
 
-    if (done) update_movement();
+    if (done) update_key_presses();
 
 }
 

@@ -10,10 +10,12 @@
  */
 int cleanup(void);
 
+void update_key_presses(void);
+
 /**
  * @brief Updates movement variables.
  */
-void update_movement(void);
+void update_movement(sprite_t *p);
 
 void update_mouse_position(struct packet *p);
 
