@@ -10,6 +10,7 @@
 #include "timer.h"
 #include "keyboard.h"
 #include "mouse.h"
+#include "graph.h"
 #include "interrupts_func.h"
 
 #include "graph.h"
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
 
     //lcf_trace_calls("/home/lcom/labs/proj/trace.txt");
 
-    //lcf_log_output("/home/lcom/labs/proj/output.txt");
+    lcf_log_output("/home/lcom/labs/proj/output.txt");
 
     if (lcf_start(argc, argv)) return 1;
 
@@ -97,7 +98,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #ifdef TELMO
         sprite_t *crosshair = get_crosshair();
         sprite_t *shooter1 = get_shooter();
-        sprite_set_pos(shooter1, 100, 100);
+        sprite_set_pos(shooter1, graph_get_XRes()/2, graph_get_YRes()/2);
         graph_clear_screen();
         sprite_draw(crosshair);
         sprite_draw(shooter1);
@@ -147,6 +148,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                     if (counter_mouse_ih >= 3) {
                         struct packet pp = mouse_parse_packet(packet_mouse_ih);
                         update_mouse_position(&pp);
+                        //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
                         counter_mouse_ih = 0;
                     }
                     #endif
