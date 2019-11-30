@@ -69,7 +69,7 @@ void (sprite_draw)(const sprite_t *p){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < p->w && 0 <= v && v < p->h){
                 uint32_t c = *(uint32_t*)(p->map + (v*p->w + u)*4);
-                graph_set_pixel_alpha(p->x + x, p->y + y, GET_COLOR(c), GET_ALP(c));
+                graph_set_pixel_alpha(x, y, GET_COLOR(c), GET_ALP(c));
             }
         }
     }

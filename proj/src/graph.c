@@ -280,7 +280,6 @@ int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alph
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
     }
-    //printf("COLOR= %X, ALPHA = %X\n", color, alpha);
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     uint32_t color_;
     memcpy(&color_, video_buf + pos, graph_get_bytes_pixel());
