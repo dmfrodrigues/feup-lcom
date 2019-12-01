@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "timer.h"
+
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
   lcf_set_language("EN-US");
@@ -39,8 +41,6 @@ int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
     if (timer_set_frequency(timer, freq)) return 1;
     return 0;
 }
-
-extern int no_interrupts;
 
 int(timer_test_int)(uint8_t time) {
     const int frequency = 60; // Frequency asummed at 60Hz
