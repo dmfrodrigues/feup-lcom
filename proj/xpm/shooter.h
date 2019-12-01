@@ -2,5 +2,5 @@
 #include "sprite.h"
 
 sprite_t* get_shooter(){
-    return sprite_ctor(shooter_xpm, 24, 24);
+    return sprite_ctor((const char **)shooter_xpm, 34, 34);
 }
