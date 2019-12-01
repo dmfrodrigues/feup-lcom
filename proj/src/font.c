@@ -72,13 +72,19 @@ font_t* (font_ctor)(const char *s){
         free(ret);
         return NULL;
     }
+    int good = false;
     char filepath[1024];
     for(size_t i = 0; i < ret->nchars; ++i){
         sprintf(filepath, "%s/ascii%03d.xpm2", s, i);
         char **xpm = xpm_load_xpm2(filepath);
         ret->glyphs[i] = glyph_ctor((const char**)xpm);
+        if(ret->glyphs[i] != NULL) good = true;
     }
-    return ret;
+    if(good) return ret;
+    else{
+        //font_dtor(ret);
+        return NULL;
+    }
 }
 void (font_dtor)(font_t *p){
     if(p == NULL) return;

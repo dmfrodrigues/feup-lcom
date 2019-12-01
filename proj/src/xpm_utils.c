@@ -21,7 +21,7 @@ void xpm_save_as_xpm2(char **p, const char *s){
 char** xpm_load_xpm2(const char *fpath){
     FILE *f = fopen(fpath, "r");
     if(f == NULL) return NULL;
-    char *line_buf = malloc(1024*sizeof(char)); size_t len = 1024;
+    size_t len = 1024; char *line_buf = malloc(len*sizeof(char));
     int sz;
 
     char **ret = NULL;
