@@ -99,7 +99,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         sprite_t *crosshair = get_crosshair();
         sprite_t *shooter1 = get_shooter();
         sprite_set_pos(shooter1, graph_get_XRes()/2, graph_get_YRes()/2);
-        sprite_set_scale(shooter1, 0.5);
+        sprite_set_scale(shooter1, 4);
         graph_clear_screen();
         sprite_draw(crosshair);
         sprite_draw(shooter1);
