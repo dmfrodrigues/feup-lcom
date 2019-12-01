@@ -301,18 +301,3 @@ int (graph_draw)(void){
     memcpy(video_mem, video_buf, graph_get_vram_size());
     return 0;
 }
-
-/// RECTANGLE
-int (graph_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
-    int r;
-    for (uint16_t i = 0; i < len; i++)
-        if ((r = graph_set_pixel(x + i, y, color))) return r;
-    return SUCCESS;
-}
-
-int (graph_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color)	{
-    int r;
-    for (uint16_t i = 0; i < height; i++)
-        if ((r = graph_draw_hline(x, y + i, width, color))) return r;
-    return SUCCESS;
-}

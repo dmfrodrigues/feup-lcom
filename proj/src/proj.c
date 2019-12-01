@@ -17,15 +17,12 @@
 #include "sprite.h"
 #include "rectangle.h"
 #include "font.h"
+#include "ent.h"
 
-#ifdef DIOGO
-    #include "shooter.h"
-#endif
-
-#ifdef TELMO
-    #include "crosshair.h"
-    #include "shooter.h"
-#endif
+#include "crosshair.h"
+#include "shooter.h"
+#include "pistol.h"
+#include "nothing.h"
 
 int main(int argc, char* argv[]) {
 
@@ -46,6 +43,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
 
+    font_t *consolas = font_ctor("/home/lcom/labs/proj/font/Consolas/xpm2");
+    if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
+
     /// subscribe interrupts
     if (subscribe_all()) { return 1; }
 
@@ -56,16 +56,27 @@ int(proj_main_loop)(int argc, char *argv[]) {
         return 1;
     }
 
-    font_t *consolas = font_ctor("/home/lcom/labs/proj/font/xpm2");
-
     /// Load stuff
+    basic_sprite_t *bsp_crosshair = NULL;
+    basic_sprite_t *bsp_shooter   = NULL;
+    basic_sprite_t *bsp_pistol    = NULL;
+    basic_sprite_t *bsp_nothing   = NULL;
+    sprite_t       *sp_crosshair  = NULL;
     {
         graph_clear_screen();
         text_t *txt = text_ctor(consolas, "Loading...");
         text_draw(txt);
         text_dtor(txt);
         graph_draw();
+
+        bsp_crosshair = get_crosshair(); if(bsp_crosshair == NULL) printf("Failed to get crosshair\n");
+        bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
+        bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
+        bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
+
+        sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
+
     #ifdef DIOGO
         graph_clear_screen();
 
@@ -96,13 +107,19 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #endif
 
     #ifdef TELMO
-        sprite_t *crosshair = get_crosshair();
-        sprite_t *shooter1 = get_shooter();
-        sprite_set_pos(shooter1, graph_get_XRes()/2, graph_get_YRes()/2);
-        sprite_set_scale(shooter1, 4);
+        ent_set_scale(2.0);
+
+        ent_t *shooter1 = ent_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+        ent_set_pos(shooter1, 0, 0);
+        ent_set_origin(ent_get_x(shooter1)-ent_get_XLength()/2.0,
+                       ent_get_y(shooter1)-ent_get_YLength()/2.0);
+
+        ent_t *shooter2 = ent_ctor(bsp_shooter, bsp_nothing);
+        ent_set_pos(shooter2, -50, -50);
+
         graph_clear_screen();
-        sprite_draw(crosshair);
-        sprite_draw(shooter1);
+        ent_draw(shooter1);
+        sprite_draw(sp_crosshair);
         graph_draw();
     #endif
 
@@ -133,12 +150,16 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(shooter1);
-                                    sprite_set_pos(crosshair, get_mouse_X(), get_mouse_Y());
+                                    ent_set_origin(ent_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                   ent_get_y(shooter1)-ent_get_YLength()/2.0);
+
+                                    sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
                                     double angle = get_mouse_angle(shooter1);
-                                    sprite_set_angle(shooter1, angle - M_PI_2);
+                                    ent_set_angle(shooter1, angle - M_PI_2);
                                     graph_clear_screen();
-                                    sprite_draw(crosshair);
-                                    sprite_draw(shooter1);
+                                    ent_draw(shooter2);
+                                    ent_draw(shooter1);
+                                    sprite_draw(sp_crosshair);
                                     graph_draw();
                                 }
                             }
@@ -181,7 +202,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
         #endif
     }
 
-    font_dtor(consolas);
+    #ifdef TELMO
+        ent_dtor(shooter1); shooter1 = NULL;
+    #endif
+
+    basic_sprite_dtor(bsp_crosshair); bsp_crosshair = NULL;
+    basic_sprite_dtor(bsp_shooter  ); bsp_shooter   = NULL;
+    sprite_dtor      (sp_crosshair ); sp_crosshair  = NULL;
+    font_dtor        (consolas     ); consolas      = NULL;
 
     // Unsubscribe interrupts
     if (unsubscribe_all()) {

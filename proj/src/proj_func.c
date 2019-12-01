@@ -43,10 +43,9 @@ void update_key_presses(void) {
     hor_mov = d_pressed - a_pressed;
 }
 
-void update_movement(sprite_t *p) {
-
+void update_movement(ent_t *p) {
     static const int speed = 5;
-    sprite_set_pos(p, sprite_get_x(p) + speed * hor_mov, sprite_get_y(p) + speed * ver_mov);
+    ent_set_pos(p, ent_get_x(p) + speed * hor_mov, ent_get_y(p) + speed * ver_mov);
 }
 
 static int32_t mouse_x = 0, mouse_y = 0;
@@ -63,8 +62,8 @@ int32_t get_mouse_X(void) { return mouse_x; }
 
 int32_t get_mouse_Y(void) { return mouse_y; }
 
-double get_mouse_angle(sprite_t *p) {
-    return atan2(sprite_get_y(p) - mouse_y, mouse_x - sprite_get_x(p));
+double get_mouse_angle(ent_t *p) {
+    return atan2(ent_get_y_screen(p) - mouse_y, mouse_x - ent_get_x_screen(p));
 }
 
 int get_hor_movement(void) { return hor_mov; }

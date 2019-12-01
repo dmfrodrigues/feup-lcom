@@ -37,12 +37,4 @@ int (graph_clear_screen)(void);
 /// DRAW
 int (graph_draw)(void);
 
-
-
-/// RECTANGLE
-
-
-int (graph_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color);
-int (graph_draw_rectangle)(uint16_t x, uint16_t y,uint16_t width, uint16_t height, uint32_t color);
-
 #endif /* end of include guard: GRAPH_H_INCLUDED */

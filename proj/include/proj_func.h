@@ -1,7 +1,7 @@
 #ifndef PROJ_FUNC_H_INCLUDED
 #define PROJ_FUNC_H_INCLUDED
 
-#include "sprite.h"
+#include "ent.h"
 
 /**
  * @brief Cleans up all memory, unsubscribes interrupts.
@@ -15,7 +15,7 @@ void update_key_presses(void);
 /**
  * @brief Updates movement variables.
  */
-void update_movement(sprite_t *p);
+void update_movement(ent_t *p);
 
 void update_mouse_position(struct packet *p);
 
@@ -30,7 +30,7 @@ int32_t get_mouse_Y(void);
  * @param
  * @return Angle
  */
-double get_mouse_angle(sprite_t *p);
+double get_mouse_angle(ent_t *p);
 
 /**
  * @brief Get horizontal movement direction.
