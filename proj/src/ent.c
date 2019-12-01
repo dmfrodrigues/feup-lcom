@@ -11,6 +11,7 @@ static int16_t y_origin = 0;
 void (ent_set_scale) (double n){ scale = n; }
 void (ent_set_origin)(double x, double y){ x_origin = x; y_origin = y; }
 
+double (ent_get_scale)  (void){ return scale; }
 double (ent_get_XLength)(void){ return graph_get_XRes()/scale; }
 double (ent_get_YLength)(void){ return graph_get_YRes()/scale; }
 

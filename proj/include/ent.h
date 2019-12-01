@@ -6,6 +6,7 @@
 void (ent_set_scale) (double n);
 void (ent_set_origin)(double x, double y);
 
+double (ent_get_scale)  (void);
 double (ent_get_XLength)(void);
 double (ent_get_YLength)(void);
 
