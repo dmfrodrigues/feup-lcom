@@ -17,7 +17,7 @@ void update_key_presses(void);
 /**
  * @brief Updates movement variables.
  */
-void update_movement(ent_t *p);
+void update_movement(gunner_t *p);
 
 typedef struct keys {
     uint8_t w_pressed       : 1;
@@ -44,7 +44,7 @@ int32_t get_mouse_Y(void);
  * @param
  * @return Angle
  */
-double get_mouse_angle(ent_t *p);
+double get_mouse_angle(gunner_t *p);
 
 /**
  * @brief Get horizontal movement direction.

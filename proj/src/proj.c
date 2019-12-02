@@ -109,16 +109,16 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #ifdef TELMO
         ent_set_scale(2.0);
 
-        ent_t *shooter1 = ent_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
-        ent_set_pos(shooter1, 0, 0);
-        ent_set_origin(ent_get_x(shooter1)-ent_get_XLength()/2.0,
-                       ent_get_y(shooter1)-ent_get_YLength()/2.0);
+        gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+        gunner_set_pos(shooter1, 0, 0);
+        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-        ent_t *shooter2 = ent_ctor(bsp_shooter, bsp_nothing);
-        ent_set_pos(shooter2, -50, -50);
+        gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
+        gunner_set_pos(shooter2, -50, -50);
 
         graph_clear_screen();
-        ent_draw(shooter1);
+        gunner_draw(shooter1);
         sprite_draw(sp_crosshair);
         graph_draw();
 
@@ -152,15 +152,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(shooter1);
                                     update_scale();
-                                    ent_set_origin(ent_get_x(shooter1)-ent_get_XLength()/2.0,
-                                                   ent_get_y(shooter1)-ent_get_YLength()/2.0);
+                                    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                   gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                                     sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
                                     double angle = get_mouse_angle(shooter1);
-                                    ent_set_angle(shooter1, angle - M_PI_2);
+                                    gunner_set_angle(shooter1, angle - M_PI_2);
                                     graph_clear_screen();
-                                    ent_draw(shooter2);
-                                    ent_draw(shooter1);
+                                    gunner_draw(shooter2);
+                                    gunner_draw(shooter1);
                                     sprite_draw(sp_crosshair);
                                     graph_draw();
                                 }
@@ -187,7 +187,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     #ifdef TELMO
-        ent_dtor(shooter1); shooter1 = NULL;
+        gunner_dtor(shooter1); shooter1 = NULL;
     #endif
 
     basic_sprite_dtor(bsp_crosshair); bsp_crosshair = NULL;

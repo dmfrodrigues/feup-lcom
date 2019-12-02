@@ -50,9 +50,9 @@ void update_key_presses(void) {
     hor_mov = key_presses.d_pressed - key_presses.a_pressed;
 }
 
-void update_movement(ent_t *p) {
+void update_movement(gunner_t *p) {
     static const int speed = 5;
-    ent_set_pos(p, ent_get_x(p) + speed * hor_mov, ent_get_y(p) + speed * ver_mov);
+    gunner_set_pos(p, gunner_get_x(p) + speed * hor_mov, gunner_get_y(p) + speed * ver_mov);
 }
 
 void update_scale(void) {
@@ -90,8 +90,8 @@ int32_t get_mouse_X(void) { return mouse_x; }
 
 int32_t get_mouse_Y(void) { return mouse_y; }
 
-double get_mouse_angle(ent_t *p) {
-    return atan2(ent_get_y_screen(p) - mouse_y, mouse_x - ent_get_x_screen(p));
+double get_mouse_angle(gunner_t *p) {
+    return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
 }
 
 int get_hor_movement(void) { return hor_mov; }
