@@ -4,14 +4,20 @@
 #include "graph_macros.h"
 
 // WASD Movement Keys
-#define W_MAKE_CODE     0x11    /** @brief W Make Code */
-#define W_BREAK_CODE    0x91    /** @brief W Break Code */
-#define A_MAKE_CODE     0x1E    /** @brief A Make Code */
-#define A_BREAK_CODE    0x9E    /** @brief A Break Code */
-#define S_MAKE_CODE     0x1F    /** @brief S Make Code */
-#define S_BREAK_CODE    0x9F    /** @brief S Break Code */
-#define D_MAKE_CODE     0x20    /** @brief D Make Code */
-#define D_BREAK_CODE    0xA0    /** @brief D Break Code */
+#define W_MAKE_CODE         0x11    /** @brief W Make Code */
+#define W_BREAK_CODE        0x91    /** @brief W Break Code */
+#define A_MAKE_CODE         0x1E    /** @brief A Make Code */
+#define A_BREAK_CODE        0x9E    /** @brief A Break Code */
+#define S_MAKE_CODE         0x1F    /** @brief S Make Code */
+#define S_BREAK_CODE        0x9F    /** @brief S Break Code */
+#define D_MAKE_CODE         0x20    /** @brief D Make Code */
+#define D_BREAK_CODE        0xA0    /** @brief D Break Code */
+#define CTRL_MAKE_CODE      0x1D    /** @brief CTRL Make Code */
+#define CTRL_BREAK_CODE     0x9D    /** @brief CTRL Break Code */
+#define PLUS_MAKE_CODE      0x1A    /** @brief Plus (+) Make Code */
+#define PLUS_BREAK_CODE      0x9A   /** @brief Plus (+) Break Code */
+#define MINUS_MAKE_CODE     0x35    /** @brief Minus (-) Make Code */
+#define MINUS_BREAK_CODE    0xB5    /** @brief Minus (-) Break Code */
 
 // Movement Directions
 #define UP      -1  /** @brief Moving to the top side of screen */
@@ -29,5 +35,8 @@
 
 //Graphics mode
 #define GRAPH_MODE      DIRECT_1280_1024_888 /** @brief Graphic mode used */
+#define MIN_SCALE       0.3                  /** @brief Minimum zoom */
+#define DEFAULT_SCALE   1.0                  /** @brief Default zoom */
+#define MAX_SCALE       10.0                 /** @brief Maximum zoom */
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */

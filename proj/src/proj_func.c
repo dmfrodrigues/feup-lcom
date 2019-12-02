@@ -8,6 +8,7 @@
 #include "errors.h"
 #include "proj_macros.h"
 #include "utils.h"
+#include "ent.h"
 
 #include "kbc_macros.h"
 
@@ -24,28 +25,55 @@ int cleanup(void) {
 }
 
 static int hor_mov = REST, ver_mov = REST;
+static keys_t key_presses;
 
 void update_key_presses(void) {
-    static int w_pressed = 0, a_pressed = 0, s_pressed = 0, d_pressed = 0;
     if (sz == 1) {
         switch(scancode[0]) {
-        case W_MAKE_CODE  : w_pressed = 1;      break;
-        case W_BREAK_CODE : w_pressed = 0;      break;
-        case A_MAKE_CODE  : a_pressed = 1;      break;
-        case A_BREAK_CODE : a_pressed = 0;      break;
-        case S_MAKE_CODE  : s_pressed = 1;      break;
-        case S_BREAK_CODE : s_pressed = 0;      break;
-        case D_MAKE_CODE  : d_pressed = 1;      break;
-        case D_BREAK_CODE : d_pressed = 0;      break;
+        case W_MAKE_CODE        : key_presses.w_pressed     = 1;        break;
+        case W_BREAK_CODE       : key_presses.w_pressed     = 0;        break;
+        case A_MAKE_CODE        : key_presses.a_pressed     = 1;        break;
+        case A_BREAK_CODE       : key_presses.a_pressed     = 0;        break;
+        case S_MAKE_CODE        : key_presses.s_pressed     = 1;        break;
+        case S_BREAK_CODE       : key_presses.s_pressed     = 0;        break;
+        case D_MAKE_CODE        : key_presses.d_pressed     = 1;        break;
+        case D_BREAK_CODE       : key_presses.d_pressed     = 0;        break;
+        case CTRL_MAKE_CODE     : key_presses.ctrl_pressed  = 1;        break;
+        case CTRL_BREAK_CODE    : key_presses.ctrl_pressed  = 0;        break;
+        case PLUS_MAKE_CODE     : key_presses.plus_pressed  = 1;        break;
+        case PLUS_BREAK_CODE    : key_presses.plus_pressed  = 0;        break;
+        case MINUS_MAKE_CODE    : key_presses.minus_pressed = 1;        break;
+        case MINUS_BREAK_CODE   : key_presses.minus_pressed = 0;        break;
         }
     }
-    ver_mov = s_pressed - w_pressed;
-    hor_mov = d_pressed - a_pressed;
+    ver_mov = key_presses.s_pressed - key_presses.w_pressed;
+    hor_mov = key_presses.d_pressed - key_presses.a_pressed;
 }
 
 void update_movement(ent_t *p) {
     static const int speed = 5;
     ent_set_pos(p, ent_get_x(p) + speed * hor_mov, ent_get_y(p) + speed * ver_mov);
+}
+
+void update_scale(void) {
+    static uint8_t last_plus = 0, last_minus = 0;
+    if (key_presses.ctrl_pressed) {
+        if (key_presses.plus_pressed && !last_plus) {
+            double scale = ent_get_scale();
+            scale *= 1.1;
+            if (scale <= MAX_SCALE) ent_set_scale(scale);
+        }
+        else if (key_presses.minus_pressed && !last_minus) {
+            double scale = ent_get_scale();
+            scale /= 1.1;
+            if (scale >= MIN_SCALE) ent_set_scale(scale);
+        }
+
+        printf("SCALE: %d\n", (int)(ent_get_scale()*1000));
+    }
+
+    last_plus = key_presses.plus_pressed;
+    last_minus = key_presses.minus_pressed;
 }
 
 static int32_t mouse_x = 0, mouse_y = 0;
