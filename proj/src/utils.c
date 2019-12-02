@@ -33,3 +33,6 @@ int (unsubscribe_interrupt)(int *interrupt_id) {
 
 int32_t min(int32_t a, int32_t b){ return (b < a ? b : a); }
 int32_t max(int32_t a, int32_t b){ return (a < b ? b : a); }
+
+double min_d(double a, double b){ return (b < a ? b : a); }
+double max_d(double a, double b){ return (a < b ? b : a); }

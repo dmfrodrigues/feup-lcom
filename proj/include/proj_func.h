@@ -3,6 +3,8 @@
 
 #include "ent.h"
 
+#include <stdint.h>
+
 /**
  * @brief Cleans up all memory, unsubscribes interrupts.
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
@@ -17,7 +19,19 @@ void update_key_presses(void);
  */
 void update_movement(ent_t *p);
 
+typedef struct keys {
+    uint8_t w_pressed       : 1;
+    uint8_t a_pressed       : 1;
+    uint8_t s_pressed       : 1;
+    uint8_t d_pressed       : 1;
+    uint8_t ctrl_pressed    : 1;
+    uint8_t plus_pressed    : 1;
+    uint8_t minus_pressed   : 1;
+} keys_t;
+
 void update_mouse_position(struct packet *p);
+
+void update_scale(void);
 
 int32_t get_mouse_X(void);
 

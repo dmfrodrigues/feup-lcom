@@ -121,6 +121,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
         ent_draw(shooter1);
         sprite_draw(sp_crosshair);
         graph_draw();
+
+        uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
     #endif
 
     /// loop stuff
@@ -147,9 +149,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
                             #ifdef TELMO
                             if (i == 0) {
-                                uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(shooter1);
+                                    update_scale();
                                     ent_set_origin(ent_get_x(shooter1)-ent_get_XLength()/2.0,
                                                    ent_get_y(shooter1)-ent_get_YLength()/2.0);
 
@@ -182,24 +184,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
         } else { /* received standart message, not a notification */
             /* no standart message expected: do nothing */
         }
-        #ifdef TELMO
-            switch (get_hor_movement()) {
-                case LEFT:
-                    printf("GOING LEFT.\n");
-                    break;
-                case RIGHT:
-                    printf("GOING RIGHT.\n");
-                    break;
-            }
-            switch (get_ver_movement()) {
-                case UP:
-                    printf("GOING UP.\n");
-                    break;
-                case DOWN:
-                    printf("GOING DOWN.\n");
-                    break;
-            }
-        #endif
     }
 
     #ifdef TELMO

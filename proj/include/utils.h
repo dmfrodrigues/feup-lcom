@@ -49,5 +49,21 @@ int32_t min(int32_t a, int32_t b);
  */
 int32_t max(int32_t a, int32_t b);
 
+/**
+ * @brief Gets the minimum value out of two doubles.
+ * @param a     First value
+ * @param b     Second value
+ * @return  The minimum of the two values
+ */
+double min_d(double a, double b);
+
+/**
+ * @brief Gets the maximum value out of two doubles.
+ * @param a     First value
+ * @param b     Second value
+ * @return  The maximum of the two values
+ */
+double max_d(double a, double b);
+
 
 #endif //UTILS_H_INCLUDED
