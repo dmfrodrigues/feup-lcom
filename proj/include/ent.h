@@ -25,5 +25,13 @@ void (gunner_draw)(gunner_t *p);
 struct bullet;
 typedef struct bullet bullet_t;
 bullet_t* (bullet_ctor)(basic_sprite_t *b);
+void      (bullet_dtor)(bullet_t *p);
+void (bullet_set_pos)  (bullet_t *p, int16_t x, int16_t y);
+void (bullet_set_angle)(bullet_t *p, double angle        );
+double  (bullet_get_x)       (const bullet_t *p);
+double  (bullet_get_y)       (const bullet_t *p);
+int16_t (bullet_get_x_screen)(const bullet_t *p);
+int16_t (bullet_get_y_screen)(const bullet_t *p);
+void (bullet_draw)(bullet_t *p);
 
 #endif //ENT_H_INCLUDED
