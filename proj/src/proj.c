@@ -23,6 +23,7 @@
 #include "shooter.h"
 #include "pistol.h"
 #include "nothing.h"
+#include "bullet.h"
 
 int main(int argc, char* argv[]) {
 
@@ -117,6 +118,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
         gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
         gunner_set_pos(shooter2, -50, -50);
 
+        ent_t *bullet = ent_ctor(get_bullet(), bsp_nothing);
+        ent_set_pos(bullet, 400, 400);
+
         graph_clear_screen();
         gunner_draw(shooter1);
         sprite_draw(sp_crosshair);
@@ -161,6 +165,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     graph_clear_screen();
                                     gunner_draw(shooter2);
                                     gunner_draw(shooter1);
+                                    ent_draw(bullet);
                                     sprite_draw(sp_crosshair);
                                     graph_draw();
                                 }
