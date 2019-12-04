@@ -201,7 +201,7 @@ int (text_draw)(const text_t *p){
     for(int16_t newy = 0; newy < newH; ++newy){
         for(int16_t newx = 0; newx < newW; ++newx){
             uint8_t a = *(alp_new_buf+newx+newy*newW);
-            graph_set_pixel_alpha(initx+newx,inity+newy,p->color, a);
+            if(a < 0x7F) graph_set_pixel(initx+newx,inity+newy,p->color);
         }
     }
     free(alp_new_buf);

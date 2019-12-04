@@ -29,7 +29,7 @@ int (graph_cleanup)(void);
 int (graph_set_pixel)             (uint16_t x, uint16_t y, uint32_t color);
 int (graph_set_pixel_buffer)      (uint16_t x, uint16_t y, uint32_t color, uint8_t *buf, uint16_t W, uint16_t H);
 int (graph_set_pixel_alpha_buffer)(uint16_t x, uint16_t y, uint8_t alpha, uint8_t *alp_buf, uint16_t W, uint16_t H);
-int (graph_set_pixel_alpha)       (uint16_t x, uint16_t y, uint32_t color, uint8_t alpha);
+//int (graph_set_pixel_alpha)       (uint16_t x, uint16_t y, uint32_t color, uint8_t alpha);
 
 /// SCREEN
 int (graph_clear_screen)(void);
