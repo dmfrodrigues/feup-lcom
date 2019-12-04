@@ -5,7 +5,7 @@
 #include "sprite.h"
 
 basic_sprite_t* get_map(void){
-    return basic_sprite_ctor((const char **)map, 639, 511);
+    return basic_sprite_ctor((const char **)map_xpm, 0, 0);
 }
 
 #endif /* end of include guard: MAP_H_INCLUDED */

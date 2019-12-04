@@ -24,6 +24,7 @@
 #include "pistol.h"
 #include "nothing.h"
 #include "bullet.h"
+#include "map.h"
 
 int main(int argc, char* argv[]) {
 
@@ -127,6 +128,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
         graph_draw();
 
         uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+
+        basic_sprite_t *bsp_pink = get_map();
+        sprite_t *pink = sprite_ctor(bsp_pink);
+        basic_sprite_dtor(bsp_pink);
     #endif
 
     /// loop stuff
@@ -156,16 +161,23 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(shooter1);
                                     update_scale();
-                                    ent_set_origin(bullet_get_x(bullet)-ent_get_XLength()/2.0,
-                                                   bullet_get_y(bullet)-ent_get_YLength()/2.0);
+                                    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                   gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                                     sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
                                     double angle = get_mouse_angle(shooter1);
                                     gunner_set_angle(shooter1, angle - M_PI_2);
                                     graph_clear_screen();
+
+                                    clock_t t = clock();
+
+                                    sprite_draw(pink);
                                     gunner_draw(shooter2);
                                     gunner_draw(shooter1);
                                     bullet_draw(bullet);
+
+                                    t = clock()-t; printf("%d\n", (t*1000)/CLOCKS_PER_SEC);
+
                                     sprite_draw(sp_crosshair);
                                     graph_draw();
                                 }
@@ -193,6 +205,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifdef TELMO
         gunner_dtor(shooter1); shooter1 = NULL;
+        sprite_dtor(pink); pink = NULL;
     #endif
 
     basic_sprite_dtor(bsp_crosshair); bsp_crosshair = NULL;

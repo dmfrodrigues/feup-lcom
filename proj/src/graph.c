@@ -275,6 +275,7 @@ int (graph_set_pixel_alpha_buffer)(uint16_t x, uint16_t y, uint8_t alpha, uint8_
     memcpy(alp_buf + pos, &alpha, 1);
     return SUCCESS;
 }
+/*
 int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
     if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
         //printf("%s: invalid pixel.\n", __func__);
@@ -286,11 +287,14 @@ int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alph
     float a = 1.0-(alpha&0xFF)/(float)0xFF;
     uint8_t r = GET_RED(color)*a + GET_RED(color_)*(1.0-a);
     uint8_t g = GET_GRE(color)*a + GET_GRE(color_)*(1.0-a);
-    uint8_t b = GET_BLU(color)*a + GET_BLU(color_)*(1.0-a);
-    return graph_set_pixel(x,y,SET_RGB(r,g,b));
-    //return set_pixel(x,y,color);
+    uint8_t b = GET_BLU(color)*a + GET_BLU(color_)*(1.0-a); (void)(r*g*b);
+    //return graph_set_pixel(x,y,SET_RGB(r,g,b));
+    color = SET_RGB(r,g,b);
+    //unsigned int pos = (x + y * W) * graph_get_bytes_pixel();
+    memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
+    return SUCCESS;
 }
-
+*/
 int (graph_clear_screen)(void){
     //return graph_paint_screen(BLACK);
     memset(video_buf, 0, graph_get_vram_size());

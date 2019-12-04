@@ -44,7 +44,7 @@ int16_t        (basic_sprite_get_v0) (const basic_sprite_t *p){ return p->v0 ; }
 struct sprite{
     const basic_sprite_t *bsp;
     int16_t x, y; //position in screen
-    double theta;
+    double theta, s, c;
     double scale;
 };
 
@@ -54,7 +54,7 @@ sprite_t* (sprite_ctor)(const basic_sprite_t *bsp){
     ret->bsp = bsp;
     ret->x = 0;
     ret->y = 0;
-    ret->theta = 0.0;
+    sprite_set_angle(ret, 0.0);
     ret->scale = 1.0;
     return ret;
 }
@@ -64,29 +64,25 @@ void (sprite_dtor)(sprite_t *p){
 }
 
 void (sprite_set_pos)   (sprite_t *p, int16_t x , int16_t y ){ p->x = x; p->y = y; }
-void (sprite_set_angle) (sprite_t *p, double angle          ){ p->theta = angle; }
+void (sprite_set_angle) (sprite_t *p, double angle          ){ p->theta = angle; p->c = fm_cos(p->theta); p->s = fm_sin(p->theta); }
 void (sprite_set_scale) (sprite_t *p, double scale          ){ p->scale = scale; }
 int16_t  (sprite_get_x)(const sprite_t *p){ return p->x; }
 int16_t  (sprite_get_y)(const sprite_t *p){ return p->y; }
 
 void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
-    double s = fm_sin(p->theta);
-    double c = fm_cos(p->theta);
     double dx = (x - p->x)/p->scale;
     double dy = (y - p->y)/p->scale;
-    int16_t du = dx*c - dy*s + 0.5;
-    int16_t dv = dx*s + dy*c + 0.5;
+    int16_t du = dx*p->c - dy*p->s + 0.5;
+    int16_t dv = dx*p->s + dy*p->c + 0.5;
     *u = du + basic_sprite_get_u0(p->bsp);
     *v = dv + basic_sprite_get_v0(p->bsp);
 }
 
 void (sprite_pic2src)(const sprite_t *p, int16_t u, int16_t v, int16_t *x, int16_t *y){
-    double s = fm_sin(p->theta);
-    double c = fm_cos(p->theta);
     int16_t du = u - basic_sprite_get_u0(p->bsp);
     int16_t dv = v - basic_sprite_get_v0(p->bsp);
-    double dx =  du*c + dv*s;
-    double dy = -du*s + dv*c;
+    double dx =  du*p->c + dv*p->s;
+    double dy = -du*p->s + dv*p->c;
     *x = dx*p->scale + 0.5 + p->x;
     *y = dy*p->scale + 0.5 + p->y;
 }
@@ -114,7 +110,8 @@ void (sprite_draw)(const sprite_t *p){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < w && 0 <= v && v < h){
                 uint32_t c = *(uint32_t*)(map + (v*w + u)*4);
-                graph_set_pixel_alpha(x, y, GET_COLOR(c), GET_ALP(c));
+                if(GET_ALP(c) < 0x7F)
+                    graph_set_pixel(x, y, GET_COLOR(c));
             }
         }
     }
