@@ -331,8 +331,8 @@ int16_t  (sprite_get_y)(const sprite_t *p){ return p->y; }
 void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
     double dx = (x - p->x)/p->scale;
     double dy = (y - p->y)/p->scale;
-    int16_t du = dx*p->c - dy*p->s + 0.5;
-    int16_t dv = dx*p->s + dy*p->c + 0.5;
+    int16_t du = dx*p->c - dy*p->s - 0.5;
+    int16_t dv = dx*p->s + dy*p->c - 0.5;
     *u = du + basic_sprite_get_u0(p->bsp);
     *v = dv + basic_sprite_get_v0(p->bsp);
 }
