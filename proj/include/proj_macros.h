@@ -37,6 +37,6 @@
 #define GRAPH_MODE      DIRECT_1024_768_888 /** @brief Graphic mode used */
 #define MIN_SCALE       0.2                  /** @brief Minimum zoom */
 #define DEFAULT_SCALE   0.5                  /** @brief Default zoom */
-#define MAX_SCALE       2.0                 /** @brief Maximum zoom */
+#define MAX_SCALE       10.0                 /** @brief Maximum zoom */
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */
