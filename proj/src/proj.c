@@ -109,7 +109,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #endif
 
     #ifdef TELMO
-        ent_set_scale(2.0);
+        ent_set_scale(1.0);
 
         gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
         gunner_set_pos(shooter1, 0, 0);
