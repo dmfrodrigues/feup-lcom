@@ -31,4 +31,7 @@
 #define BLACK               0x000000
 #define WHITE               0xFFFFFF
 
+// Alpha
+#define ALPHA_THRESHOLD     0x7F
+
 #endif /* end of include guard: GRAPHICS_MACROS_H_INCLUDED */

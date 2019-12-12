@@ -24,7 +24,7 @@
 #include "pistol.h"
 #include "nothing.h"
 #include "bullet.h"
-#include "map.h"
+#include "map1.h"
 
 int main(int argc, char* argv[]) {
 
@@ -59,11 +59,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     /// Load stuff
-    basic_sprite_t *bsp_crosshair = NULL;
-    basic_sprite_t *bsp_shooter   = NULL;
-    basic_sprite_t *bsp_pistol    = NULL;
-    basic_sprite_t *bsp_nothing   = NULL;
-    sprite_t       *sp_crosshair  = NULL;
+    basic_sprite_t       *bsp_crosshair = NULL;
+    basic_sprite_t       *bsp_shooter   = NULL;
+    basic_sprite_t       *bsp_pistol    = NULL;
+    basic_sprite_t       *bsp_nothing   = NULL;
+    map_t                *map1      = NULL;
+    sprite_t             *sp_crosshair  = NULL;
     {
         graph_clear_screen();
         text_t *txt = text_ctor(consolas, "Loading...");
@@ -75,6 +76,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
         bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
         bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
+        map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n");
 
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
@@ -109,7 +111,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #endif
 
     #ifdef TELMO
-        ent_set_scale(10.0);
+        ent_set_scale(DEFAULT_SCALE);
 
         gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
         gunner_set_pos(shooter1, 0, 0);
@@ -120,19 +122,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
         bullet_t *bullet = bullet_ctor(get_bullet());
         bullet_set_pos(bullet, 400, 400);
 
-        ent_set_origin(bullet_get_x(bullet)-ent_get_XLength()/2.0,
-                       bullet_get_y(bullet)-ent_get_YLength()/2.0);
-
-        graph_clear_screen();
-        gunner_draw(shooter1);
-        sprite_draw(sp_crosshair);
-        graph_draw();
+        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
         uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
-
-        basic_sprite_t *bsp_pink = get_map();
-        sprite_t *pink = sprite_ctor(bsp_pink);
-        basic_sprite_dtor(bsp_pink);
     #endif
 
     /// loop stuff
@@ -161,10 +154,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             if (i == 0) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(shooter1);
+
+                                    if(map_collides(map1, gunner_get_x(shooter1), gunner_get_y(shooter1))){
+                                        printf("COLLIDING\n");
+                                    }
+
                                     update_scale();
 
-                                    ent_set_origin(bullet_get_x(bullet)-ent_get_XLength()/2.0,
-                                                   bullet_get_y(bullet)-ent_get_YLength()/2.0);
+                                    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                   gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                                     sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
                                     double angle = get_mouse_angle(shooter1);
@@ -173,7 +171,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                                     clock_t t = clock();
 
-                                    sprite_draw(pink);
+                                    map_draw   (map1);
                                     gunner_draw(shooter2);
                                     gunner_draw(shooter1);
                                     bullet_draw(bullet);
@@ -207,13 +205,17 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifdef TELMO
         gunner_dtor(shooter1); shooter1 = NULL;
-        sprite_dtor(pink); pink = NULL;
+        gunner_dtor(shooter2); shooter2 = NULL;
+        bullet_dtor(bullet); bullet = NULL;
     #endif
 
-    basic_sprite_dtor(bsp_crosshair); bsp_crosshair = NULL;
-    basic_sprite_dtor(bsp_shooter  ); bsp_shooter   = NULL;
-    sprite_dtor      (sp_crosshair ); sp_crosshair  = NULL;
-    font_dtor        (consolas     ); consolas      = NULL;
+    basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
+    basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;
+    sprite_dtor            (sp_crosshair ); sp_crosshair  = NULL;
+    basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
+    basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
+    map_dtor               (map1         ); map1          = NULL;
+    font_dtor              (consolas     ); consolas      = NULL;
 
     // Unsubscribe interrupts
     if (unsubscribe_all()) {

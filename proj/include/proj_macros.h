@@ -15,7 +15,7 @@
 #define CTRL_MAKE_CODE      0x1D    /** @brief CTRL Make Code */
 #define CTRL_BREAK_CODE     0x9D    /** @brief CTRL Break Code */
 #define PLUS_MAKE_CODE      0x1A    /** @brief Plus (+) Make Code */
-#define PLUS_BREAK_CODE      0x9A   /** @brief Plus (+) Break Code */
+#define PLUS_BREAK_CODE     0x9A    /** @brief Plus (+) Break Code */
 #define MINUS_MAKE_CODE     0x35    /** @brief Minus (-) Make Code */
 #define MINUS_BREAK_CODE    0xB5    /** @brief Minus (-) Break Code */
 

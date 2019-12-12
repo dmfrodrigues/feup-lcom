@@ -271,7 +271,6 @@ struct basic_sprite{
     uint16_t w, h;
     int16_t u0, v0;
 };
-
 basic_sprite_t* (basic_sprite_ctor)(const char **xpm, int16_t u0, int16_t v0){
     basic_sprite_t *ret = malloc(sizeof(basic_sprite_t));
     if(ret == NULL) return NULL;
@@ -279,7 +278,7 @@ basic_sprite_t* (basic_sprite_ctor)(const char **xpm, int16_t u0, int16_t v0){
     xpm_image_t img;
     ret->map = xpm_load((xpm_map_t)xpm, type, &img);
     if(ret->map == NULL){
-        free(ret);
+        basic_sprite_dtor(ret);
         return NULL;
     }
     ret->w = img.width;
@@ -293,12 +292,51 @@ void (basic_sprite_dtor)(basic_sprite_t *p){
     free(p->map);
     free(p);
 }
-
 const uint8_t* (basic_sprite_get_map)(const basic_sprite_t *p){ return p->map; }
 uint16_t       (basic_sprite_get_w)  (const basic_sprite_t *p){ return p->w  ; }
 uint16_t       (basic_sprite_get_h)  (const basic_sprite_t *p){ return p->h  ; }
 int16_t        (basic_sprite_get_u0) (const basic_sprite_t *p){ return p->u0 ; }
 int16_t        (basic_sprite_get_v0) (const basic_sprite_t *p){ return p->v0 ; }
+
+/*
+struct basic_sprite_alpha{
+    uint8_t *map;
+    uint16_t w, h;
+    int16_t u0, v0;
+};
+basic_sprite_alpha_t* (basic_sprite_alpha_ctor)(const char **xpm, int16_t u0, int16_t v0){
+    basic_sprite_alpha_t *ret = malloc(sizeof(basic_sprite_t));
+    if(ret == NULL) return NULL;
+    enum xpm_image_type type = XPM_8_8_8_8;
+    xpm_image_t img;
+    ret->map = NULL;
+    uint8_t *m = xpm_load((xpm_map_t)xpm, type, &img);
+    if(m == NULL){
+        basic_sprite_alpha_dtor(ret);
+        return NULL;
+    }
+    ret->map = m;
+    if(ret->map == NULL){
+        basic_sprite_alpha_dtor(ret);
+        return NULL;
+    }
+    ret->w = img.width;
+    ret->h = img.height;
+    ret->u0 = u0;
+    ret->v0 = v0;
+    return ret;
+}
+void (basic_sprite_alpha_dtor)(basic_sprite_alpha_t *p){
+    if(p == NULL) return;
+    free(p->map);
+    free(p);
+}
+const uint8_t* (basic_sprite_alpha_get_map)(const basic_sprite_alpha_t *p){ return p->map; }
+uint16_t       (basic_sprite_alpha_get_w)  (const basic_sprite_alpha_t *p){ return p->w  ; }
+uint16_t       (basic_sprite_alpha_get_h)  (const basic_sprite_alpha_t *p){ return p->h  ; }
+int16_t        (basic_sprite_alpha_get_u0) (const basic_sprite_alpha_t *p){ return p->u0 ; }
+int16_t        (basic_sprite_alpha_get_v0) (const basic_sprite_alpha_t *p){ return p->v0 ; }
+*/
 
 struct sprite{
     const basic_sprite_t *bsp;
@@ -306,7 +344,6 @@ struct sprite{
     double theta, s, c;
     double scale;
 };
-
 sprite_t* (sprite_ctor)(const basic_sprite_t *bsp){
     sprite_t *ret = malloc(sizeof(sprite_t));
     if(ret == NULL) return NULL;
@@ -321,13 +358,13 @@ void (sprite_dtor)(sprite_t *p){
     if(p == NULL) return;
     free(p);
 }
-
 void (sprite_set_pos)   (sprite_t *p, int16_t x , int16_t y ){ p->x = x; p->y = y; }
 void (sprite_set_angle) (sprite_t *p, double angle          ){ p->theta = angle; p->c = fm_cos(p->theta); p->s = fm_sin(p->theta); }
 void (sprite_set_scale) (sprite_t *p, double scale          ){ p->scale = scale; }
 int16_t  (sprite_get_x)(const sprite_t *p){ return p->x; }
 int16_t  (sprite_get_y)(const sprite_t *p){ return p->y; }
-
+uint16_t (sprite_get_w)(const sprite_t *p){ return basic_sprite_get_w(p->bsp); }
+uint16_t (sprite_get_h)(const sprite_t *p){ return basic_sprite_get_h(p->bsp); }
 void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
     double dx = (x - p->x)/p->scale;
     double dy = (y - p->y)/p->scale;
@@ -336,7 +373,6 @@ void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16
     *u = du + basic_sprite_get_u0(p->bsp);
     *v = dv + basic_sprite_get_v0(p->bsp);
 }
-
 void (sprite_pic2src)(const sprite_t *p, int16_t u, int16_t v, int16_t *x, int16_t *y){
     int16_t du = u - basic_sprite_get_u0(p->bsp);
     int16_t dv = v - basic_sprite_get_v0(p->bsp);
@@ -345,7 +381,6 @@ void (sprite_pic2src)(const sprite_t *p, int16_t u, int16_t v, int16_t *x, int16
     *x = dx*p->scale + 0.5 + p->x;
     *y = dy*p->scale + 0.5 + p->y;
 }
-
 void (sprite_draw)(const sprite_t *p){
     const uint16_t w = basic_sprite_get_w(p->bsp);
     const uint16_t h = basic_sprite_get_h(p->bsp);
@@ -370,7 +405,7 @@ void (sprite_draw)(const sprite_t *p){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < w && 0 <= v && v < h){
                 const uint8_t *c_p = map+(v*w+u)*4;
-                if(*(c_p+3) < 0x7F) //alpha
+                if(*(c_p+3) < ALPHA_THRESHOLD) //alpha
                     memcpy(place, c_p, bytes_pixel);
             }
         }
