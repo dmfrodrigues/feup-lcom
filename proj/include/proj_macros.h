@@ -34,9 +34,9 @@
 #define REFRESH_RATE    60      /** @brief Screen refresh rate */
 
 //Graphics mode
-#define GRAPH_MODE      DIRECT_1280_1024_888 /** @brief Graphic mode used */
-#define MIN_SCALE       0.3                  /** @brief Minimum zoom */
-#define DEFAULT_SCALE   1.0                  /** @brief Default zoom */
-#define MAX_SCALE       10.0                 /** @brief Maximum zoom */
+#define GRAPH_MODE      DIRECT_1024_768_888 /** @brief Graphic mode used */
+#define MIN_SCALE       0.2                  /** @brief Minimum zoom */
+#define DEFAULT_SCALE   0.5                  /** @brief Default zoom */
+#define MAX_SCALE       2.0                 /** @brief Maximum zoom */
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */

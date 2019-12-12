@@ -260,6 +260,8 @@ int (graph_clear_screen)(void){ memset(video_buf, 0, graph_get_vram_size()); ret
 int (graph_draw)(void){ memcpy(video_mem, video_buf, graph_get_vram_size()); return SUCCESS; }
 
 ///SPRITE
+#include "sprite.h"
+
 #include "utils.h"
 #include "fast_math.h"
 #include <math.h>
@@ -363,13 +365,13 @@ void (sprite_draw)(const sprite_t *p){
     const uint8_t *map = basic_sprite_get_map(p->bsp);
     const uint16_t bytes_pixel = graph_get_bytes_pixel();
     for(int16_t u, v, y = ymin; y < ymax; ++y){
-        unsigned pos = (xmin + y*graph_get_XRes())*bytes_pixel;
-        for(int16_t x = xmin; x < xmax; ++x, pos += bytes_pixel){
+        uint8_t *place = video_buf + (xmin + y*graph_get_XRes())*bytes_pixel;
+        for(int16_t x = xmin; x < xmax; ++x, place += bytes_pixel){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < w && 0 <= v && v < h){
-                uint32_t c = *(uint32_t*)(map + (v*w + u)*4);
-                if(GET_ALP(c) < 0x7F)
-                    graph_set_pixel_pos(pos, c);
+                const uint8_t *c_p = map+(v*w+u)*4;
+                if(*(c_p+3) < 0x7F) //alpha
+                    memcpy(place, c_p, bytes_pixel);
             }
         }
     }
