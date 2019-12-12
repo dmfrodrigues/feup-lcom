@@ -6,13 +6,23 @@ typedef struct basic_sprite basic_sprite_t;
 
 basic_sprite_t* (basic_sprite_ctor)(const char **xpm, int16_t u0, int16_t v0);
 void            (basic_sprite_dtor)(basic_sprite_t *p);
-
 const uint8_t* (basic_sprite_get_map)(const basic_sprite_t *p);
 uint16_t       (basic_sprite_get_w)  (const basic_sprite_t *p);
 uint16_t       (basic_sprite_get_h)  (const basic_sprite_t *p);
 int16_t        (basic_sprite_get_u0) (const basic_sprite_t *p);
 int16_t        (basic_sprite_get_v0) (const basic_sprite_t *p);
+/*
+struct basic_sprite_alpha;
+typedef struct basic_sprite_alpha basic_sprite_alpha_t;
 
+basic_sprite_alpha_t* (basic_sprite_alpha_ctor)(const char **xpm, int16_t u0, int16_t v0);
+void                  (basic_sprite_alpha_dtor)(basic_sprite_alpha_t *p);
+const uint8_t*        (basic_sprite_alpha_get_map)(const basic_sprite_alpha_t *p);
+uint16_t              (basic_sprite_alpha_get_w)  (const basic_sprite_alpha_t *p);
+uint16_t              (basic_sprite_alpha_get_h)  (const basic_sprite_alpha_t *p);
+int16_t               (basic_sprite_alpha_get_u0) (const basic_sprite_alpha_t *p);
+int16_t               (basic_sprite_alpha_get_v0) (const basic_sprite_alpha_t *p);
+*/
 struct sprite;
 typedef struct sprite sprite_t;
 

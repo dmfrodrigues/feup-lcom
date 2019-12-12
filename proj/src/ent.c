@@ -3,6 +3,7 @@
 #include "ent.h"
 
 #include "graph.h"
+#include "sprite.h"
 
 static double scale = 1.0;
 static int16_t x_origin = 0;
@@ -37,8 +38,8 @@ void (gunner_dtor)(gunner_t *p){
     sprite_dtor(p->weapon);
     free(p);
 }
-void (gunner_set_pos)  (gunner_t *p, int16_t x, int16_t y){ p->x = x; p->y = y; }
-void (gunner_set_angle)(gunner_t *p, double angle        ){
+void (gunner_set_pos)  (gunner_t *p, double x, double y){ p->x = x; p->y = y; }
+void (gunner_set_angle)(gunner_t *p, double angle      ){
     sprite_set_angle(p->dude  , angle);
     sprite_set_angle(p->weapon, angle);
 }
@@ -77,8 +78,8 @@ void (bullet_dtor)(bullet_t *p){
     sprite_dtor(p->b);
     free(p);
 }
-void (bullet_set_pos)  (bullet_t *p, int16_t x, int16_t y){ p->x = x; p->y = y; }
-void (bullet_set_angle)(bullet_t *p, double angle        ){ sprite_set_angle(p->b, angle); }
+void (bullet_set_pos)  (bullet_t *p, double x, double y){ p->x = x; p->y = y; }
+void (bullet_set_angle)(bullet_t *p, double angle      ){ sprite_set_angle(p->b, angle); }
 double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
 int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }
@@ -89,4 +90,60 @@ void (bullet_draw)(bullet_t *p){
     sprite_set_pos  (p->b, x_screen, y_screen);
     sprite_set_scale(p->b, scale);
     sprite_draw     (p->b);
+}
+
+struct map{
+    basic_sprite_t *bsp_background;
+    sprite_t *background;
+    uint8_t *collide;
+};
+map_t* (map_ctor)(const char **background, const char **collide){
+    map_t *ret = malloc(sizeof(map_t));
+    if(ret == NULL) return NULL;
+
+    ret->bsp_background = NULL;
+    ret->background     = NULL;
+    ret->collide        = NULL;
+
+    ret->bsp_background = basic_sprite_ctor(background, 0, 0);
+    ret->background     = sprite_ctor(ret->bsp_background);
+    if(ret->bsp_background == NULL ||
+        ret->background     == NULL){ map_dtor(ret); return NULL; }
+
+    basic_sprite_t *bsp_collide = basic_sprite_ctor(collide, 0, 0);
+    if(bsp_collide == NULL){ map_dtor(ret); return NULL; }
+    const uint16_t W = basic_sprite_get_w(bsp_collide);
+    const uint16_t H = basic_sprite_get_h(bsp_collide);
+    ret->collide = malloc(W*H*sizeof(uint8_t));
+    if(ret->collide == NULL){ map_dtor(ret); return NULL; }
+    const uint8_t *m = basic_sprite_get_map(bsp_collide);
+    for(unsigned i = 0; i < W*H; ++i){
+        ret->collide[i] = (m[4*i+3] < ALPHA_THRESHOLD ? 1 : 0);
+    }
+    basic_sprite_dtor(bsp_collide);
+
+    return ret;
+}
+void (map_dtor)(map_t *p){
+    if(p == NULL) return;
+    sprite_dtor(p->background);
+    basic_sprite_dtor(p->bsp_background);
+    free(p->collide);
+    free(p);
+}
+int16_t (map_get_x_screen)(const map_t *p){ return (-x_origin)*scale; }
+int16_t (map_get_y_screen)(const map_t *p){ return (-y_origin)*scale; }
+int (map_collides)(const map_t *p, double x, double y){
+    const uint16_t w = sprite_get_w(p->background), h = sprite_get_h(p->background);
+    int16_t x_ = x, y_ = y;
+    if(x_ < 0 || w <= x_ || y_ < 0 || h <= y_) return 0;
+    uint32_t pos = x_ + y_*w;
+    return p->collide[pos];
+}
+void   (map_draw)(map_t *p){
+    const int16_t x_screen = map_get_x_screen(p);
+    const int16_t y_screen = map_get_y_screen(p);
+    sprite_set_pos  (p->background, x_screen, y_screen);
+    sprite_set_scale(p->background, scale);
+    sprite_draw     (p->background);
 }
