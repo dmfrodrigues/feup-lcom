@@ -1,3 +1,2 @@
-helpers/xpm_to_xpm2.sh .
-cd font
+cd media
 ./setup.sh

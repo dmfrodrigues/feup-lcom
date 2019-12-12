@@ -45,7 +45,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
 
-    font_t *consolas = font_ctor("/home/lcom/labs/proj/font/Consolas/xpm2");
+    font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
     if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
 
     /// subscribe interrupts

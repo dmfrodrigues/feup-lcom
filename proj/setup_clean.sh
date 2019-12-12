@@ -1,3 +1,2 @@
-rm -rf xpm2/
-cd font
+cd media
 ./setup_clean.sh
