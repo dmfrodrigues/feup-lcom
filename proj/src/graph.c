@@ -359,8 +359,8 @@ void (sprite_draw)(const sprite_t *p){
         xmin = min(x, xmin); xmax = max(x, xmax); ymin = min(y, ymin); ymax = max(y, ymax);
         sprite_pic2src(p, w, h, &x, &y);
         xmin = min(x, xmin); xmax = max(x, xmax); ymin = min(y, ymin); ymax = max(y, ymax);
-        xmin = max(xmin-2, 0); xmax = min(xmax+2, graph_get_XRes());
-        ymin = max(ymin-2, 0); ymax = min(ymax+2, graph_get_YRes());
+        xmin = max(xmin-(int16_t)p->scale-2, 0); xmax = min(xmax+(int16_t)p->scale+2, graph_get_XRes());
+        ymin = max(ymin-(int16_t)p->scale-2, 0); ymax = min(ymax+(int16_t)p->scale+2, graph_get_YRes());
     }
     const uint8_t *map = basic_sprite_get_map(p->bsp);
     const uint16_t bytes_pixel = graph_get_bytes_pixel();
