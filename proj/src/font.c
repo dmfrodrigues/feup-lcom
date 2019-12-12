@@ -19,13 +19,22 @@ static glyph_t* (glyph_ctor)(const char **xpm){
     if(ret == NULL) return NULL;
     enum xpm_image_type type = XPM_8_8_8_8;
     xpm_image_t img;
-    ret->map = xpm_load((xpm_map_t)xpm, type, &img);
-    if(ret->map == NULL){
+    ret->map = NULL;
+    uint8_t *map = xpm_load((xpm_map_t)xpm, type, &img);
+    if(map == NULL){
         free(ret);
         return NULL;
     }
     ret->w = img.width;
     ret->h = img.height;
+    ret->map = malloc(ret->w*ret->h*sizeof(uint8_t));
+    if(ret->map == NULL){
+        free(ret);
+        return NULL;
+    }
+    for(unsigned i = 0; i < ret->w*ret->h; ++i){
+        ret->map[i] = map[4*i+3];
+    }
     return ret;
 }
 static void (glyph_dtor)(glyph_t *p){
@@ -37,9 +46,7 @@ static int (glyph_draw_to_alpha_buffer)(const glyph_t *p, int16_t x, int16_t y, 
     if(p == NULL) return NULL_PTR;
     for(int16_t h = 0; h < p->h; ++h){
         for(int16_t w = 0; w < p->w; ++w){
-            uint32_t c = *((uint32_t*)p->map + w + h*p->w);
-            uint8_t a = GET_ALP(c);
-            
+            uint8_t a = *(p->map + w + h*p->w);
             int16_t x_ = x+w, y_ = y-p->h+h;
             unsigned pos = x_ +y_*W;
             alp_buf[pos] = a;
