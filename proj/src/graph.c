@@ -29,19 +29,20 @@ typedef struct __attribute__((packed)) {
 
 static vbe_mode_info_t vbe_mem_info;
 
-/// PUBLIC GET
-uint16_t   (graph_get_XRes)         (void){ return vbe_mem_info.XResolution; }
-uint16_t   (graph_get_YRes)         (void){ return vbe_mem_info.YResolution; }
-
 /// PRIVATE GET
 static uint16_t   (graph_get_bits_pixel)   (void){ return vbe_mem_info.BitsPerPixel; }
-static uint16_t   (graph_get_bytes_pixel)  (void){ return (graph_get_bits_pixel() + 7) >> 3; }
 static phys_bytes (graph_get_phys_addr)    (void){ return vbe_mem_info.PhysBasePtr; }
 static unsigned   (graph_get_vram_size)    (void){ return vbe_mem_info.XResolution * vbe_mem_info.YResolution * graph_get_bytes_pixel(); }
 //static uint16_t   (graph_get_RedMaskSize)  (void){ return vbe_mem_info.RedMaskSize  ; }
 //static uint16_t   (graph_get_GreenMaskSize)(void){ return vbe_mem_info.GreenMaskSize; }
 //static uint16_t   (graph_get_BlueMaskSize) (void){ return vbe_mem_info.BlueMaskSize ; }
 
+/// PUBLIC GET
+uint16_t   (graph_get_XRes)         (void){ return vbe_mem_info.XResolution; }
+uint16_t   (graph_get_YRes)         (void){ return vbe_mem_info.YResolution; }
+uint16_t   (graph_get_bytes_pixel)  (void){ return (graph_get_bits_pixel() + 7) >> 3; }
+
+///
 static int (get_permission)(unsigned int base_addr, unsigned int size) {
     struct minix_mem_range mmr;
     mmr.mr_base = base_addr;
@@ -244,7 +245,6 @@ int (graph_cleanup)(void){
 
 /// PIXEL DRAWING
 int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
-    /*
     if (x < 0 || vbe_mem_info.XResolution <= x || y < 0 || vbe_mem_info.YResolution <= y) {
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
@@ -252,56 +252,11 @@ int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
     unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
     memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
     return SUCCESS;
-    */
-    return graph_set_pixel_buffer(x, y, color, video_buf, graph_get_XRes(), graph_get_YRes());
 }
-int (graph_set_pixel_buffer)(uint16_t x, uint16_t y, uint32_t color, uint8_t *buf, uint16_t W, uint16_t H) {
-    if(buf == NULL) return NULL_PTR;
-    if (x < 0 || W <= x || y < 0 || H <= y) {
-        //printf("%s: invalid pixel.\n", __func__);
-        return OUT_OF_RANGE;
-    }
-    unsigned int pos = (x + y * W) * graph_get_bytes_pixel();
-    memcpy(buf + pos, &color, graph_get_bytes_pixel());
-    return SUCCESS;
-}
-int (graph_set_pixel_alpha_buffer)(uint16_t x, uint16_t y, uint8_t alpha, uint8_t *alp_buf, uint16_t W, uint16_t H) {
-    if(alp_buf == NULL) return NULL_PTR;
-    if (x < 0 || W <= x || y < 0 || H <= y) {
-        //printf("%s: invalid pixel.\n", __func__);
-        return OUT_OF_RANGE;
-    }
-    unsigned int pos = x + y * W;
-    memcpy(alp_buf + pos, &alpha, 1);
-    return SUCCESS;
-}
-/*
-int (graph_set_pixel_alpha)(uint16_t x, uint16_t y, uint32_t color, uint8_t alpha){
-    if (x >= vbe_mem_info.XResolution || y >= vbe_mem_info.YResolution) {
-        //printf("%s: invalid pixel.\n", __func__);
-        return OUT_OF_RANGE;
-    }
-    unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
-    uint32_t color_;
-    memcpy(&color_, video_buf + pos, graph_get_bytes_pixel());
-    float a = 1.0-(alpha&0xFF)/(float)0xFF;
-    uint8_t r = GET_RED(color)*a + GET_RED(color_)*(1.0-a);
-    uint8_t g = GET_GRE(color)*a + GET_GRE(color_)*(1.0-a);
-    uint8_t b = GET_BLU(color)*a + GET_BLU(color_)*(1.0-a); (void)(r*g*b);
-    //return graph_set_pixel(x,y,SET_RGB(r,g,b));
-    color = SET_RGB(r,g,b);
-    //unsigned int pos = (x + y * W) * graph_get_bytes_pixel();
+void (graph_set_pixel_pos)(unsigned pos, uint32_t color){
     memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
-    return SUCCESS;
 }
-*/
-int (graph_clear_screen)(void){
-    //return graph_paint_screen(BLACK);
-    memset(video_buf, 0, graph_get_vram_size());
-    return SUCCESS;
-}
+int (graph_clear_screen)(void){ memset(video_buf, 0, graph_get_vram_size()); return SUCCESS; }
+int (graph_draw)(void){ memcpy(video_mem, video_buf, graph_get_vram_size()); return SUCCESS; }
 
-int (graph_draw)(void){
-    memcpy(video_mem, video_buf, graph_get_vram_size());
-    return 0;
-}
+/// SPRITE

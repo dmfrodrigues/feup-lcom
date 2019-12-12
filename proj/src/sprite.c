@@ -104,14 +104,15 @@ void (sprite_draw)(const sprite_t *p){
         ymin = max(ymin-2, 0); ymax = min(ymax+2, graph_get_YRes());
     }
     const uint8_t *map = basic_sprite_get_map(p->bsp);
-    int16_t u, v;
-    for(int16_t y = ymin; y < ymax; ++y){
-        for(int16_t x = xmin; x < xmax; ++x){
+    const uint16_t bytes_pixel = graph_get_bytes_pixel();
+    for(int16_t u, v, y = ymin; y < ymax; ++y){
+        unsigned pos = (xmin + y*graph_get_XRes())*bytes_pixel;
+        for(int16_t x = xmin; x < xmax; ++x, pos += bytes_pixel){
             sprite_src2pic(p, x, y, &u, &v);
             if(0 <= u && u < w && 0 <= v && v < h){
                 uint32_t c = *(uint32_t*)(map + (v*w + u)*4);
                 if(GET_ALP(c) < 0x7F)
-                    graph_set_pixel(x, y, GET_COLOR(c));
+                    graph_set_pixel_pos(pos, c);
             }
         }
     }
