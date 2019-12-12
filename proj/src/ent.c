@@ -5,6 +5,8 @@
 #include "graph.h"
 #include "sprite.h"
 
+#include <math.h>
+
 static double scale = 1.0;
 static int16_t x_origin = 0;
 static int16_t y_origin = 0;
@@ -133,13 +135,29 @@ void (map_dtor)(map_t *p){
 }
 int16_t (map_get_x_screen)(const map_t *p){ return (-x_origin)*scale; }
 int16_t (map_get_y_screen)(const map_t *p){ return (-y_origin)*scale; }
-int (map_collides)(const map_t *p, double x, double y){
+int (map_collides_point)(const map_t *p, double x, double y){
     const uint16_t w = sprite_get_w(p->background), h = sprite_get_h(p->background);
     int16_t x_ = x, y_ = y;
     if(x_ < 0 || w <= x_ || y_ < 0 || h <= y_) return 0;
     uint32_t pos = x_ + y_*w;
     return p->collide[pos];
 }
+
+int (map_collides_gunner)(const map_t *p, gunner_t *shooter) {
+    double radius = sprite_get_w(shooter->dude)/2.0;
+    double shooter_x = gunner_get_x(shooter);
+    for (double x = shooter_x - radius; x < shooter_x + radius; x += 1) {
+        double y1 = sqrt(1 - x*x);
+        double y2 = -y1;
+        if (map_collides_point(p, x, y1) || map_collides_point(p, x, y2)) return 1;
+    }
+    return 0;
+}
+
+int (map_collides_bullet)(const map_t *p, bullet_t *bullet) {
+    return 0;
+}
+
 void   (map_draw)(map_t *p){
     const int16_t x_screen = map_get_x_screen(p);
     const int16_t y_screen = map_get_y_screen(p);

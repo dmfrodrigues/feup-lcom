@@ -155,7 +155,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(shooter1);
 
-                                    if(map_collides(map1, gunner_get_x(shooter1), gunner_get_y(shooter1))){
+                                    if(map_collides_gunner(map1, shooter1)){
                                         printf("COLLIDING\n");
                                     }
 
@@ -182,17 +182,17 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     graph_draw();
                                 }
                             }
+                            if (i == 12) {
+                                if (counter_mouse_ih >= 3) {
+                                    struct packet pp = mouse_parse_packet(packet_mouse_ih);
+                                    update_mouse_position(&pp);
+                                    //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
+                                    counter_mouse_ih = 0;
+                                }
+                            }
                             #endif
                         }
                     }
-                    #ifdef TELMO
-                    if (counter_mouse_ih >= 3) {
-                        struct packet pp = mouse_parse_packet(packet_mouse_ih);
-                        update_mouse_position(&pp);
-                        //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
-                        counter_mouse_ih = 0;
-                    }
-                    #endif
 
                     break;
                 default:
