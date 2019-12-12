@@ -35,22 +35,14 @@ static void (glyph_dtor)(glyph_t *p){
 }
 static int (glyph_draw_to_alpha_buffer)(const glyph_t *p, int16_t x, int16_t y, uint8_t *alp_buf, uint16_t W, uint16_t H){
     if(p == NULL) return NULL_PTR;
-    int r;
     for(int16_t h = 0; h < p->h; ++h){
         for(int16_t w = 0; w < p->w; ++w){
             uint32_t c = *((uint32_t*)p->map + w + h*p->w);
             uint8_t a = GET_ALP(c);
-            //c = c & 0xFF000000;
-            //if(c != 0) printf("%d %d 0x%X\n", w, h, c);
-            //else       printf("%d %d <========================\n");
-
-            r = graph_set_pixel_alpha_buffer(x+w, y-p->h+h, a, alp_buf, W, H);
-
-
-            //r = graph_set_pixel_alpha(x+w, y-p->h+h, GET_COLOR(c), GET_ALP(c));
-
-            //printf("%d %d 0x%X\n", x, y, *(buf+(x+y*p->w)*sizeof(uint32_t)));
-            if(r != SUCCESS && r != OUT_OF_RANGE) return r;
+            
+            int16_t x_ = x+w, y_ = y-p->h+h;
+            unsigned pos = x_ +y_*W;
+            alp_buf[pos] = a;
         }
     }
     return SUCCESS;
