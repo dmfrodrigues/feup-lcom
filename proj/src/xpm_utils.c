@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void xpm_save_as_xpm2(char **p, const char *s){
+void xpm_save_as_xpm2(const char **p, const char *s){
     FILE *f = fopen(s, "w");
     int w, h, num_colors, chars_per_pixel;
     sscanf(p[0], "%d %d %d %d", &w, &h, &num_colors, &chars_per_pixel);
