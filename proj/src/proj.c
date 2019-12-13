@@ -26,6 +26,8 @@
 #include "bullet.h"
 #include "map1.h"
 
+#include "list.h"
+
 int main(int argc, char* argv[]) {
 
     lcf_set_language("EN-US");
@@ -105,6 +107,30 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
         graph_draw();
         rectangle_dtor(rect);
+
+        list_t *l = list_ctor();
+        int *p = NULL;
+        for(int i = 10; i < 20; ++i){
+            p = malloc(sizeof(int));
+            *p = i;
+            printf("INSERTING %d\n", i);
+            list_insert(l, list_end(l), p);
+            printf("INSERTED, SIZE=%d\n", list_size(l));
+        }
+        list_node_t *it = list_begin(l);
+        while(it != list_end(l)){
+            printf("%d\n", **(int**)list_node_val(it));
+            it = list_node_next(it);
+        }
+        while(list_size(l) > 0){
+            printf("ERASING\n");
+            void *p = list_erase(l, list_begin(l));
+            printf("ERASED %d, SIZE=%d\n", *(int*)p, list_size(l));
+            free(p);
+        }
+        printf("DONE\n");
+        if(list_dtor(l)) printf("COULD NOT DESTRUCT LIST\n");
+
 
         tickdelay(micros_to_ticks(1000000));
 

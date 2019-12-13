@@ -4,7 +4,7 @@
 
 #include "graph.h"
 #include "sprite.h"
-
+#include "utils.h"
 #include <math.h>
 
 static double scale = 1.0;
@@ -62,13 +62,16 @@ void (gunner_draw)(gunner_t *p){
 
 struct bullet{
     double x, y; //real position
+    double vx, vy;
     sprite_t *b;
 };
 bullet_t* (bullet_ctor)(basic_sprite_t *b){
     bullet_t *ret = malloc(sizeof(bullet_t));
     if(ret == NULL) return NULL;
-    ret->x = 0.0;
-    ret->y = 0.0;
+    ret-> x = 0.0;
+    ret-> y = 0.0;
+    ret->vx = 0.0;
+    ret->vy = 0.0;
     ret->b = sprite_ctor(b);
     if(ret->b == NULL){
         bullet_dtor(ret);
@@ -86,6 +89,10 @@ double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
 int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }
 int16_t (bullet_get_y_screen)(const bullet_t *p){ return (p->y-y_origin)*scale; }
+void (bullet_update_movement)(bullet_t *p){
+    p->x += p->vx;
+    p->y += p->vy;
+}
 void (bullet_draw)(bullet_t *p){
     const int16_t x_screen = bullet_get_x_screen(p);
     const int16_t y_screen = bullet_get_y_screen(p);
@@ -143,7 +150,7 @@ int (map_collides_point)(const map_t *p, double x, double y){
     return p->collide[pos];
 }
 
-int (map_collides_gunner)(const map_t *p, gunner_t *shooter) {
+int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
     double radius = sprite_get_w(shooter->dude)/2.0;
     double shooter_x = gunner_get_x(shooter);
     double shooter_y = gunner_get_y(shooter);
@@ -155,7 +162,15 @@ int (map_collides_gunner)(const map_t *p, gunner_t *shooter) {
     return 0;
 }
 
-int (map_collides_bullet)(const map_t *p, bullet_t *bullet) {
+int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
+    double radius = max(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
+    double bullet_x = bullet_get_x(bull);
+    double bullet_y = bullet_get_y(bull);
+    for (double x = -radius; x < radius; x += 1){
+        double y1 = sqrt(radius*radius - x*x);
+        double y2 = -y1;
+        if (map_collides_point(p, bullet_x + x, bullet_y + y1) || map_collides_point(p, bullet_x + x, bullet_y + y2)) return 1;
+    }
     return 0;
 }
 
