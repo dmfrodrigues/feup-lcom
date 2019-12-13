@@ -146,10 +146,11 @@ int (map_collides_point)(const map_t *p, double x, double y){
 int (map_collides_gunner)(const map_t *p, gunner_t *shooter) {
     double radius = sprite_get_w(shooter->dude)/2.0;
     double shooter_x = gunner_get_x(shooter);
-    for (double x = shooter_x - radius; x < shooter_x + radius; x += 1) {
-        double y1 = sqrt(1 - x*x);
+    double shooter_y = gunner_get_y(shooter);
+    for (double x = -radius; x < radius; x += 1) {
+        double y1 = sqrt(radius*radius - x*x);
         double y2 = -y1;
-        if (map_collides_point(p, x, y1) || map_collides_point(p, x, y2)) return 1;
+        if (map_collides_point(p, shooter_x + x, shooter_y + y1) || map_collides_point(p, shooter_x + x, shooter_y + y2)) return 1;
     }
     return 0;
 }
