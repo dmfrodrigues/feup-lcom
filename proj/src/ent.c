@@ -5,6 +5,7 @@
 #include "graph.h"
 #include "sprite.h"
 #include "utils.h"
+#include "rectangle.h"
 #include <math.h>
 
 static double scale = 1.0;
@@ -21,12 +22,15 @@ struct gunner{
     double x, y; //real position
     sprite_t *dude;
     sprite_t *weapon;
+    int health, current_health;
 };
 gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon){
     gunner_t *ret = malloc(sizeof(gunner_t));
     if(ret == NULL) return NULL;
     ret->x = 0.0;
     ret->y = 0.0;
+    ret->health = 100;
+    ret->current_health = ret->health*2/3;
     ret->dude   = sprite_ctor(dude  );
     ret->weapon = sprite_ctor(weapon);
     if(ret->dude == NULL || ret->weapon == NULL){
@@ -45,10 +49,14 @@ void (gunner_set_angle)(gunner_t *p, double angle      ){
     sprite_set_angle(p->dude  , angle);
     sprite_set_angle(p->weapon, angle);
 }
-double  (gunner_get_x)       (const gunner_t *p){ return p->x; }
-double  (gunner_get_y)       (const gunner_t *p){ return p->y; }
-int16_t (gunner_get_x_screen)(const gunner_t *p){ return (p->x-x_origin)*scale; }
-int16_t (gunner_get_y_screen)(const gunner_t *p){ return (p->y-y_origin)*scale; }
+void (gunner_set_health)        (gunner_t *p, int health) { p->health = health; }
+void (gunner_set_curr_health)   (gunner_t *p, int health) { p->current_health = health; }
+double  (gunner_get_x)              (const gunner_t *p){ return p->x; }
+double  (gunner_get_y)              (const gunner_t *p){ return p->y; }
+int     (gunner_get_health)         (const gunner_t *p){ return p->health; }
+int     (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
+int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
+int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (p->y-y_origin)*scale; }
 void (gunner_draw)(gunner_t *p){
     const int16_t x_screen = gunner_get_x_screen(p);
     const int16_t y_screen = gunner_get_y_screen(p);
@@ -58,6 +66,25 @@ void (gunner_draw)(gunner_t *p){
     sprite_set_scale(p->weapon, scale);
     sprite_draw     (p->weapon);
     sprite_draw     (p->dude  );
+    gunner_draw_health(p);
+}
+
+void (gunner_draw_health)(const gunner_t *p) {
+    int16_t w = sprite_get_w(p->dude);
+    int16_t h = sprite_get_h(p->dude);
+    double x = gunner_get_x(p) - w/2;
+    double y = gunner_get_y(p) - h/2 - 10;
+    int curr_health = gunner_get_curr_health(p);
+    int health = gunner_get_health(p);
+    double perc = (double)curr_health/health;
+    rectangle_t *green_bar = rectangle_ctor(x, y, (int16_t)(w*perc), 10);
+    rectangle_set_fill_color(green_bar, 0x00FF00);
+    rectangle_t *red_bar = rectangle_ctor(x+(int16_t)(w*perc), y, (int16_t)(w*(1-perc)), 10);
+    rectangle_set_fill_color(red_bar, 0xFF0000);
+    rectangle_draw(green_bar);
+    rectangle_draw(red_bar);
+    rectangle_dtor(green_bar);
+    rectangle_dtor(red_bar);
 }
 
 struct bullet{
