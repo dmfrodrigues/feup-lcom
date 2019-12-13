@@ -65,26 +65,27 @@ struct bullet{
     double vx, vy;
     sprite_t *b;
 };
-bullet_t* (bullet_ctor)(basic_sprite_t *b){
+bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double vy){
     bullet_t *ret = malloc(sizeof(bullet_t));
     if(ret == NULL) return NULL;
-    ret-> x = 0.0;
-    ret-> y = 0.0;
-    ret->vx = 0.0;
-    ret->vy = 0.0;
+    ret-> x =  x;
+    ret-> y =  y;
+    ret->vx = vx;
+    ret->vy = vy;
     ret->b = sprite_ctor(b);
     if(ret->b == NULL){
         bullet_dtor(ret);
         return NULL;
-    }else return ret;
+    }
+    double angle = atan2(-ret->vy, ret->vx);
+    sprite_set_angle(ret->b, angle-M_PI_2);
+    return ret;
 }
 void (bullet_dtor)(bullet_t *p){
     if(p == NULL) return;
     sprite_dtor(p->b);
     free(p);
 }
-void (bullet_set_pos)  (bullet_t *p, double x, double y){ p->x = x; p->y = y; }
-void (bullet_set_angle)(bullet_t *p, double angle      ){ sprite_set_angle(p->b, angle); }
 double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
 int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }

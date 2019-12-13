@@ -145,8 +145,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
         gunner_set_pos(shooter2, -50, -50);
 
-        bullet_t *bullet = bullet_ctor(get_bullet());
-        bullet_set_pos(bullet, 400, 400);
+        bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
 
         ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                        gunner_get_y(shooter1)-ent_get_YLength()/2.0);
@@ -180,6 +179,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             if (i == 0) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(map1, shooter1);
+                                    bullet_update_movement(bullet);
 
                                     if(map_collides_gunner(map1, shooter1)){
                                         printf("COLLIDING\n");
