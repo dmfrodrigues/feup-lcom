@@ -50,9 +50,14 @@ void update_key_presses(void) {
     hor_mov = key_presses.d_pressed - key_presses.a_pressed;
 }
 
-void update_movement(gunner_t *p) {
+void update_movement(const map_t *map, gunner_t *p) {
     static const int speed = 5;
-    gunner_set_pos(p, gunner_get_x(p) + speed * hor_mov, gunner_get_y(p) + speed * ver_mov);
+    double x = gunner_get_x(p);
+    double y = gunner_get_y(p);
+    gunner_set_pos(p, x + speed * hor_mov, y + speed * ver_mov);
+    if (map_collides_gunner(map, p)) {
+        gunner_set_pos(p, x, y);
+    }
 }
 
 void update_scale(void) {
@@ -69,7 +74,7 @@ void update_scale(void) {
             if (scale >= MIN_SCALE) ent_set_scale(scale);
         }
 
-        printf("SCALE: %d\n", (int)(ent_get_scale()*1000));
+        //printf("SCALE: %d\n", (int)(ent_get_scale()*1000));
     }
 
     last_plus = key_presses.plus_pressed;
