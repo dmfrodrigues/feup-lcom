@@ -24,10 +24,8 @@ void (gunner_draw)(gunner_t *p);
 
 struct bullet;
 typedef struct bullet bullet_t;
-bullet_t* (bullet_ctor)(basic_sprite_t *b);
+bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double vy);
 void      (bullet_dtor)(bullet_t *p);
-void (bullet_set_pos)  (bullet_t *p, double x, double y);
-void (bullet_set_angle)(bullet_t *p, double angle        );
 double  (bullet_get_x)       (const bullet_t *p);
 double  (bullet_get_y)       (const bullet_t *p);
 int16_t (bullet_get_x_screen)(const bullet_t *p);
