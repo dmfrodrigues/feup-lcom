@@ -179,10 +179,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             if (i == 0) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(map1, shooter1);
-                                    bullet_update_movement(bullet);
+                                    //bullet_update_movement(bullet);
 
                                     if(map_collides_gunner(map1, shooter1)){
                                         printf("COLLIDING\n");
+                                    }
+
+                                    if (gunner_collides_bullet(shooter1, bullet)) {
+                                        printf("Bullet Collide with Shooter\n");
                                     }
 
                                     update_scale();
