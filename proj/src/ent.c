@@ -152,7 +152,7 @@ int (map_collides_point)(const map_t *p, double x, double y){
 }
 
 int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
-    double radius = sprite_get_w(shooter->dude)/2.0;
+    double radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     double shooter_x = gunner_get_x(shooter);
     double shooter_y = gunner_get_y(shooter);
     for (double x = -radius; x < radius; x += 1) {
@@ -173,6 +173,21 @@ int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
         if (map_collides_point(p, bullet_x + x, bullet_y + y1) || map_collides_point(p, bullet_x + x, bullet_y + y2)) return 1;
     }
     return 0;
+}
+
+int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
+    double shooter_radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
+    double shooter_x = gunner_get_x(shooter);
+    double shooter_y = gunner_get_y(shooter);
+
+    double bullet_radius = max(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
+    double bullet_x = bullet_get_x(bull);
+    double bullet_y = bullet_get_y(bull);
+
+    double dx = shooter_x - bullet_x;
+    double dy = shooter_y - bullet_y;
+    double distance = sqrt(dx*dx + dy*dy);
+    return distance <= shooter_radius+bullet_radius;
 }
 
 void   (map_draw)(map_t *p){
