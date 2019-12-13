@@ -54,7 +54,12 @@ void update_movement(const map_t *map, gunner_t *p) {
     static const int speed = 5;
     double x = gunner_get_x(p);
     double y = gunner_get_y(p);
-    gunner_set_pos(p, x + speed * hor_mov, y + speed * ver_mov);
+    gunner_set_pos(p, x + speed * hor_mov, y);
+    if (map_collides_gunner(map, p)) {
+        gunner_set_pos(p, x, y);
+    }
+    x = gunner_get_x(p);
+    gunner_set_pos(p, x, y + speed * ver_mov);
     if (map_collides_gunner(map, p)) {
         gunner_set_pos(p, x, y);
     }
