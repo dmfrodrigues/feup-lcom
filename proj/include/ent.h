@@ -35,6 +35,8 @@ double  (bullet_get_x)       (const bullet_t *p);
 double  (bullet_get_y)       (const bullet_t *p);
 int16_t (bullet_get_x_screen)(const bullet_t *p);
 int16_t (bullet_get_y_screen)(const bullet_t *p);
+int     (bullet_get_damage)  (const bullet_t *p);
+void    (bullet_set_damage)  (bullet_t *p, int damage);
 void (bullet_update_movement)(bullet_t *p);
 void (bullet_draw)(bullet_t *p);
 void (gunner_draw_health)(const gunner_t *p);

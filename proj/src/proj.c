@@ -187,6 +187,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                                     if (gunner_collides_bullet(shooter1, bullet)) {
                                         printf("Bullet Collide with Shooter\n");
+                                        gunner_set_curr_health(shooter1, gunner_get_curr_health(shooter1) - bullet_get_damage(bullet));
                                     }
 
                                     update_scale();

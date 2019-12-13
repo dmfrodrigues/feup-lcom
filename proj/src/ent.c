@@ -30,7 +30,7 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon){
     ret->x = 0.0;
     ret->y = 0.0;
     ret->health = 100;
-    ret->current_health = ret->health*2/3;
+    ret->current_health = ret->health;
     ret->dude   = sprite_ctor(dude  );
     ret->weapon = sprite_ctor(weapon);
     if(ret->dude == NULL || ret->weapon == NULL){
@@ -49,8 +49,14 @@ void (gunner_set_angle)(gunner_t *p, double angle      ){
     sprite_set_angle(p->dude  , angle);
     sprite_set_angle(p->weapon, angle);
 }
-void (gunner_set_health)        (gunner_t *p, int health) { p->health = health; }
-void (gunner_set_curr_health)   (gunner_t *p, int health) { p->current_health = health; }
+void (gunner_set_health)        (gunner_t *p, int health) {
+    if (health < 0) health = 0;
+    p->health = health;
+}
+void (gunner_set_curr_health)   (gunner_t *p, int health) {
+    if (health < 0) health = 0;
+    p->current_health = health;
+}
 double  (gunner_get_x)              (const gunner_t *p){ return p->x; }
 double  (gunner_get_y)              (const gunner_t *p){ return p->y; }
 int     (gunner_get_health)         (const gunner_t *p){ return p->health; }
@@ -72,8 +78,8 @@ void (gunner_draw)(gunner_t *p){
 void (gunner_draw_health)(const gunner_t *p) {
     int16_t w = sprite_get_w(p->dude);
     int16_t h = sprite_get_h(p->dude);
-    double x = gunner_get_x(p) - w/2;
-    double y = gunner_get_y(p) - h/2 - 10;
+    double x = gunner_get_x_screen(p) - w/2;
+    double y = gunner_get_y_screen(p) - h/2 - 10;
     int curr_health = gunner_get_curr_health(p);
     int health = gunner_get_health(p);
     double perc = (double)curr_health/health;
@@ -91,6 +97,7 @@ struct bullet{
     double x, y; //real position
     double vx, vy;
     sprite_t *b;
+    int damage;
 };
 bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double vy){
     bullet_t *ret = malloc(sizeof(bullet_t));
@@ -99,6 +106,7 @@ bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double
     ret-> y =  y;
     ret->vx = vx;
     ret->vy = vy;
+    ret->damage = 1;
     ret->b = sprite_ctor(b);
     if(ret->b == NULL){
         bullet_dtor(ret);
@@ -117,6 +125,11 @@ double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
 int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }
 int16_t (bullet_get_y_screen)(const bullet_t *p){ return (p->y-y_origin)*scale; }
+int     (bullet_get_damage)  (const bullet_t *p){ return p->damage; }
+void    (bullet_set_damage)  (bullet_t *p, int damage) {
+    if (damage < 0) damage = 0;
+    p->damage = damage;
+}
 void (bullet_update_movement)(bullet_t *p){
     p->x += p->vx;
     p->y += p->vy;
