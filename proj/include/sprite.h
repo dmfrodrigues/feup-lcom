@@ -42,6 +42,7 @@ void (sprite_set_scale) (sprite_t *p, double scale);
 
 int16_t  (sprite_get_x)(const sprite_t *p);
 int16_t  (sprite_get_y)(const sprite_t *p);
+double   (sprite_get_angle)(const sprite_t *p);
 uint16_t (sprite_get_w)(const sprite_t *p);
 uint16_t (sprite_get_h)(const sprite_t *p);
 

@@ -26,6 +26,10 @@
 #define RIGHT   1   /** @brief Moving to the right side of screen */
 #define REST    0   /** @brief Not moving */
 
+// Movement Constants
+#define SHOOTER_SPEED   5   /** @brief Shooter speed */
+#define BULLET_SPEED    8   /** @brief Bullet speet */
+
 // Extra Keys
 #define ESC_MAKE_CODE   0x01    /** @brief ESC Make Code */
 #define ESC_BREAK_CODE  0x81    /** @brief ESC Break Code */

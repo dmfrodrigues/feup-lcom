@@ -2,6 +2,7 @@
 #define ENT_H_INCLUDED
 
 #include "sprite.h"
+#include "list.h"
 
 void (ent_set_scale) (double n);
 void (ent_set_origin)(double x, double y);
@@ -20,6 +21,7 @@ void (gunner_set_health)            (gunner_t *p, int health);
 void (gunner_set_curr_health)       (gunner_t *p, int health);
 double  (gunner_get_x)              (const gunner_t *p);
 double  (gunner_get_y)              (const gunner_t *p);
+double  (gunner_get_angle)          (const gunner_t *p);
 int     (gunner_get_health)         (const gunner_t *p);
 int     (gunner_get_curr_health)    (const gunner_t *p);
 int16_t (gunner_get_x_screen)       (const gunner_t *p);
@@ -38,7 +40,9 @@ int16_t (bullet_get_y_screen)(const bullet_t *p);
 int     (bullet_get_damage)  (const bullet_t *p);
 void    (bullet_set_damage)  (bullet_t *p, int damage);
 void (bullet_update_movement)(bullet_t *p);
+void (bullet_update_movement_list)(list_t *bullet_list);
 void (bullet_draw)(bullet_t *p);
+void (bullet_draw_list)(list_t *bullet_list);
 void (gunner_draw_health)(const gunner_t *p);
 
 struct map;

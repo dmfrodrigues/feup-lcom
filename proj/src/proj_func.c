@@ -9,6 +9,8 @@
 #include "proj_macros.h"
 #include "utils.h"
 #include "ent.h"
+#include "fast_math.h"
+#include "bullet.h"
 
 #include "kbc_macros.h"
 
@@ -51,17 +53,52 @@ void update_key_presses(void) {
 }
 
 void update_movement(const map_t *map, gunner_t *p) {
-    static const int speed = 5;
     double x = gunner_get_x(p);
     double y = gunner_get_y(p);
-    gunner_set_pos(p, x + speed * hor_mov, y);
+    gunner_set_pos(p, x + SHOOTER_SPEED * hor_mov, y);
     if (map_collides_gunner(map, p)) {
         gunner_set_pos(p, x, y);
     }
     x = gunner_get_x(p);
-    gunner_set_pos(p, x, y + speed * ver_mov);
+    gunner_set_pos(p, x, y + SHOOTER_SPEED * ver_mov);
     if (map_collides_gunner(map, p)) {
         gunner_set_pos(p, x, y);
+    }
+}
+
+void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list) {
+    double angle = gunner_get_angle(shooter);
+    double vx = -BULLET_SPEED * fm_sin(angle);
+    double vy = -BULLET_SPEED * fm_cos(angle);
+    bullet_t *bullet = bullet_ctor(get_bullet(), gunner_get_x(shooter), gunner_get_y(shooter), vx, vy);
+    list_insert(bullet_list, list_end(bullet_list), bullet);
+}
+
+void (update_game_state)(const map_t *map, gunner_t *shooter, list_t *bullet_list) {
+
+    bullet_update_movement_list(bullet_list);
+
+    list_node_t *it = list_begin(bullet_list);
+    while (it != list_end(bullet_list)) {
+        bullet_t *bullet = *(bullet_t**)list_node_val(it);
+        if (map_collides_bullet(map, bullet)) {
+            list_node_t *aux = list_node_next(it);
+            bullet = (bullet_t*)list_erase(bullet_list, it);
+            free(bullet);
+            it = aux;
+            continue;
+        }
+
+        if (gunner_collides_bullet(shooter, bullet)) {
+            list_node_t *aux = list_node_next(it);
+            bullet = (bullet_t*)list_erase(bullet_list, it);
+            gunner_set_curr_health(shooter, gunner_get_curr_health(shooter) - bullet_get_damage(bullet));
+            free(bullet);
+            it = aux;
+            continue;
+        }
+
+        it = list_node_next(it);
     }
 }
 
@@ -88,12 +125,18 @@ void update_scale(void) {
 
 static int32_t mouse_x = 0, mouse_y = 0;
 
-void update_mouse_position(struct packet *p) {
+void (update_mouse)(struct packet *p) {
     mouse_x = max(0, mouse_x + p->delta_x);
     mouse_x = min(mouse_x, graph_get_XRes() - 1);
 
     mouse_y = max(0, mouse_y - p->delta_y);
     mouse_y = min(mouse_y, graph_get_YRes() - 1);
+
+    key_presses.lb_pressed = p->lb;
+}
+
+keys_t* (get_key_presses)(void) {
+    return &key_presses;
 }
 
 int32_t get_mouse_X(void) { return mouse_x; }

@@ -23,7 +23,7 @@
 #include "shooter.h"
 #include "pistol.h"
 #include "nothing.h"
-#include "bullet.h"
+//#include "bullet.h"
 #include "map1.h"
 
 #include "list.h"
@@ -143,14 +143,18 @@ int(proj_main_loop)(int argc, char *argv[]) {
         gunner_set_pos(shooter1, 75, 75);
 
         gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
-        gunner_set_pos(shooter2, -50, -50);
+        gunner_set_pos(shooter2, 775, 75);
 
-        bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
+        //bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
+
+        list_t *bullet_list = list_ctor();
 
         ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                        gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
         uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+
+        uint8_t last_lb = 0;
     #endif
 
     /// loop stuff
@@ -180,15 +184,16 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(map1, shooter1);
                                     //bullet_update_movement(bullet);
+                                    update_game_state(map1, shooter2, bullet_list);
 
                                     if(map_collides_gunner(map1, shooter1)){
                                         printf("COLLIDING\n");
                                     }
 
-                                    if (gunner_collides_bullet(shooter1, bullet)) {
+                                    /*if (gunner_collides_bullet(shooter1, bullet)) {
                                         printf("Bullet Collide with Shooter\n");
                                         gunner_set_curr_health(shooter1, gunner_get_curr_health(shooter1) - bullet_get_damage(bullet));
-                                    }
+                                    }*/
 
                                     update_scale();
 
@@ -205,7 +210,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     map_draw   (map1);
                                     gunner_draw(shooter2);
                                     gunner_draw(shooter1);
-                                    bullet_draw(bullet);
+                                    bullet_draw_list(bullet_list);
 
                                     t = clock()-t; //printf("%d\n", (t*1000)/CLOCKS_PER_SEC);
 
@@ -216,9 +221,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             if (i == 12) {
                                 if (counter_mouse_ih >= 3) {
                                     struct packet pp = mouse_parse_packet(packet_mouse_ih);
-                                    update_mouse_position(&pp);
+                                    update_mouse(&pp);
                                     //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
                                     counter_mouse_ih = 0;
+
+                                    if (last_lb ^ get_key_presses()->lb_pressed && get_key_presses()->lb_pressed) {
+                                        shoot_bullet(shooter1, bullet_list);
+                                    }
+
+                                    last_lb = get_key_presses()->lb_pressed;
                                 }
                             }
                             #endif
@@ -237,7 +248,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #ifdef TELMO
         gunner_dtor(shooter1); shooter1 = NULL;
         gunner_dtor(shooter2); shooter2 = NULL;
-        bullet_dtor(bullet); bullet = NULL;
+
+        while(list_size(bullet_list) > 0){
+            bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
+            free(p);
+        }
+        if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
     #endif
 
     basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;

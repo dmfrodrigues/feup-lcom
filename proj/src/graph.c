@@ -363,6 +363,7 @@ void (sprite_set_angle) (sprite_t *p, double angle          ){ p->theta = angle;
 void (sprite_set_scale) (sprite_t *p, double scale          ){ p->scale = scale; }
 int16_t  (sprite_get_x)(const sprite_t *p){ return p->x; }
 int16_t  (sprite_get_y)(const sprite_t *p){ return p->y; }
+double   (sprite_get_angle)(const sprite_t *p){ return p->theta; }
 uint16_t (sprite_get_w)(const sprite_t *p){ return basic_sprite_get_w(p->bsp); }
 uint16_t (sprite_get_h)(const sprite_t *p){ return basic_sprite_get_h(p->bsp); }
 void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){

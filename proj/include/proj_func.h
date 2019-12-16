@@ -27,9 +27,16 @@ typedef struct keys {
     uint8_t ctrl_pressed    : 1;
     uint8_t plus_pressed    : 1;
     uint8_t minus_pressed   : 1;
+    uint8_t lb_pressed      : 1;
 } keys_t;
 
-void update_mouse_position(struct packet *p);
+void update_mouse(struct packet *p);
+
+keys_t* (get_key_presses)(void);
+
+void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list);
+
+void (update_game_state)(const map_t *map, gunner_t *shooter, list_t *bullet_list);
 
 void update_scale(void);
 
