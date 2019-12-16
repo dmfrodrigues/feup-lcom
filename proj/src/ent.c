@@ -59,6 +59,7 @@ void (gunner_set_curr_health)   (gunner_t *p, int health) {
 }
 double  (gunner_get_x)              (const gunner_t *p){ return p->x; }
 double  (gunner_get_y)              (const gunner_t *p){ return p->y; }
+double  (gunner_get_angle)          (const gunner_t *p){ return sprite_get_angle(p->dude); }
 int     (gunner_get_health)         (const gunner_t *p){ return p->health; }
 int     (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
 int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
@@ -134,12 +135,35 @@ void (bullet_update_movement)(bullet_t *p){
     p->x += p->vx;
     p->y += p->vy;
 }
+
+void (bullet_update_movement_list)(list_t *bullet_list){
+    if (bullet_list == NULL) return;
+    if (list_size(bullet_list) == 0) return;
+
+    list_node_t *it = list_begin(bullet_list);
+    while (it != list_end(bullet_list)) {
+        bullet_update_movement(*(bullet_t**)list_node_val(it));
+        it = list_node_next(it);
+    }
+}
+
 void (bullet_draw)(bullet_t *p){
     const int16_t x_screen = bullet_get_x_screen(p);
     const int16_t y_screen = bullet_get_y_screen(p);
     sprite_set_pos  (p->b, x_screen, y_screen);
     sprite_set_scale(p->b, scale);
     sprite_draw     (p->b);
+}
+
+void (bullet_draw_list)(list_t *bullet_list) {
+    if (bullet_list == NULL) return;
+    if (list_size(bullet_list) == 0) return;
+
+    list_node_t *it = list_begin(bullet_list);
+    while (it != list_end(bullet_list)) {
+        bullet_draw(*(bullet_t**)list_node_val(it));
+        it = list_node_next(it);
+    }
 }
 
 struct map{
