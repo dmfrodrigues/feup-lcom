@@ -56,6 +56,7 @@ int    (map_collides_point)(const map_t *p, double x, double y);
 int    (map_collides_gunner)(const map_t *p, const gunner_t *gunner);
 int    (map_collides_bullet)(const map_t *p, const bullet_t *bullet);
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull);
+int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2);
 void   (map_draw)(map_t *p);
 
 #endif //ENT_H_INCLUDED

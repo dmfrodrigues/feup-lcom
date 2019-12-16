@@ -260,6 +260,21 @@ int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
     return distance <= shooter_radius+bullet_radius;
 }
 
+int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2) {
+    double shooter1_radius = max(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
+    double shooter1_x = gunner_get_x(shooter1);
+    double shooter1_y = gunner_get_y(shooter1);
+
+    double shooter2_radius = max(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
+    double shooter2_x = gunner_get_x(shooter2);
+    double shooter2_y = gunner_get_y(shooter2);
+
+    double dx = shooter1_x - shooter2_x;
+    double dy = shooter1_y - shooter2_y;
+    double distance = sqrt(dx*dx + dy*dy);
+    return distance <= shooter1_radius+shooter2_radius;
+}
+
 void   (map_draw)(map_t *p){
     const int16_t x_screen = map_get_x_screen(p);
     const int16_t y_screen = map_get_y_screen(p);
