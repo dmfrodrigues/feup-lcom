@@ -140,9 +140,11 @@ int(proj_main_loop)(int argc, char *argv[]) {
         ent_set_scale(DEFAULT_SCALE);
 
         gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+        gunner_set_spawn(shooter1, 75, 75);
         gunner_set_pos(shooter1, 75, 75);
 
         gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
+        gunner_set_spawn(shooter2, 975, 75);
         gunner_set_pos(shooter2, 775, 75);
 
         //bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
@@ -184,6 +186,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 if (no_interrupts % refresh_count_value == 0) {
                                     update_movement(map1, shooter1);
                                     //bullet_update_movement(bullet);
+
+                                    if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
+
                                     update_game_state(map1, shooter2, bullet_list);
 
                                     if(map_collides_gunner(map1, shooter1)){
@@ -194,7 +199,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         printf("Bullet Collide with Shooter\n");
                                         gunner_set_curr_health(shooter1, gunner_get_curr_health(shooter1) - bullet_get_damage(bullet));
                                     }*/
-
                                     update_scale();
 
                                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,

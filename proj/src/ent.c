@@ -20,6 +20,7 @@ double (ent_get_YLength)(void){ return graph_get_YRes()/scale; }
 
 struct gunner{
     double x, y; //real position
+    double spawn_x, spawn_y;
     sprite_t *dude;
     sprite_t *weapon;
     int health, current_health;
@@ -27,6 +28,8 @@ struct gunner{
 gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon){
     gunner_t *ret = malloc(sizeof(gunner_t));
     if(ret == NULL) return NULL;
+    ret->spawn_x = 0.0;
+    ret->spawn_y = 0.0;
     ret->x = 0.0;
     ret->y = 0.0;
     ret->health = 100;
@@ -45,6 +48,7 @@ void (gunner_dtor)(gunner_t *p){
     free(p);
 }
 void (gunner_set_pos)  (gunner_t *p, double x, double y){ p->x = x; p->y = y; }
+void (gunner_set_spawn)  (gunner_t *p, double x, double y){ p->spawn_x = x; p->spawn_y = y; }
 void (gunner_set_angle)(gunner_t *p, double angle      ){
     sprite_set_angle(p->dude  , angle);
     sprite_set_angle(p->weapon, angle);
@@ -59,6 +63,8 @@ void (gunner_set_curr_health)   (gunner_t *p, int health) {
 }
 double  (gunner_get_x)              (const gunner_t *p){ return p->x; }
 double  (gunner_get_y)              (const gunner_t *p){ return p->y; }
+double  (gunner_get_spawn_x)        (const gunner_t *p){ return p->spawn_x; }
+double  (gunner_get_spawn_y)        (const gunner_t *p){ return p->spawn_y; }
 double  (gunner_get_angle)          (const gunner_t *p){ return sprite_get_angle(p->dude); }
 int     (gunner_get_health)         (const gunner_t *p){ return p->health; }
 int     (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
@@ -107,7 +113,7 @@ bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double
     ret-> y =  y;
     ret->vx = vx;
     ret->vy = vy;
-    ret->damage = 1;
+    ret->damage = 10;
     ret->b = sprite_ctor(b);
     if(ret->b == NULL){
         bullet_dtor(ret);
