@@ -52,16 +52,16 @@ void update_key_presses(void) {
     hor_mov = key_presses.d_pressed - key_presses.a_pressed;
 }
 
-void update_movement(const map_t *map, gunner_t *p) {
+void update_movement(const map_t *map, gunner_t *p, gunner_t *p2) {
     double x = gunner_get_x(p);
     double y = gunner_get_y(p);
     gunner_set_pos(p, x + SHOOTER_SPEED * hor_mov, y);
-    if (map_collides_gunner(map, p)) {
+    if (map_collides_gunner(map, p) || gunner_collides_gunner(p, p2)) {
         gunner_set_pos(p, x, y);
     }
     x = gunner_get_x(p);
     gunner_set_pos(p, x, y + SHOOTER_SPEED * ver_mov);
-    if (map_collides_gunner(map, p)) {
+    if (map_collides_gunner(map, p) || gunner_collides_gunner(p, p2)) {
         gunner_set_pos(p, x, y);
     }
 }
