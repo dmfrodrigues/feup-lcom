@@ -93,6 +93,11 @@ void (update_game_state)(const map_t *map, gunner_t *shooter, list_t *bullet_lis
             list_node_t *aux = list_node_next(it);
             bullet = (bullet_t*)list_erase(bullet_list, it);
             gunner_set_curr_health(shooter, gunner_get_curr_health(shooter) - bullet_get_damage(bullet));
+            if (gunner_get_curr_health(shooter) <= 0) {
+                gunner_set_curr_health(shooter, gunner_get_health(shooter));
+                gunner_set_pos(shooter, gunner_get_spawn_x(shooter), gunner_get_spawn_y(shooter));
+            }
+
             free(bullet);
             it = aux;
             continue;
