@@ -4,7 +4,7 @@
 /** @brief Error Codes */
 enum errors {
     SUCCESS = 0,        /** @brief Sucessful */
-    NULL_PTR,           /** @brief Null Pointer Error */
+    NULL_PTR = 250,     /** @brief Null Pointer Error */
     LCF_ERROR,          /** @brief Error originated on LCF */
     SBCR_ERROR,         /** @brief Error on Subscribing Interrupt */
     UNSBCR_ERROR,       /** @brief Error on Unsubscring Interrupt*/

@@ -11,6 +11,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "graph.h"
+#include "rtc.h"
 #include "interrupts_func.h"
 
 #include "graph.h"
@@ -84,6 +85,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     #ifdef DIOGO
+        /*
         graph_clear_screen();
 
         rectangle_t *rect = rectangle_ctor(0,0,400,100);
@@ -132,8 +134,18 @@ int(proj_main_loop)(int argc, char *argv[]) {
         if(list_dtor(l)) printf("COULD NOT DESTRUCT LIST\n");
 
 
-        tickdelay(micros_to_ticks(1000000));
+        tickdelay(micros_to_ticks(1000000));*/
 
+        // RTC
+        uint8_t date[4], time[3];
+
+        if (rtc_read_time(time)) return 1;
+
+        if (rtc_read_date(date)) return 1;
+
+        printf("Hour: %02d:%02d:%02d\n", time[2], time[1], time[0]);
+
+        printf("Date: %d, %02d/%02d/%02d\n", date[0], date[1], date[2], date[3]);
     #endif
 
     #ifdef TELMO
