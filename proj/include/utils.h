@@ -1,6 +1,9 @@
 #ifndef UTILS_H_INCLUDED
 #define UTILS_H_INCLUDED
 
+#define BCD_FIRST(n)     (n >> 4)       /** @brief Get first digit (leftmost digit) of 8-bit BCD */
+#define BCD_SECOND(n)    (n & 0x0F)     /** @brief Get second digit (rightmost digit) of 8-bit BCD */
+
 /**
  * @brief Gets the least significant byte of a 16-bit variable
  * @param val 16-bit variable
