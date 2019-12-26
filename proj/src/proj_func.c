@@ -50,7 +50,7 @@ void update_key_presses(void) {
     ver_mov = key_presses.s_pressed - key_presses.w_pressed;
     hor_mov = key_presses.d_pressed - key_presses.a_pressed;
 }
-
+/*
 void update_movement(const map_t *map, list_t *shooter_list){
     list_node_t *it1 = list_begin(shooter_list);
     while(it1 != list_end(shooter_list)){
@@ -67,7 +67,7 @@ void update_movement(const map_t *map, list_t *shooter_list){
         }
     }
 }
-
+*/
 void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet) {
     double angle = gunner_get_angle(shooter);
     double vx = -BULLET_SPEED * fm_sin(angle);
