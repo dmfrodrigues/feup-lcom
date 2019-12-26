@@ -53,18 +53,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
 
-    #ifdef DIOGO
-        uint8_t conf;
-        if((r = util_sys_inb(0x3F8+3, &conf))) return 1; printf("0x%02X\n", conf);
-        conf = 0x19; //00011001
-        printf("0x%02X\n", conf);
-        if((r = sys_outb(0x3F8+3, conf))) return 1;
-        uint8_t s;
-        if((r = util_sys_inb(0x3F8+3, &s))) return 1; printf("S: 0x%02X\n", s);
-        return 0;
-
-    #endif
-
     font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
     if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
 
@@ -168,15 +156,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
         printf("Date: %d, %02d/%02d/%02d\n", date[0], date[1], date[2], date[3]);
         */
         //UART
-        /*
-        printf("got %d\n", ser_test_conf(COM1_ADDR));
-        printf("\n");
-        printf("got %d\n", ser_test_set(COM1_ADDR, 6, 1, 0, 9800));
-        tickdelay(micros_to_ticks(1000000));
-        printf("got %d\n", ser_test_conf(COM1_ADDR));
-        */
-
-
+        if((r = ser_test_conf(COM1_ADDR))) return r;
+        if((r = ser_test_set(COM1_ADDR, 6, 2, 0, 9800))) return r;
+        if((r = ser_test_conf(COM1_ADDR))) return r;
     #endif
 
     #ifdef TELMO
