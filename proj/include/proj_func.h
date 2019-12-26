@@ -36,7 +36,7 @@ keys_t* (get_key_presses)(void);
 
 void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list);
 
-void (update_game_state)(const map_t *map, gunner_t *shooter, list_t *bullet_list);
+void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_list);
 
 void update_scale(void);
 

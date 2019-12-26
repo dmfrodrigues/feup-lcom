@@ -16,7 +16,7 @@ typedef struct gunner gunner_t;
 gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon);
 void      (gunner_dtor)(gunner_t *p);
 void (gunner_set_pos)               (gunner_t *p, double x, double y);
-void  (gunner_set_spawn)        (gunner_t *p, double x, double y);
+void (gunner_set_spawn)             (gunner_t *p, double x, double y);
 void (gunner_set_angle)             (gunner_t *p, double angle      );
 void (gunner_set_health)            (gunner_t *p, int health);
 void (gunner_set_curr_health)       (gunner_t *p, int health);
@@ -34,7 +34,7 @@ void (gunner_draw_health)(const gunner_t *p);
 
 struct bullet;
 typedef struct bullet bullet_t;
-bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double vy);
+bullet_t* (bullet_ctor)(const gunner_t *shooter, basic_sprite_t *b, double x, double y, double vx, double vy);
 void      (bullet_dtor)(bullet_t *p);
 double  (bullet_get_x)       (const bullet_t *p);
 double  (bullet_get_y)       (const bullet_t *p);

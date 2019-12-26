@@ -101,14 +101,16 @@ void (gunner_draw_health)(const gunner_t *p) {
 }
 
 struct bullet{
+    const gunner_t *shooter;
     double x, y; //real position
     double vx, vy;
     sprite_t *b;
     int damage;
 };
-bullet_t* (bullet_ctor)(basic_sprite_t *b, double x, double y, double vx, double vy){
+bullet_t* (bullet_ctor)(const gunner_t *shooter, basic_sprite_t *b, double x, double y, double vx, double vy){
     bullet_t *ret = malloc(sizeof(bullet_t));
     if(ret == NULL) return NULL;
+    ret->shooter = shooter;
     ret-> x =  x;
     ret-> y =  y;
     ret->vx = vx;
@@ -246,6 +248,8 @@ int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
 }
 
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
+    if(bull->shooter == shooter) return false;
+
     double shooter_radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     double shooter_x = gunner_get_x(shooter);
     double shooter_y = gunner_get_y(shooter);

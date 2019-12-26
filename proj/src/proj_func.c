@@ -70,40 +70,49 @@ void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list) {
     double angle = gunner_get_angle(shooter);
     double vx = -BULLET_SPEED * fm_sin(angle);
     double vy = -BULLET_SPEED * fm_cos(angle);
-    bullet_t *bullet = bullet_ctor(get_bullet(), gunner_get_x(shooter), gunner_get_y(shooter), vx, vy);
+    bullet_t *bullet = bullet_ctor(shooter, get_bullet(), gunner_get_x(shooter), gunner_get_y(shooter), vx, vy);
     list_insert(bullet_list, list_end(bullet_list), bullet);
 }
 
-void (update_game_state)(const map_t *map, gunner_t *shooter, list_t *bullet_list) {
+void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_list) {
 
     bullet_update_movement_list(bullet_list);
 
-    list_node_t *it = list_begin(bullet_list);
-    while (it != list_end(bullet_list)) {
-        bullet_t *bullet = *(bullet_t**)list_node_val(it);
+    list_node_t *bullet_it = list_begin(bullet_list);
+    while (bullet_it != list_end(bullet_list)) {
+        /// Collision with walls
+        bullet_t *bullet = *(bullet_t**)list_node_val(bullet_it);
         if (map_collides_bullet(map, bullet)) {
-            list_node_t *aux = list_node_next(it);
-            bullet = (bullet_t*)list_erase(bullet_list, it);
-            free(bullet);
-            it = aux;
+            list_node_t *aux = list_node_next(bullet_it);
+            /// Delete bullet
+            bullet_dtor(list_erase(bullet_list, bullet_it));
+            /// Advance iterator
+            bullet_it = aux;
             continue;
         }
-
-        if (gunner_collides_bullet(shooter, bullet)) {
-            list_node_t *aux = list_node_next(it);
-            bullet = (bullet_t*)list_erase(bullet_list, it);
-            gunner_set_curr_health(shooter, gunner_get_curr_health(shooter) - bullet_get_damage(bullet));
-            if (gunner_get_curr_health(shooter) <= 0) {
-                gunner_set_curr_health(shooter, gunner_get_health(shooter));
-                gunner_set_pos(shooter, gunner_get_spawn_x(shooter), gunner_get_spawn_y(shooter));
-            }
-
-            free(bullet);
-            it = aux;
-            continue;
+        /// Collision with shooters
+        list_node_t *shooter_it = list_begin(shooter_list);
+        int deleted_bullet = false;
+        while(shooter_it != list_end(shooter_list)){
+            gunner_t *shooter = *(gunner_t**)list_node_val(shooter_it);
+            if(gunner_collides_bullet(shooter, bullet)) {
+                list_node_t *aux = list_node_next(bullet_it);
+                /// Change health
+                gunner_set_curr_health(shooter, gunner_get_curr_health(shooter) - bullet_get_damage(bullet));
+                if (gunner_get_curr_health(shooter) <= 0) {
+                    shooter = list_erase(shooter_list, shooter_it);
+                    gunner_dtor(shooter);
+                }
+                /// Delete bullet
+                bullet_dtor(list_erase(bullet_list, bullet_it)); deleted_bullet = true;
+                /// Advance iterator
+                bullet_it = aux;
+                break;
+            } else shooter_it = list_node_next(shooter_it);
         }
-
-        it = list_node_next(it);
+        if(deleted_bullet) continue;
+        /// Advance iterator if necessary
+        bullet_it = list_node_next(bullet_it);
     }
 }
 
