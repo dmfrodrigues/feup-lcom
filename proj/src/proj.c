@@ -54,12 +54,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
     int r;
 
     #ifdef DIOGO
+        /*
         uint8_t conf;
         if((r = util_sys_inb(0x3F8+3, &conf))) return 1; //printf("0x%02X\n", conf);
         conf = 0x19; //00011001
         //printf("0x%02X\n", conf);
         if((r = sys_outb(0x3F8+3, conf))) return 1;
         if((r = util_sys_inb(0x3F8+3, &conf))) return 1; //printf("0x%02X\n", conf);
+        */
     #endif
 
     font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
@@ -177,6 +179,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #ifdef TELMO
         ent_set_scale(DEFAULT_SCALE);
 
+        list_t *shooter_list = list_ctor();
+
         gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
         gunner_set_spawn(shooter1, 75, 75);
         gunner_set_pos(shooter1, 75, 75);
@@ -185,9 +189,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
         gunner_set_spawn(shooter2, 975, 75);
         gunner_set_pos(shooter2, 775, 75);
 
+        list_insert(shooter_list, list_end(shooter_list), shooter1);
+        list_insert(shooter_list, list_end(shooter_list), shooter2);
+
         //bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
 
-        list_t *bullet_list = list_ctor();
+        list_t *bullet_list  = list_ctor();
 
         ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                        gunner_get_y(shooter1)-ent_get_YLength()/2.0);
@@ -227,7 +234,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                                     if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
 
-                                    update_game_state(map1, shooter2, bullet_list);
+                                    update_game_state(map1, shooter_list, bullet_list);
 
                                     if(map_collides_gunner(map1, shooter1)){
                                         printf("COLLIDING\n");
@@ -288,12 +295,17 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     #ifdef TELMO
-        gunner_dtor(shooter1); shooter1 = NULL;
-        gunner_dtor(shooter2); shooter2 = NULL;
+        //gunner_dtor(shooter1); shooter1 = NULL;
+        //gunner_dtor(shooter2); shooter2 = NULL;
+
+        while(list_size(shooter_list) > 0){
+            gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
+            gunner_dtor(p);
+        }
 
         while(list_size(bullet_list) > 0){
             bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
-            free(p);
+            bullet_dtor(p);
         }
         if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
     #endif
