@@ -17,6 +17,7 @@ enum errors {
     OUT_OF_RANGE,       /** @brief Accessing area out of range of memory */
     ALLOC_ERROR,        /** @brief Memory allocation error */
     LOGIC_ERROR,        /** @brief Logic error */
+    INVALID_ARG,        /** @brief Invalid argument */
     OTHER_ERROR         /** @brief Unspecified error */
 };
 
