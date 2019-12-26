@@ -17,7 +17,7 @@ void update_key_presses(void);
 /**
  * @brief Updates movement variables.
  */
-void update_movement(const map_t *map, gunner_t *p, gunner_t *p2);
+void update_movement(const map_t *map, list_t *shooter_list);
 
 typedef struct keys {
     uint8_t w_pressed       : 1;

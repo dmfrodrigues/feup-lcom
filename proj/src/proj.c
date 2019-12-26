@@ -231,7 +231,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             #ifdef TELMO
                             if (i == 0) {
                                 if (no_interrupts % refresh_count_value == 0) {
-                                    update_movement(map1, shooter1, shooter2);
+                                    update_movement(map1, shooter_list);
                                     //bullet_update_movement(bullet);
 
                                     if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
@@ -242,10 +242,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         printf("COLLIDING\n");
                                     }
 
-                                    /*if (gunner_collides_bullet(shooter1, bullet)) {
-                                        printf("Bullet Collide with Shooter\n");
-                                        gunner_set_curr_health(shooter1, gunner_get_curr_health(shooter1) - bullet_get_damage(bullet));
-                                    }*/
                                     update_scale();
 
                                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
@@ -297,9 +293,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     #ifdef TELMO
-        //gunner_dtor(shooter1); shooter1 = NULL;
-        //gunner_dtor(shooter2); shooter2 = NULL;
-
         while(list_size(shooter_list) > 0){
             gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
             gunner_dtor(p);
