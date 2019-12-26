@@ -12,6 +12,7 @@ typedef struct {
     uint8_t stop_bits;
     uint8_t parity;
     uint8_t break_control;
+    uint8_t dlab;
     uint16_t divisor_latch;
 } uart_config;
 

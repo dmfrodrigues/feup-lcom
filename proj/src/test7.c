@@ -22,16 +22,9 @@ int ser_test_set(unsigned short base_addr, unsigned long bits, unsigned long sto
 		default: return INVALID_ARG;
    	}
 	int ret = SUCCESS;
-
-	uint8_t conf = 0;
-	conf |= (bits-5)<<UART_BITS_PER_CHAR_POS;
-	conf |= (stop-1)<<UART_STOP_BITS_POS;
-	conf |= par     <<UART_PARITY_POS;
-
-	//if((ret = uart_set_bits_per_character(base_addr, bits))) return ret; tickdelay(micros_to_ticks(100000));
-	//if((ret = uart_set_stop_bits         (base_addr, stop))) return ret; tickdelay(micros_to_ticks(100000));
-	//if((ret = uart_set_parity            (base_addr, par ))) return ret; tickdelay(micros_to_ticks(100000));
-	if((ret = uart_write_config(base_addr, conf))) return ret;
+	if((ret = uart_set_bits_per_character(base_addr, bits))) return ret; tickdelay(micros_to_ticks(100000));
+	if((ret = uart_set_stop_bits         (base_addr, stop))) return ret; tickdelay(micros_to_ticks(100000));
+	if((ret = uart_set_parity            (base_addr, par ))) return ret; tickdelay(micros_to_ticks(100000));
 	if((ret = uart_set_bit_rate          (base_addr, rate))) return ret; tickdelay(micros_to_ticks(100000));
 
 	return SUCCESS;

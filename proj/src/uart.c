@@ -4,6 +4,41 @@
 
 #include "errors.h"
 
+#define UART_RBR            0
+#define UART_THR            0
+#define UART_IER            1
+#define UART_IIR            2
+#define UART_FCR            2
+#define UART_LCR            3
+#define UART_MCR            4
+#define UART_LSR            5
+#define UART_MSR            6
+#define UART_SR             7
+
+#define UART_DLL            0
+#define UART_DLM            1
+
+#define UART_BITS_PER_CHAR_POS 0
+#define UART_STOP_BITS_POS     2
+#define UART_PARITY_POS        3
+#define UART_BREAK_CONTROL_POS 6
+#define UART_DLAB_POS          7
+
+#define UART_BITS_PER_CHAR  (BIT(0) | BIT(1))
+#define UART_STOP_BITS      (BIT(2))
+#define UART_PARITY         (BIT(3) | BIT(4) | BIT(5))
+#define UART_BREAK_CONTROL  (BIT(6))
+#define UART_DLAB           (BIT(7))
+
+#define UART_GET_BITS_PER_CHAR(n) (((n)&UART_BITS_PER_CHAR) + 5)
+#define UART_GET_STOP_BITS(n)     (((n)&UART_STOP_BITS)? 2 : 1)
+#define UART_GET_PARITY(n)        (((n)&UART_PARITY       )>>UART_PARITY_POS       )
+#define UART_GET_BREAK_CONTROL(n) (((n)&UART_BREAK_CONTROL)>>UART_BREAK_CONTROL_POS)
+#define UART_GET_DLAB(n)          (((n)&UART_DLAB         )>>UART_DLAB_POS         )
+#define UART_GET_DIV_LATCH(m,l)   ((m)<<8 | (l))
+#define UART_GET_DLL(n)           ((n)&0xFF)
+#define UART_GET_DLM(n)           (((n)>>8)&0xFF)
+
 int uart_get_config(int base_addr, uart_config *config){
     int ret = SUCCESS;
 
@@ -23,7 +58,8 @@ void uart_parse_config(uart_config *config){
     config->stop_bits            = UART_GET_STOP_BITS    (config->config);
     config->parity               = UART_GET_PARITY       (config->config);
     config->break_control        = UART_GET_BREAK_CONTROL(config->config);
-    config->divisor_latch        = config->dlm<<8 | config->dll;
+    config->dlab                 = UART_GET_DLAB         (config->config);
+    config->divisor_latch        = UART_GET_DIV_LATCH    (config->dlm, config->dll);
 }
 void uart_print_config(uart_config config){
     printf("Base address: 0x%X\n", config.base_addr);
@@ -41,7 +77,7 @@ void uart_print_config(uart_config config){
     }
     printf("Break control: %d\n", config.break_control);
     printf("Divisor latch: %d\n", config.divisor_latch);
-    printf("Bit rate (x1000): %d\n", 1000*(uint32_t)UART_BITRATE/config.divisor_latch);
+    printf("Bit rate: %d\n", UART_BITRATE/config.divisor_latch);
 }
 
 int uart_enable_divisor_latch(int base_addr){
@@ -56,7 +92,6 @@ int uart_disable_divisor_latch(int base_addr){
 }
 
 int uart_write_config(int base_addr, uint8_t config){
-    printf("WRITING CONFIG 0x%02X TO 0x%X\n", config, base_addr);
     if(sys_outb(base_addr+UART_LCR, config)) return WRITE_ERROR;
     return SUCCESS;
 }
@@ -84,17 +119,14 @@ int uart_set_parity(int base_addr, uart_parity par){
     conf = (conf & (~UART_PARITY)) | parity;
     return uart_write_config(base_addr, conf);
 }
-int uart_set_bit_rate(int base_addr, float bit_rate){ printf("%s, L82\n", __func__);
+int uart_set_bit_rate(int base_addr, float bit_rate){
     int ret = SUCCESS;
     uint16_t latch = UART_BITRATE/bit_rate;
-    uint8_t dll = latch&0xFF;
-    uint8_t dlm = (latch>>8)&0xFF;
+    uint8_t dll = UART_GET_DLL(latch);
+    uint8_t dlm = UART_GET_DLM(latch);
     if((ret = uart_enable_divisor_latch(base_addr))) return ret;
-    printf("dlm,dll=0x%02X%02X\n", dlm, dll);
     if(sys_outb(base_addr+UART_DLL, dll)) return WRITE_ERROR;
     if(sys_outb(base_addr+UART_DLM, dlm)) return WRITE_ERROR;
     if((ret = util_sys_inb(base_addr+UART_DLM, &dlm))) return ret;
-    printf("dlm=0x%02X\n", dlm);
-    printf("%s, L91\n", __func__);
     return SUCCESS;
 }
