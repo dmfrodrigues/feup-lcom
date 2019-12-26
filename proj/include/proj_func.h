@@ -12,13 +12,6 @@
  */
 int cleanup(void);
 
-void update_key_presses(void);
-
-/**
- * @brief Updates movement variables.
- */
-void update_movement(const map_t *map, list_t *shooter_list);
-
 typedef struct keys {
     uint8_t w_pressed       : 1;
     uint8_t a_pressed       : 1;
@@ -29,6 +22,13 @@ typedef struct keys {
     uint8_t minus_pressed   : 1;
     uint8_t lb_pressed      : 1;
 } keys_t;
+
+void update_key_presses(void);
+
+/**
+ * @brief Updates movement variables.
+ */
+void update_movement(const map_t *map, gunner_t *p, gunner_t *p2);
 
 void update_mouse(struct packet *p);
 
@@ -52,17 +52,5 @@ int32_t get_mouse_Y(void);
  * @return Angle
  */
 double get_mouse_angle(gunner_t *p);
-
-/**
- * @brief Get horizontal movement direction.
- * @return Horizontal movement direction (-1 -> heading LEFT; 0 -> not moving horizontally; 1 -> heading RIGHT)
- */
-int get_hor_movement(void);
-
-/**
- * @brief Get vertical movement direction.
- * @return Vertical movement direction (-1 -> heading UP; 0 -> not moving vertically; 1 -> heading DOWN)
- */
-int get_ver_movement(void);
 
 #endif /* end of include guard: PROJ_FUNC_H_INCLUDED */

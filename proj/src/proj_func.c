@@ -25,7 +25,6 @@ int cleanup(void) {
     return r;
 }
 
-static int hor_mov = REST, ver_mov = REST;
 static keys_t key_presses;
 
 void update_key_presses(void) {
@@ -47,27 +46,25 @@ void update_key_presses(void) {
         case MINUS_BREAK_CODE   : key_presses.minus_pressed = 0;        break;
         }
     }
-    ver_mov = key_presses.s_pressed - key_presses.w_pressed;
-    hor_mov = key_presses.d_pressed - key_presses.a_pressed;
 }
-/*
-void update_movement(const map_t *map, list_t *shooter_list){
-    list_node_t *it1 = list_begin(shooter_list);
-    while(it1 != list_end(shooter_list)){
-        double x = gunner_get_x(p);
-        double y = gunner_get_y(p);
-        gunner_set_pos(p, x + SHOOTER_SPEED * hor_mov, y);
-        if (map_collides_gunner(map, p) || gunner_collides_gunner(p, p2)) {
-            gunner_set_pos(p, x, y);
-        }
+
+
+void update_movement(const map_t *map, gunner_t *p, gunner_t *p2) {
+    int ver_mov = key_presses.s_pressed - key_presses.w_pressed;
+    int hor_mov = key_presses.d_pressed - key_presses.a_pressed;
+    double x = gunner_get_x(p);
+    double y = gunner_get_y(p);
+    gunner_set_pos(p, x + SHOOTER_SPEED * hor_mov, y);
+    if (map_collides_gunner(map, p) || gunner_collides_gunner(p, p2)) {
+        gunner_set_pos(p, x, y);
+    }
         x = gunner_get_x(p);
-        gunner_set_pos(p, x, y + SHOOTER_SPEED * ver_mov);
-        if (map_collides_gunner(map, p) || gunner_collides_gunner(p, p2)) {
-            gunner_set_pos(p, x, y);
-        }
+    gunner_set_pos(p, x, y + SHOOTER_SPEED * ver_mov);
+    if (map_collides_gunner(map, p) || gunner_collides_gunner(p, p2)) {
+        gunner_set_pos(p, x, y);
     }
 }
-*/
+
 void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet) {
     double angle = gunner_get_angle(shooter);
     double vx = -BULLET_SPEED * fm_sin(angle);
@@ -162,7 +159,3 @@ int32_t get_mouse_Y(void) { return mouse_y; }
 double get_mouse_angle(gunner_t *p) {
     return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
 }
-
-int get_hor_movement(void) { return hor_mov; }
-
-int get_ver_movement(void) { return ver_mov; }

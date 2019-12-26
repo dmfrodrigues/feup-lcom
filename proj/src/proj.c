@@ -54,14 +54,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
     int r;
 
     #ifdef DIOGO
-        /*
         uint8_t conf;
-        if((r = util_sys_inb(0x3F8+3, &conf))) return 1; //printf("0x%02X\n", conf);
+        if((r = util_sys_inb(0x3F8+3, &conf))) return 1; printf("0x%02X\n", conf);
         conf = 0x19; //00011001
-        //printf("0x%02X\n", conf);
+        printf("0x%02X\n", conf);
         if((r = sys_outb(0x3F8+3, conf))) return 1;
-        if((r = util_sys_inb(0x3F8+3, &conf))) return 1; //printf("0x%02X\n", conf);
-        */
+        uint8_t s;
+        if((r = util_sys_inb(0x3F8+3, &s))) return 1; printf("S: 0x%02X\n", s);
+        return 0;
+
     #endif
 
     font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
@@ -231,7 +232,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             #ifdef TELMO
                             if (i == 0) {
                                 if (no_interrupts % refresh_count_value == 0) {
-                                    //update_movement(map1, shooter_list);
+                                    update_movement(map1, shooter1, shooter2);
                                     //bullet_update_movement(bullet);
 
                                     if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
