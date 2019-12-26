@@ -10,7 +10,6 @@
 #include "utils.h"
 #include "ent.h"
 #include "fast_math.h"
-#include "bullet.h"
 
 #include "kbc_macros.h"
 
@@ -66,11 +65,11 @@ void update_movement(const map_t *map, gunner_t *p, gunner_t *p2) {
     }
 }
 
-void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list) {
+void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet) {
     double angle = gunner_get_angle(shooter);
     double vx = -BULLET_SPEED * fm_sin(angle);
     double vy = -BULLET_SPEED * fm_cos(angle);
-    bullet_t *bullet = bullet_ctor(shooter, get_bullet(), gunner_get_x(shooter), gunner_get_y(shooter), vx, vy);
+    bullet_t *bullet = bullet_ctor(shooter, bsp_bullet, gunner_get_x(shooter), gunner_get_y(shooter), vx, vy);
     list_insert(bullet_list, list_end(bullet_list), bullet);
 }
 

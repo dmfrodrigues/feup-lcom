@@ -24,7 +24,7 @@
 #include "shooter.h"
 #include "pistol.h"
 #include "nothing.h"
-//#include "bullet.h"
+#include "bullet.h"
 #include "map1.h"
 
 #include "list.h"
@@ -82,7 +82,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     basic_sprite_t       *bsp_shooter   = NULL;
     basic_sprite_t       *bsp_pistol    = NULL;
     basic_sprite_t       *bsp_nothing   = NULL;
-    map_t                *map1      = NULL;
+    basic_sprite_t       *bsp_bullet    = NULL;
+    map_t                *map1          = NULL;
     sprite_t             *sp_crosshair  = NULL;
     {
         graph_clear_screen();
@@ -95,6 +96,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
         bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
         bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
+        bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n");
         map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n");
 
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
@@ -275,7 +277,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     counter_mouse_ih = 0;
 
                                     if (last_lb ^ get_key_presses()->lb_pressed && get_key_presses()->lb_pressed) {
-                                        shoot_bullet(shooter1, bullet_list);
+                                        shoot_bullet(shooter1, bullet_list, bsp_bullet);
                                     }
 
                                     last_lb = get_key_presses()->lb_pressed;
