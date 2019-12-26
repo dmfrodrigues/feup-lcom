@@ -34,7 +34,7 @@ void (gunner_draw_health)(const gunner_t *p);
 
 struct bullet;
 typedef struct bullet bullet_t;
-bullet_t* (bullet_ctor)(const gunner_t *shooter, basic_sprite_t *b, double x, double y, double vx, double vy);
+bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double x, double y, double vx, double vy);
 void      (bullet_dtor)(bullet_t *p);
 double  (bullet_get_x)       (const bullet_t *p);
 double  (bullet_get_y)       (const bullet_t *p);
