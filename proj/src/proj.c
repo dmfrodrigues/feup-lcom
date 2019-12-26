@@ -231,7 +231,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             #ifdef TELMO
                             if (i == 0) {
                                 if (no_interrupts % refresh_count_value == 0) {
-                                    update_movement(map1, shooter_list);
+                                    //update_movement(map1, shooter_list);
                                     //bullet_update_movement(bullet);
 
                                     if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
