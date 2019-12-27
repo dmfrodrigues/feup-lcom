@@ -223,17 +223,26 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                                         if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
 
-                                        update_game_state(map1, shooter_list, bullet_list);
-
-                                        if(map_collides_gunner(map1, shooter1)){
-                                            printf("COLLIDING\n");
-                                        }
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+                        if (msg.m_notify.interrupts & n) {
+                            interrupt_handler(i);
+                            if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
+                            #ifdef TELMO
+                            if (i == 0) {
+                                if (no_interrupts % refresh_count_value == 0) {
+                                    update_movement(map1, shooter1, get_key_presses(), shooter_list);
+                                    //bullet_update_movement(bullet);
 
                                         update_scale();
-
-                                        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
-                                                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
-
                                         sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
                                         double angle = get_mouse_angle(shooter1);
                                         gunner_set_angle(shooter1, angle - M_PI_2);
@@ -246,8 +255,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         gunner_draw(shooter1);
                                         bullet_draw_list(bullet_list);
 
-                                        t = clock()-t; //printf("%d\n", (t*1000)/CLOCKS_PER_SEC);
-
                                         sprite_draw(sp_crosshair);
                                         graph_draw();
                                     }
@@ -258,11 +265,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         update_mouse(&pp);
                                         //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
                                         counter_mouse_ih = 0;
-
-                                        if (last_lb ^ get_key_presses()->lb_pressed && get_key_presses()->lb_pressed) {
-                                            shoot_bullet(shooter1, bullet_list, bsp_bullet);
-                                        }
-
                                         last_lb = get_key_presses()->lb_pressed;
                                     }
                                 }

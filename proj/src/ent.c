@@ -215,6 +215,8 @@ void (map_dtor)(map_t *p){
 }
 int16_t (map_get_x_screen)(const map_t *p){ return (-x_origin)*scale; }
 int16_t (map_get_y_screen)(const map_t *p){ return (-y_origin)*scale; }
+int16_t (map_get_width)   (const map_t *p){ return sprite_get_w(p->background); }
+int16_t (map_get_height)  (const map_t *p){ return sprite_get_h(p->background); }
 int (map_collides_point)(const map_t *p, double x, double y){
     const uint16_t w = sprite_get_w(p->background), h = sprite_get_h(p->background);
     int16_t x_ = x, y_ = y;
