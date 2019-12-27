@@ -163,8 +163,17 @@ void (bullet_draw)(bullet_t *p){
     sprite_draw     (p->b);
 }
 
+void (gunner_draw_list)(list_t *shooter_list) {
+    if (list_size(shooter_list) == 0) return;
+
+    list_node_t *it = list_begin(shooter_list);
+    while (it != list_end(shooter_list)) {
+        gunner_draw(*(gunner_t**)list_node_val(it));
+        it = list_node_next(it);
+    }
+}
+
 void (bullet_draw_list)(list_t *bullet_list) {
-    if (bullet_list == NULL) return;
     if (list_size(bullet_list) == 0) return;
 
     list_node_t *it = list_begin(bullet_list);

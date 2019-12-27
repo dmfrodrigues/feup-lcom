@@ -45,6 +45,8 @@ void    (bullet_set_damage)  (bullet_t *p, int damage);
 void (bullet_update_movement)(bullet_t *p);
 void (bullet_update_movement_list)(list_t *bullet_list);
 void (bullet_draw)(bullet_t *p);
+
+void (gunner_draw_list)(list_t *shooter_list);
 void (bullet_draw_list)(list_t *bullet_list);
 void (gunner_draw_health)(const gunner_t *p);
 
