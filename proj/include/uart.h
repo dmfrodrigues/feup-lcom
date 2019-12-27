@@ -4,16 +4,21 @@
 #include "uart_macros.h"
 
 typedef struct {
-    int     base_addr;
-    uint8_t config;
-    uint8_t dll;
-    uint8_t dlm;
-    uint8_t bits_per_char;
-    uint8_t stop_bits;
-    uint8_t parity;
-    uint8_t break_control;
-    uint8_t dlab;
-    uint16_t divisor_latch;
+    int     base_addr               ;
+    uint8_t lcr                     ;
+    uint8_t dll                     ;
+    uint8_t dlm                     ;
+    uint8_t bits_per_char           ;
+    uint8_t stop_bits               ;
+    uint8_t parity                  ;
+    uint8_t break_control         :1;
+    uint8_t dlab                  :1;
+    uint16_t divisor_latch          ;
+    uint8_t ier                     ;
+    uint8_t received_data_int     :1;
+    uint8_t transmitter_empty_int :1;
+    uint8_t receiver_line_stat_int:1;
+    uint8_t modem_stat_int        :1;
 } uart_config;
 
 int uart_get_config(int base_addr, uart_config *config);
