@@ -248,7 +248,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         gunner_set_angle(shooter1, angle - M_PI_2);
                                         graph_clear_screen();
 
-                                        clock_t t = clock();
+                                        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                                         map_draw   (map1);
                                         gunner_draw(shooter2);
