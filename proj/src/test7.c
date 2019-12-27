@@ -36,13 +36,16 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
 	int ret = SUCCESS;
     if((ret = ser_test_set(base_addr, bits, stop, parity, rate))) return ret;
 	if(tx == 0){
+		/*
 		char c;
 		if((ret = uart_get_char(base_addr, &c))) return ret;
 		while(c != '.'){
 			printf("%c", c);
 			if((ret = uart_get_char(base_addr, &c))) return ret;
 		}
+		*/
 	}else{
+		/*
 		for(int i = 0; i < stringc; ++i){
 			int j = 0;
 			while(stringc[i][j] != 0)
@@ -50,6 +53,7 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
 			if(i+1 != stringc) if((ret = uart_send_char(base_addr, ' '))) return ret;
 		}
 		if((ret = uart_send_char(base_addr, '.'))) return ret;
+		*/
 	}
 	return SUCCESS;
 }
