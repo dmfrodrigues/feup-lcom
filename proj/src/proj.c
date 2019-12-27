@@ -52,44 +52,45 @@ int main(int argc, char* argv[]) {
 int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
+    #ifndef DIOGO
+        font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
+        if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
 
-    font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
-    if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
+        /// subscribe interrupts
+        if (subscribe_all()) { return 1; }
 
-    /// subscribe interrupts
-    if (subscribe_all()) { return 1; }
+        /// initialize graphics
+        if(graph_init(GRAPH_MODE)){
+            printf("%s: failed to initalize graphics.\n", __func__);
+            if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
+            return 1;
+        }
 
-    /// initialize graphics
-    if(graph_init(GRAPH_MODE)){
-        printf("%s: failed to initalize graphics.\n", __func__);
-        if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
+        /// Load stuff
+        basic_sprite_t       *bsp_crosshair = NULL;
+        basic_sprite_t       *bsp_shooter   = NULL;
+        basic_sprite_t       *bsp_pistol    = NULL;
+        basic_sprite_t       *bsp_nothing   = NULL;
+        basic_sprite_t       *bsp_bullet    = NULL;
+        map_t                *map1          = NULL;
+        sprite_t             *sp_crosshair  = NULL;
+        {
+            graph_clear_screen();
+            text_t *txt = text_ctor(consolas, "Loading...");
+            text_draw(txt);
+            text_dtor(txt);
+            graph_draw();
 
-    /// Load stuff
-    basic_sprite_t       *bsp_crosshair = NULL;
-    basic_sprite_t       *bsp_shooter   = NULL;
-    basic_sprite_t       *bsp_pistol    = NULL;
-    basic_sprite_t       *bsp_nothing   = NULL;
-    basic_sprite_t       *bsp_bullet    = NULL;
-    map_t                *map1          = NULL;
-    sprite_t             *sp_crosshair  = NULL;
-    {
-        graph_clear_screen();
-        text_t *txt = text_ctor(consolas, "Loading...");
-        text_draw(txt);
-        text_dtor(txt);
-        graph_draw();
+            bsp_crosshair = get_crosshair(); if(bsp_crosshair == NULL) printf("Failed to get crosshair\n");
+            bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
+            bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
+            bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
+            bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n");
+            map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n");
 
-        bsp_crosshair = get_crosshair(); if(bsp_crosshair == NULL) printf("Failed to get crosshair\n");
-        bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
-        bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
-        bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
-        bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n");
-        map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n");
-
-        sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
-    }
+            sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
+        }
+    #endif
 
     #ifdef DIOGO
         /*
@@ -156,158 +157,163 @@ int(proj_main_loop)(int argc, char *argv[]) {
         printf("Date: %d, %02d/%02d/%02d\n", date[0], date[1], date[2], date[3]);
         */
         //UART
+        unsigned long bits = 8;
+        unsigned long stop = 2;
+        long parity = -1;
+        unsigned long rate = 9600;
+        unsigned char tx = 0;
+        int stringc = 2;
+        char *strings[] = {"Hello.", "world."};
         if((r = ser_test_conf(COM1_ADDR))) return r;
-        if((r = ser_test_set(COM1_ADDR, 6, 2, 0, 9800))) return r;
-        if((r = ser_test_conf(COM1_ADDR))) return r;
+        if((r = ser_test_set(COM1_ADDR, bits, stop, parity, rate))) return r;
+        if((r = ser_test_poll(COM1_ADDR, tx, bits, stop, parity, rate, stringc, strings))) return r;
     #endif
+    #ifndef DIOGO
+        #ifdef TELMO
+            ent_set_scale(DEFAULT_SCALE);
 
-    #ifdef TELMO
-        ent_set_scale(DEFAULT_SCALE);
+            list_t *shooter_list = list_ctor();
 
-        list_t *shooter_list = list_ctor();
+            gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+            gunner_set_spawn(shooter1, 75, 75);
+            gunner_set_pos(shooter1, 75, 75);
 
-        gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
-        gunner_set_spawn(shooter1, 75, 75);
-        gunner_set_pos(shooter1, 75, 75);
+            gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
+            gunner_set_spawn(shooter2, 975, 75);
+            gunner_set_pos(shooter2, 775, 75);
 
-        gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing);
-        gunner_set_spawn(shooter2, 975, 75);
-        gunner_set_pos(shooter2, 775, 75);
+            list_insert(shooter_list, list_end(shooter_list), shooter1);
+            list_insert(shooter_list, list_end(shooter_list), shooter2);
 
-        list_insert(shooter_list, list_end(shooter_list), shooter1);
-        list_insert(shooter_list, list_end(shooter_list), shooter2);
+            //bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
 
-        //bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
+            list_t *bullet_list  = list_ctor();
 
-        list_t *bullet_list  = list_ctor();
+            ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                           gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
-                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+            uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
 
-        uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+            uint8_t last_lb = 0;
+        #endif
 
-        uint8_t last_lb = 0;
-    #endif
+        /// loop stuff
+        int ipc_status;
+        message msg;
+        int good = 1;
 
-    /// loop stuff
-    int ipc_status;
-    message msg;
-    int good = 1;
-
-    #ifdef DIOGO
-        good = 0;
-    #endif
-
-    while (good) {
-        /* Get a request message. */
-        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
-            printf("driver_receive failed with %d", r);
-            continue;
-        }
-        if (is_ipc_notify(ipc_status)) { /* received notification */
-            switch (_ENDPOINT_P(msg.m_source)) {
-                case HARDWARE: /* hardware interrupt notification */
-                    for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
-                        if (msg.m_notify.interrupts & n) {
-                            interrupt_handler(i);
-                            if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
-                            #ifdef TELMO
-                            if (i == 0) {
-                                if (no_interrupts % refresh_count_value == 0) {
-                                    update_movement(map1, shooter1, shooter2);
-                                    //bullet_update_movement(bullet);
-
-                                    if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
-
-                                    update_game_state(map1, shooter_list, bullet_list);
-
-                                    if(map_collides_gunner(map1, shooter1)){
-                                        printf("COLLIDING\n");
-                                    }
-
-                                    update_scale();
-
-                                    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
-                                                   gunner_get_y(shooter1)-ent_get_YLength()/2.0);
-
-                                    sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
-                                    double angle = get_mouse_angle(shooter1);
-                                    gunner_set_angle(shooter1, angle - M_PI_2);
-                                    graph_clear_screen();
-
-                                    clock_t t = clock();
-
-                                    map_draw   (map1);
-                                    gunner_draw(shooter2);
-                                    gunner_draw(shooter1);
-                                    bullet_draw_list(bullet_list);
-
-                                    t = clock()-t; //printf("%d\n", (t*1000)/CLOCKS_PER_SEC);
-
-                                    sprite_draw(sp_crosshair);
-                                    graph_draw();
-                                }
-                            }
-                            if (i == 12) {
-                                if (counter_mouse_ih >= 3) {
-                                    struct packet pp = mouse_parse_packet(packet_mouse_ih);
-                                    update_mouse(&pp);
-                                    //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
-                                    counter_mouse_ih = 0;
-
-                                    if (last_lb ^ get_key_presses()->lb_pressed && get_key_presses()->lb_pressed) {
-                                        shoot_bullet(shooter1, bullet_list, bsp_bullet);
-                                    }
-
-                                    last_lb = get_key_presses()->lb_pressed;
-                                }
-                            }
-                            #endif
-                        }
-                    }
-
-                    break;
-                default:
-                    break; /* no other notifications expected: do nothing */
+        while (good) {
+            /* Get a request message. */
+            if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+                printf("driver_receive failed with %d", r);
+                continue;
             }
-        } else { /* received standart message, not a notification */
-            /* no standart message expected: do nothing */
+            if (is_ipc_notify(ipc_status)) { /* received notification */
+                switch (_ENDPOINT_P(msg.m_source)) {
+                    case HARDWARE: /* hardware interrupt notification */
+                        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+                            if (msg.m_notify.interrupts & n) {
+                                interrupt_handler(i);
+                                if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
+                                #ifdef TELMO
+                                if (i == 0) {
+                                    if (no_interrupts % refresh_count_value == 0) {
+                                        update_movement(map1, shooter1, shooter2);
+                                        //bullet_update_movement(bullet);
+
+                                        if (no_interrupts % 180 == 0) gunner_set_pos(shooter2, 775, 75);
+
+                                        update_game_state(map1, shooter_list, bullet_list);
+
+                                        if(map_collides_gunner(map1, shooter1)){
+                                            printf("COLLIDING\n");
+                                        }
+
+                                        update_scale();
+
+                                        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+
+                                        sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
+                                        double angle = get_mouse_angle(shooter1);
+                                        gunner_set_angle(shooter1, angle - M_PI_2);
+                                        graph_clear_screen();
+
+                                        clock_t t = clock();
+
+                                        map_draw   (map1);
+                                        gunner_draw(shooter2);
+                                        gunner_draw(shooter1);
+                                        bullet_draw_list(bullet_list);
+
+                                        t = clock()-t; //printf("%d\n", (t*1000)/CLOCKS_PER_SEC);
+
+                                        sprite_draw(sp_crosshair);
+                                        graph_draw();
+                                    }
+                                }
+                                if (i == 12) {
+                                    if (counter_mouse_ih >= 3) {
+                                        struct packet pp = mouse_parse_packet(packet_mouse_ih);
+                                        update_mouse(&pp);
+                                        //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
+                                        counter_mouse_ih = 0;
+
+                                        if (last_lb ^ get_key_presses()->lb_pressed && get_key_presses()->lb_pressed) {
+                                            shoot_bullet(shooter1, bullet_list, bsp_bullet);
+                                        }
+
+                                        last_lb = get_key_presses()->lb_pressed;
+                                    }
+                                }
+                                #endif
+                            }
+                        }
+
+                        break;
+                    default:
+                        break; /* no other notifications expected: do nothing */
+                }
+            } else { /* received standart message, not a notification */
+                /* no standart message expected: do nothing */
+            }
         }
-    }
 
-    #ifdef TELMO
-        while(list_size(shooter_list) > 0){
-            gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
-            gunner_dtor(p);
+        #ifdef TELMO
+            while(list_size(shooter_list) > 0){
+                gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
+                gunner_dtor(p);
+            }
+
+            while(list_size(bullet_list) > 0){
+                bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
+                bullet_dtor(p);
+            }
+            if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
+        #endif
+
+        basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
+        basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;
+        sprite_dtor            (sp_crosshair ); sp_crosshair  = NULL;
+        basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
+        basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
+        map_dtor               (map1         ); map1          = NULL;
+        font_dtor              (consolas     ); consolas      = NULL;
+
+        // Unsubscribe interrupts
+        if (unsubscribe_all()) {
+            if (cleanup())
+                printf("%s: failed to cleanup.\n", __func__);
+            return 1;
         }
 
-        while(list_size(bullet_list) > 0){
-            bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
-            bullet_dtor(p);
-        }
-        if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
-    #endif
 
-    basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
-    basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;
-    sprite_dtor            (sp_crosshair ); sp_crosshair  = NULL;
-    basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
-    basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
-    map_dtor               (map1         ); map1          = NULL;
-    font_dtor              (consolas     ); consolas      = NULL;
-
-    // Unsubscribe interrupts
-    if (unsubscribe_all()) {
-        if (cleanup())
+        if (cleanup()) {
             printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
+            return 1;
+        }
 
-
-    if (cleanup()) {
-        printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
+    #endif
 
     return 0;
 }
