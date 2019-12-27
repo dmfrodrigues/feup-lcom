@@ -28,7 +28,7 @@ void update_key_presses(void);
 /**
  * @brief Updates movement variables.
  */
-void update_movement(const map_t *map, gunner_t *p, gunner_t *p2);
+void update_movement(const map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list);
 
 void update_mouse(struct packet *p);
 
@@ -37,6 +37,8 @@ keys_t* (get_key_presses)(void);
 void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet);
 
 void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_list);
+
+void (get_random_spawn)(const map_t *map, gunner_t *p);
 
 void update_scale(void);
 
