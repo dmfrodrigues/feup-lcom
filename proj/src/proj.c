@@ -163,7 +163,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         unsigned long rate = 9600;
         unsigned char tx = 0;
         int stringc = 2;
-        char *strings[] = {"Hello.", "world."};
+        char *strings[] = {"Hello", "world"};
         if((r = ser_test_conf(COM1_ADDR))) return r;
         if((r = ser_test_set(COM1_ADDR, bits, stop, parity, rate))) return r;
         if((r = ser_test_poll(COM1_ADDR, tx, bits, stop, parity, rate, stringc, strings))) return r;

@@ -33,8 +33,25 @@ int ser_test_set(unsigned short base_addr, unsigned long bits, unsigned long sto
 int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits,
                     unsigned long stop, long parity, unsigned long rate,
                     int stringc, char *strings[]) {
-    /* To be completed */
-	return 1;
+	int ret = SUCCESS;
+    if((ret = ser_test_set(base_addr, bits, stop, parity, rate))) return ret;
+	if(tx == 0){
+		char c;
+		if((ret = uart_get_char(base_addr, &c))) return ret;
+		while(c != '.'){
+			printf("%c", c);
+			if((ret = uart_get_char(base_addr, &c))) return ret;
+		}
+	}else{
+		for(int i = 0; i < stringc; ++i){
+			int j = 0;
+			while(stringc[i][j] != 0)
+				if((ret = uart_send_char(base_addr, stringc[i][j]))) return ret;
+			if(i+1 != stringc) if((ret = uart_send_char(base_addr, ' '))) return ret;
+		}
+		if((ret = uart_send_char(base_addr, '.'))) return ret;
+	}
+	return SUCCESS;
 }
 
 int ser_test_int(/* details to be provided */) {
