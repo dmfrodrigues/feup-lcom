@@ -18,6 +18,9 @@ enum errors {
     ALLOC_ERROR,        /** @brief Memory allocation error */
     LOGIC_ERROR,        /** @brief Logic error */
     INVALID_ARG,        /** @brief Invalid argument */
+    NOK,                /** @brief Not OK */
+    TRANS_REFUSED,      /** @brief Transmission refused */
+    TRANS_FAILED,       /** @brief Transmission failed */
     OTHER_ERROR         /** @brief Unspecified error */
 };
 

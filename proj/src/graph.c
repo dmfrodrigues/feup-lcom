@@ -22,19 +22,6 @@
 #define AH_FUNC_NOT_SUPP    0x02    /** @brief Function call is not supported in current HW configuration */
 #define AH_FUNC_INVALID     0x03    /** @brief Invalid function in current video mode */
 
-// Graphics modes
-#define INDEXED_1024_768        0x105
-#define DIRECT_640_480_888      0x110
-#define DIRECT_800_600_888      0x115
-#define DIRECT_1024_768_888     0x118
-#define DIRECT_1280_1024_565    0x11A
-#define DIRECT_1280_1024_888    0x11B
-#define LINEAR_FRAME_BUFFER_MD  BIT(14)
-
-
-
-
-
 /// MACROS
 #define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
 

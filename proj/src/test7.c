@@ -1,7 +1,7 @@
 #include <lcom/lcf.h>
 
 #include "errors.h"
-#include "uart.h"
+#include "nctp.h"
 
 int ser_test_conf(unsigned short base_addr) {
 	int ret = SUCCESS;
@@ -37,22 +37,23 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
 	if((ret = uart_disable_int_rx(base_addr))) return ret;
 	if((ret = uart_disable_int_tx(base_addr))) return ret;
 	if(tx == 0){
-		uint8_t c;
-		if((ret = uart_get_char_poll(base_addr, &c))) return ret;
-		while((char)c != '.'){
-			printf("%c", (char)c);
-			if((ret = uart_get_char_poll(base_addr, &c))) return ret;
+		uint8_t c = ' ';
+		int r;
+		while(c != '.'){
+			r = nctp_get_char_poll(base_addr, &c);
+			if(r == TIMEOUT_ERROR) continue;
+			else if(r != SUCCESS ) return r;
+			printf("%c", c);
 		}
-		printf("%c\n", (char)c);
 	}else{
 		for(int i = 0; i < stringc; ++i){
 			for(int j = 0; strings[i][j] != 0; ++j)
-				if((ret = uart_send_char_poll(base_addr, strings[i][j])))
+				if((ret = nctp_send_char_poll(base_addr, strings[i][j])))
 					return ret;
 			if(i+1 != stringc)
-				if((ret = uart_send_char_poll(base_addr, ' '))) return ret;
+				if((ret = nctp_send_char_poll(base_addr, ' '))) return ret;
 		}
-		if((ret = uart_send_char_poll(base_addr, '.'))) return ret;
+		if((ret = nctp_send_char_poll(base_addr, '.'))) return ret;
 	}
 	return SUCCESS;
 }
