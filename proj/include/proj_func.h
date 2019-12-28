@@ -2,6 +2,7 @@
 #define PROJ_FUNC_H_INCLUDED
 
 #include "ent.h"
+#include "font.h"
 
 #include <stdint.h>
 
@@ -42,9 +43,9 @@ void (get_random_spawn)(const map_t *map, gunner_t *p);
 
 void update_scale(void);
 
-int32_t get_mouse_X(void);
+int32_t* get_mouse_X(void);
 
-int32_t get_mouse_Y(void);
+int32_t* get_mouse_Y(void);
 
 /**
  * @brief
@@ -54,5 +55,17 @@ int32_t get_mouse_Y(void);
  * @return Angle
  */
 double get_mouse_angle(gunner_t *p);
+
+typedef struct timer {
+    int time;
+    text_t *text;
+    char *array;
+} text_timer_t;
+
+text_timer_t* (timer_ctor)(const font_t *fnt);
+
+void (timer_update)(text_timer_t *p);
+
+void (timer_dtor)(text_timer_t *p);
 
 #endif /* end of include guard: PROJ_FUNC_H_INCLUDED */

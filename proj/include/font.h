@@ -22,6 +22,7 @@ struct text;
 typedef struct text text_t;
 text_t* (text_ctor)(const font_t *fnt, const char *txt);
 void    (text_dtor)(text_t *p);
+char* (text_get_string)(const text_t *p);
 void (text_set_text)  (text_t *p, const char *txt);
 void (text_set_pos)   (text_t *p, int16_t x, int16_t y);
 void (text_set_size)  (text_t *p, unsigned size);

@@ -40,10 +40,10 @@ void update_key_presses(void) {
         case D_BREAK_CODE       : key_presses.d_pressed     = 0;        break;
         case CTRL_MAKE_CODE     : key_presses.ctrl_pressed  = 1;        break;
         case CTRL_BREAK_CODE    : key_presses.ctrl_pressed  = 0;        break;
-        case PLUS_MAKE_CODE     : key_presses.plus_pressed  = 1;        break;
-        case PLUS_BREAK_CODE    : key_presses.plus_pressed  = 0;        break;
-        case MINUS_MAKE_CODE    : key_presses.minus_pressed = 1;        break;
-        case MINUS_BREAK_CODE   : key_presses.minus_pressed = 0;        break;
+        case PLUS_MAKE_CODE     : key_presses.plus_pressed  = 1;    update_scale();        break;
+        case PLUS_BREAK_CODE    : key_presses.plus_pressed  = 0;    update_scale();        break;
+        case MINUS_MAKE_CODE    : key_presses.minus_pressed = 1;    update_scale();        break;
+        case MINUS_BREAK_CODE   : key_presses.minus_pressed = 0;    update_scale();        break;
         }
     }
 }
@@ -181,10 +181,35 @@ keys_t* (get_key_presses)(void) {
     return &key_presses;
 }
 
-int32_t get_mouse_X(void) { return mouse_x; }
+int32_t* get_mouse_X(void) { return &mouse_x; }
 
-int32_t get_mouse_Y(void) { return mouse_y; }
+int32_t* get_mouse_Y(void) { return &mouse_y; }
 
 double get_mouse_angle(gunner_t *p) {
     return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
+}
+
+text_timer_t* (timer_ctor)(const font_t *fnt){
+    if(fnt == NULL) return NULL;
+    text_timer_t *ret = malloc(sizeof(timer_t));
+    if (ret == NULL) return NULL;
+    ret->time = 0;
+    ret->text = text_ctor(fnt, "000s");
+    ret->array = text_get_string(ret->text);
+    text_set_color(ret->text, 0x888888);
+    return ret;
+}
+
+void (timer_update)(text_timer_t *p){
+    if (p->time >= 999) return;
+    p->time++;
+    p->array[2] = p->time % 10 + '0';
+    p->array[1] = (p->time/10) % 10 + '0';
+    p->array[0] = (p->time/100) % 10 + '0';
+}
+
+void (timer_dtor)(text_timer_t *p){
+    if (p == NULL) return;
+    text_dtor(p->text);
+    free(p);
 }

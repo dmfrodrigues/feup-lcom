@@ -18,9 +18,9 @@ int counter_mouse_ih;
 /**
  * @brief   Parse 3 bytes and returns it as a parsed, struct packet.
  * @param   packet_bytes    array of bytes to parse
- * @return  parsed struct packet
+ * @param   pp              Pointer to packet to store the information.
  */
-struct packet (mouse_parse_packet)(const uint8_t *packet_bytes);
+void (mouse_parse_packet)(const uint8_t *packet_bytes, struct packet *pp);
 
 /**
  * @brief Polls mouse for data. Blocks execution until a valid mouse packet is obtained.

@@ -171,6 +171,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #ifndef DIOGO
         ent_set_scale(DEFAULT_SCALE);
 
+        text_timer_t *in_game_timer = timer_ctor(consolas);
+
         list_t *shooter_list = list_ctor();
 
         gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
@@ -184,16 +186,17 @@ int(proj_main_loop)(int argc, char *argv[]) {
         list_insert(shooter_list, list_end(shooter_list), shooter1);
         list_insert(shooter_list, list_end(shooter_list), shooter2);
 
-        //bullet_t *bullet = bullet_ctor(get_bullet(), 400.0, 400.0, 2.0, -1.0);
-
         list_t *bullet_list  = list_ctor();
 
         ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                        gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-        uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
-
+        //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+        double angle; // mouse angle
+        int32_t *mouse_x = get_mouse_X(), *mouse_y = get_mouse_Y();
         uint8_t last_lb = 0;
+        struct packet pp;
+        keys_t *keys = get_key_presses();
 
         /// loop stuff
         int ipc_status;
@@ -214,14 +217,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 interrupt_handler(i);
                                 if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
                                 if (i == 0) {
-                                    if (no_interrupts % refresh_count_value == 0) {
-                                            update_movement(map1, shooter1, get_key_presses(), shooter_list);
+                                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+                                    //if (no_interrupts % refresh_count_value == 0) {
+                                            update_movement(map1, shooter1, keys, shooter_list);
 
                                             update_game_state(map1, shooter_list, bullet_list);
 
-                                            update_scale();
-                                            sprite_set_pos(sp_crosshair, get_mouse_X(), get_mouse_Y());
-                                            double angle = get_mouse_angle(shooter1);
+                                            //update_scale();
+                                            sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
+                                            angle = get_mouse_angle(shooter1);
                                             gunner_set_angle(shooter1, angle - M_PI_2);
                                             graph_clear_screen();
 
@@ -232,20 +236,22 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                             gunner_draw_list(shooter_list);
                                             bullet_draw_list(bullet_list);
 
+                                            text_draw(in_game_timer->text);
                                             sprite_draw(sp_crosshair);
                                             graph_draw();
-                                        }
+                                        //}
                                     }
-                                    if (i == 12) {
+                                    else if (i == 12) {
                                         if (counter_mouse_ih >= 3) {
-                                            struct packet pp = mouse_parse_packet(packet_mouse_ih);
+                                            mouse_parse_packet(packet_mouse_ih, &pp);
                                             update_mouse(&pp);
-                                            //printf("X: %d Y: %d\n", get_mouse_X(), get_mouse_Y());
-                                            counter_mouse_ih = 0;
-                                            if (last_lb ^ get_key_presses()->lb_pressed && get_key_presses()->lb_pressed) {
+
+                                            if (last_lb ^ keys->lb_pressed && keys->lb_pressed) {
                                                 shoot_bullet(shooter1, bullet_list, bsp_bullet);
                                             }
-                                            last_lb = get_key_presses()->lb_pressed;
+                                            last_lb = keys->lb_pressed;
+                                            counter_mouse_ih = 0;
+
                                         }
                                     }
                                 }
@@ -271,6 +277,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
         }
         if(list_dtor(shooter_list)) printf("COULD NOT DESTRUCT SHOOTER LIST\n");
         if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
+
+        timer_dtor(in_game_timer); in_game_timer = NULL;
 
         basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
         basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;

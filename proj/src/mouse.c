@@ -43,19 +43,17 @@ void (mouse_ih)(void) {
     }
 }
 
-struct packet (mouse_parse_packet)(const uint8_t *packet_bytes){
-    struct packet pp;
-    pp.bytes[0] = packet_bytes[0];
-    pp.bytes[1] = packet_bytes[1];
-    pp.bytes[2] = packet_bytes[2];
-    pp.rb       = pp.bytes[0] & RIGHT_BUTTON;
-    pp.mb       = pp.bytes[0] & MIDDLE_BUTTON;
-    pp.lb       = pp.bytes[0] & LEFT_BUTTON;
-    pp.delta_x  = sign_extend_byte((packet_bytes[0] & MSB_X_DELTA) != 0, pp.bytes[1]);
-    pp.delta_y  = sign_extend_byte((packet_bytes[0] & MSB_Y_DELTA) != 0, pp.bytes[2]);
-    pp.x_ov     = pp.bytes[0] & X_OVERFLOW;
-    pp.y_ov     = pp.bytes[0] & Y_OVERFLOW;
-    return pp;
+void (mouse_parse_packet)(const uint8_t *packet_bytes, struct packet *pp){
+    pp->bytes[0] = packet_bytes[0];
+    pp->bytes[1] = packet_bytes[1];
+    pp->bytes[2] = packet_bytes[2];
+    pp->rb       = pp->bytes[0] & RIGHT_BUTTON;
+    pp->mb       = pp->bytes[0] & MIDDLE_BUTTON;
+    pp->lb       = pp->bytes[0] & LEFT_BUTTON;
+    pp->delta_x  = sign_extend_byte((packet_bytes[0] & MSB_X_DELTA) != 0, pp->bytes[1]);
+    pp->delta_y  = sign_extend_byte((packet_bytes[0] & MSB_Y_DELTA) != 0, pp->bytes[2]);
+    pp->x_ov     = pp->bytes[0] & X_OVERFLOW;
+    pp->y_ov     = pp->bytes[0] & Y_OVERFLOW;
 }
 
 int mouse_poll(struct packet *pp, uint16_t period){
@@ -68,7 +66,7 @@ int mouse_poll(struct packet *pp, uint16_t period){
         if((ret = mouse_poll_byte(&byte, period))) return ret;
         packet[i] = byte;
     }
-    *pp = mouse_parse_packet(packet);
+    mouse_parse_packet(packet, pp);
     return SUCCESS;
 }
 
