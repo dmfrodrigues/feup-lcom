@@ -1,7 +1,6 @@
 #include <lcom/lcf.h>
 
 #include "errors.h"
-#include "uart_macros.h"
 #include "uart.h"
 
 int ser_test_conf(unsigned short base_addr) {
@@ -36,24 +35,20 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
 	int ret = SUCCESS;
     if((ret = ser_test_set(base_addr, bits, stop, parity, rate))) return ret;
 	if(tx == 0){
-		/*
-		char c;
-		if((ret = uart_get_char(base_addr, &c))) return ret;
-		while(c != '.'){
-			printf("%c", c);
-			if((ret = uart_get_char(base_addr, &c))) return ret;
+		uint8_t c;
+		if((ret = uart_get_char_poll(base_addr, &c))) return ret;
+		while((char)c != '.'){
+			printf("%c", (char)c);
+			if((ret = uart_get_char_poll(base_addr, &c))) return ret;
 		}
-		*/
+		printf("%c\n", (char)c);
 	}else{
-		/*
 		for(int i = 0; i < stringc; ++i){
-			int j = 0;
-			while(stringc[i][j] != 0)
-				if((ret = uart_send_char(base_addr, stringc[i][j]))) return ret;
-			if(i+1 != stringc) if((ret = uart_send_char(base_addr, ' '))) return ret;
+			size_t sz = strlen(strings[i]);
+			if((ret = uart_send_memory_poll(base_addr, strings[i], sz))) return ret;
+			if(i+1 != stringc) if((ret = uart_send_memory_poll(base_addr, " ", 1))) return ret;
 		}
-		if((ret = uart_send_char(base_addr, '.'))) return ret;
-		*/
+		if((ret = uart_send_memory_poll(base_addr, ".", 1))) return ret;
 	}
 	return SUCCESS;
 }

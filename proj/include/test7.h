@@ -1,3 +1,8 @@
+#ifndef TEST7_H_INCLUDED
+#define TEST7_H_INCLUDED
+
+#include "uart.h"
+
 int ser_test_conf(unsigned short base_addr);
 
 int ser_test_set(unsigned short base_addr, unsigned long bits, unsigned long stop,
@@ -9,3 +14,5 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
 int ser_test_int(/* details to be provided */) ;
 
 int ser_test_fifo(/* details to be provided */);
+
+#endif //TEST7_H_INCLUDED
