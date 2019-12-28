@@ -44,20 +44,20 @@
 #define UART_GET_DLM(n)                         (((n)>>8)&0xFF)
 
 /// IER
-#define UART_INT_EN_RECEIVED_DATA_POS           0
-#define UART_INT_EN_TRANSMITTER_EMPTY_POS       1
+#define UART_INT_EN_RX_POS                      0
+#define UART_INT_EN_TX_POS                      1
 #define UART_INT_EN_RECEIVER_LINE_STAT_POS      2
 #define UART_INT_EN_MODEM_STAT_POS              3
 
-#define UART_INT_EN_RECEIVED_DATA               (BIT(0))
-#define UART_INT_EN_TRANSMITTER_EMPTY           (BIT(1))
+#define UART_INT_EN_RX                          (BIT(0))
+#define UART_INT_EN_TX                          (BIT(1))
 #define UART_INT_EN_RECEIVER_LINE_STAT          (BIT(2))
 #define UART_INT_EN_MODEM_STAT                  (BIT(3))
 
-#define UART_INT_EN_GET_RECEIVED_DATA(n)        (((n)&UART_INT_EN_RECEIVED_DATA     )>>UART_INT_EN_RECEIVED_DATA_POS     )
-#define UART_INT_EN_GET_TRANSMITTER_EMPTY(n)    (((n)&UART_INT_EN_TRANSMITTER_EMPTY )>>UART_INT_EN_TRANSMITTER_EMPTY_POS )
-#define UART_INT_EN_GET_RECEIVER_LINE_STAT(n)   (((n)&UART_INT_EN_RECEIVER_LINE_STAT)>>UART_INT_EN_RECEIVER_LINE_STAT_POS)
-#define UART_INT_EN_GET_MODEM_STAT(n)           (((n)&UART_INT_EN_MODEM_STAT        )>>UART_INT_EN_MODEM_STAT_POS        )
+#define UART_GET_INT_EN_RX(n)                   (((n)&UART_INT_EN_RX                )>>UART_INT_EN_RX_POS                )
+#define UART_GET_INT_EN_TX(n)                   (((n)&UART_INT_EN_TX                )>>UART_INT_EN_TX_POS                )
+#define UART_GET_INT_EN_RECEIVER_LINE_STAT(n)   (((n)&UART_INT_EN_RECEIVER_LINE_STAT)>>UART_INT_EN_RECEIVER_LINE_STAT_POS)
+#define UART_GET_INT_EN_MODEM_STAT(n)           (((n)&UART_INT_EN_MODEM_STAT        )>>UART_INT_EN_MODEM_STAT_POS        )
 
 /// LSR
 #define UART_RECEIVER_READY_POS                 0
@@ -69,14 +69,64 @@
 #define UART_GET_RECEIVER_READY(n)              (((n)&UART_RECEIVER_READY           )>>UART_RECEIVER_READY_POS           )
 #define UART_GET_TRANSMITTER_EMPTY(n)           (((n)&UART_TRANSMITTER_EMPTY        )>>UART_TRANSMITTER_EMPTY_POS        )
 
+static void uart_parse_config(uart_config *config){
+    /// LCR
+    config->bits_per_char          = UART_GET_BITS_PER_CHAR     (config->lcr);
+    config->stop_bits              = UART_GET_STOP_BITS         (config->lcr);
+    config->parity                 = UART_GET_PARITY            (config->lcr); if((config->parity & BIT(0)) == 0) config->parity = uart_parity_none;
+    config->break_control          = UART_GET_BREAK_CONTROL     (config->lcr);
+    config->dlab                   = UART_GET_DLAB              (config->lcr);
+    /// IER
+    config->received_data_int      = UART_GET_INT_EN_RX                (config->ier);
+    config->transmitter_empty_int  = UART_GET_INT_EN_TX                (config->ier);
+    config->receiver_line_stat_int = UART_GET_INT_EN_RECEIVER_LINE_STAT(config->ier);
+    config->modem_stat_int         = UART_GET_INT_EN_MODEM_STAT        (config->ier);
+    /// DIV LATCH
+    config->divisor_latch          = UART_GET_DIV_LATCH(config->dlm, config->dll);
+}
+
+static int uart_get_lcr(int base_addr, uint8_t *p){
+    return util_sys_inb(base_addr+UART_LCR, p);
+}
+static int uart_set_lcr(int base_addr, uint8_t config){
+    if(sys_outb(base_addr+UART_LCR, config)) return WRITE_ERROR;
+    return SUCCESS;
+}
+static int uart_get_lsr(int base_addr, uint8_t *p){
+    return util_sys_inb(base_addr+UART_LSR, p);
+}
+
+static int uart_enable_divisor_latch(int base_addr){
+    int ret = SUCCESS;
+    uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
+    return uart_set_lcr(base_addr, conf | UART_DLAB);
+}
+static int uart_disable_divisor_latch(int base_addr){
+    int ret = SUCCESS;
+    uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
+    return uart_set_lcr(base_addr, conf & (~UART_DLAB));
+}
+
+static int uart_get_ier(int base_addr, uint8_t *p){
+    int ret;
+    if((ret = uart_disable_divisor_latch(base_addr))) return ret;
+    return util_sys_inb(base_addr+UART_IER, p);
+}
+static int uart_set_ier(int base_addr, uint8_t n){
+    int ret;
+    if((ret = uart_disable_divisor_latch(base_addr))) return ret;
+    if(sys_outb(base_addr+UART_IER, n)) return WRITE_ERROR;
+    return SUCCESS;
+}
+
 int uart_get_config(int base_addr, uart_config *config){
     int ret = SUCCESS;
 
     config->base_addr = base_addr;
 
-    if((ret = util_sys_inb(base_addr+UART_LCR, &config->lcr))) return ret;
+    if((ret = uart_get_lcr(base_addr, &config->lcr))) return ret;
 
-    if((ret = util_sys_inb(base_addr+UART_IER, &config->ier))) return ret;
+    if((ret = uart_get_ier(base_addr, &config->ier))) return ret;
 
     if((ret = uart_enable_divisor_latch (base_addr))) return ret;
     if((ret = util_sys_inb(base_addr+UART_DLL, &config->dll   ))) return ret;
@@ -85,21 +135,6 @@ int uart_get_config(int base_addr, uart_config *config){
 
     uart_parse_config(config);
     return ret;
-}
-void uart_parse_config(uart_config *config){
-    /// LCR
-    config->bits_per_char          = UART_GET_BITS_PER_CHAR     (config->lcr);
-    config->stop_bits              = UART_GET_STOP_BITS         (config->lcr);
-    config->parity                 = UART_GET_PARITY            (config->lcr); if((config->parity & BIT(0)) == 0) config->parity = uart_parity_none;
-    config->break_control          = UART_GET_BREAK_CONTROL     (config->lcr);
-    config->dlab                   = UART_GET_DLAB              (config->lcr);
-    /// IER
-    config->received_data_int      = UART_INT_EN_GET_RECEIVED_DATA     (config->ier);
-    config->transmitter_empty_int  = UART_INT_EN_GET_TRANSMITTER_EMPTY (config->ier);
-    config->receiver_line_stat_int = UART_INT_EN_GET_RECEIVER_LINE_STAT(config->ier);
-    config->modem_stat_int         = UART_INT_EN_GET_MODEM_STAT        (config->ier);
-    /// DIV LATCH
-    config->divisor_latch          = UART_GET_DIV_LATCH(config->dlm, config->dll);
 }
 void uart_print_config(uart_config config){
 
@@ -119,44 +154,29 @@ void uart_print_config(uart_config config){
         (config.transmitter_empty_int ? "ENABLED":"DISABLED"));
 }
 
-int uart_enable_divisor_latch(int base_addr){
-    int ret = SUCCESS;
-    uint8_t conf; if((ret = util_sys_inb(base_addr+UART_LCR, &conf))) return ret;
-    return uart_write_config(base_addr, conf | UART_DLAB);
-}
-int uart_disable_divisor_latch(int base_addr){
-    int ret = SUCCESS;
-    uint8_t conf; if((ret = util_sys_inb(base_addr+UART_LCR, &conf))) return ret;
-    return uart_write_config(base_addr, conf & (~UART_DLAB));
-}
-
-int uart_write_config(int base_addr, uint8_t config){
-    if(sys_outb(base_addr+UART_LCR, config)) return WRITE_ERROR;
-    return SUCCESS;
-}
 int uart_set_bits_per_character(int base_addr, uint8_t bits_per_char){
     if(bits_per_char < 5 || bits_per_char > 8) return INVALID_ARG;
     int ret = SUCCESS;
     bits_per_char = (bits_per_char-5)&0x3;
-    uint8_t conf; if((ret = util_sys_inb(base_addr+UART_LCR, &conf))) return ret;
+    uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
     conf = (conf & (~UART_BITS_PER_CHAR)) | bits_per_char;
-    return uart_write_config(base_addr, conf);
+    return uart_set_lcr(base_addr, conf);
 }
 int uart_set_stop_bits(int base_addr, uint8_t stop){
     if(stop != 1 && stop != 2) return INVALID_ARG;
     int ret = SUCCESS;
     stop -= 1;
     stop = (stop&1)<<2;
-    uint8_t conf; if((ret = util_sys_inb(base_addr+UART_LCR, &conf))) return ret;
+    uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
     conf = (conf & (~UART_STOP_BITS)) | stop;
-    return uart_write_config(base_addr, conf);
+    return uart_set_lcr(base_addr, conf);
 }
 int uart_set_parity(int base_addr, uart_parity par){
     int ret = SUCCESS;
     uint8_t parity = par << 3;
-    uint8_t conf; if((ret = util_sys_inb(base_addr+UART_LCR, &conf))) return ret;
+    uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
     conf = (conf & (~UART_PARITY)) | parity;
-    return uart_write_config(base_addr, conf);
+    return uart_set_lcr(base_addr, conf);
 }
 int uart_set_bit_rate(int base_addr, float bit_rate){
     int ret = SUCCESS;
@@ -170,35 +190,57 @@ int uart_set_bit_rate(int base_addr, float bit_rate){
     return SUCCESS;
 }
 
-/// PRIVATE
-int uart_get_lsr(int base_addr, uint8_t *p){
-    return util_sys_inb(base_addr+UART_LSR, p);
-}
-/**
- * @brief Get char from RBR.
- */
-int uart_get_char(int base_addr, uint8_t *p){
+static int uart_get_char(int base_addr, uint8_t *p){
     int ret;
     if((ret = uart_disable_divisor_latch(base_addr))) return ret;
     return util_sys_inb(base_addr+UART_RBR, p);
 }
-int uart_send_char(int base_addr, uint8_t c){
+static int uart_send_char(int base_addr, uint8_t c){
     int ret;
     if((ret = uart_disable_divisor_latch(base_addr))) return ret;
-    if(sys_outb(base_addr, c)) return WRITE_ERROR;
+    if(sys_outb(base_addr+UART_THR, c)) return WRITE_ERROR;
     return SUCCESS;
 }
-int uart_receiver_ready(int base_addr){
+static int uart_receiver_ready(int base_addr){
     uint8_t lsr;
     if(uart_get_lsr(base_addr, &lsr)) return false;
     return UART_GET_RECEIVER_READY(lsr);
 }
-int uart_transmitter_empty(int base_addr){
+static int uart_transmitter_empty(int base_addr){
     uint8_t lsr;
     if(uart_get_lsr(base_addr, &lsr)) return false;
     return UART_GET_TRANSMITTER_EMPTY(lsr);
 }
-///PUBLIC
+
+int uart_enable_int_rx(int base_addr){
+    int ret;
+    uint8_t ier;
+    if((ret = uart_get_ier(base_addr, &ier))) return ret;
+    ier |= UART_INT_EN_RX;
+    return uart_set_ier(base_addr, ier);
+}
+int uart_disable_int_rx(int base_addr){
+    int ret;
+    uint8_t ier;
+    if((ret = uart_get_ier(base_addr, &ier))) return ret;
+    ier &= ~UART_INT_EN_RX;
+    return uart_set_ier(base_addr, ier);
+}
+int uart_enable_int_tx(int base_addr){
+    int ret;
+    uint8_t ier;
+    if((ret = uart_get_ier(base_addr, &ier))) return ret;
+    ier |= UART_INT_EN_TX;
+    return uart_set_ier(base_addr, ier);
+}
+int uart_disable_int_tx(int base_addr){
+    int ret;
+    uint8_t ier;
+    if((ret = uart_get_ier(base_addr, &ier))) return ret;
+    ier &= ~UART_INT_EN_TX;
+    return uart_set_ier(base_addr, ier);
+}
+
 int uart_get_char_poll(int base_addr, uint8_t *p){
     int ret;
     while(!uart_receiver_ready(base_addr)){}
@@ -209,13 +251,5 @@ int uart_send_char_poll(int base_addr, uint8_t  c){
     int ret;
     while(!uart_transmitter_empty(base_addr)){}
     if((ret = uart_send_char(base_addr, c))) return ret;
-    return SUCCESS;
-}
-int uart_send_memory_poll(int base_addr, void *str, size_t n){
-    int ret;
-    uint8_t *p = str;
-    for(size_t i = 0; i < n; ++i, ++p){
-        if((ret = uart_send_char_poll(base_addr, *p))) return ret;
-    }
     return SUCCESS;
 }

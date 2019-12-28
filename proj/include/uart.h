@@ -35,20 +35,19 @@ typedef struct {
 } uart_config;
 
 int uart_get_config(int base_addr, uart_config *config);
-void uart_parse_config(uart_config *config);
 void uart_print_config(uart_config config);
 
-int uart_enable_divisor_latch (int base_addr);
-int uart_disable_divisor_latch(int base_addr);
-
-int uart_write_config          (int base_addr, uint8_t     config       );
 int uart_set_bits_per_character(int base_addr, uint8_t     bits_per_char);
 int uart_set_stop_bits         (int base_addr, uint8_t     stop         );
 int uart_set_parity            (int base_addr, uart_parity par          );
 int uart_set_bit_rate          (int base_addr, float       bit_rate     );
 
+int uart_enable_int_rx (int base_addr);
+int uart_disable_int_rx(int base_addr);
+int uart_enable_int_tx (int base_addr);
+int uart_disable_int_tx(int base_addr);
+
 int uart_get_char_poll   (int base_addr, uint8_t *p);
 int uart_send_char_poll  (int base_addr, uint8_t  c);
-int uart_send_memory_poll(int base_addr, void *str, size_t n);
 
 #endif //UART_H_INCLUDED

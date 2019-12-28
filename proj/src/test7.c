@@ -34,6 +34,8 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
                     int stringc, char *strings[]) {
 	int ret = SUCCESS;
     if((ret = ser_test_set(base_addr, bits, stop, parity, rate))) return ret;
+	if((ret = uart_disable_int_rx(base_addr))) return ret;
+	if((ret = uart_disable_int_tx(base_addr))) return ret;
 	if(tx == 0){
 		uint8_t c;
 		if((ret = uart_get_char_poll(base_addr, &c))) return ret;
@@ -44,11 +46,13 @@ int ser_test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits
 		printf("%c\n", (char)c);
 	}else{
 		for(int i = 0; i < stringc; ++i){
-			size_t sz = strlen(strings[i]);
-			if((ret = uart_send_memory_poll(base_addr, strings[i], sz))) return ret;
-			if(i+1 != stringc) if((ret = uart_send_memory_poll(base_addr, " ", 1))) return ret;
+			for(int j = 0; strings[i][j] != 0; ++j)
+				if((ret = uart_send_char_poll(base_addr, strings[i][j])))
+					return ret;
+			if(i+1 != stringc)
+				if((ret = uart_send_char_poll(base_addr, ' '))) return ret;
 		}
-		if((ret = uart_send_memory_poll(base_addr, ".", 1))) return ret;
+		if((ret = uart_send_char_poll(base_addr, '.'))) return ret;
 	}
 	return SUCCESS;
 }
