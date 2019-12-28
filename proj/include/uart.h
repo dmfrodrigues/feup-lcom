@@ -1,7 +1,20 @@
 #ifndef UART_H_INCLUDED
 #define UART_H_INCLUDED
 
-#include "uart_macros.h"
+#define COM1_ADDR           0x3F8
+#define COM2_ADDR           0x2F8
+#define COM1_IRQ            4
+#define COM2_IRQ            3
+#define COM1_VECTOR         0x0C
+#define COM2_VECTOR         0x0B
+
+typedef enum {
+    uart_parity_none = 0x0,
+    uart_parity_odd  = 0x1,
+    uart_parity_even = 0x3,
+    uart_parity_par1 = 0x5,
+    uart_parity_par0 = 0x7
+} uart_parity;
 
 typedef struct {
     int     base_addr               ;
@@ -10,7 +23,7 @@ typedef struct {
     uint8_t dlm                     ;
     uint8_t bits_per_char           ;
     uint8_t stop_bits               ;
-    uint8_t parity                  ;
+    uart_parity parity              ;
     uint8_t break_control         :1;
     uint8_t dlab                  :1;
     uint16_t divisor_latch          ;
@@ -33,5 +46,9 @@ int uart_set_bits_per_character(int base_addr, uint8_t     bits_per_char);
 int uart_set_stop_bits         (int base_addr, uint8_t     stop         );
 int uart_set_parity            (int base_addr, uart_parity par          );
 int uart_set_bit_rate          (int base_addr, float       bit_rate     );
+
+int uart_get_char_poll   (int base_addr, uint8_t *p);
+int uart_send_char_poll  (int base_addr, uint8_t  c);
+int uart_send_memory_poll(int base_addr, void *str, size_t n);
 
 #endif //UART_H_INCLUDED
