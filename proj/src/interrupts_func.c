@@ -5,6 +5,7 @@
 #include "i8254.h"
 #include "keyboard.h"
 #include "mouse.h"
+#include "uart.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -13,6 +14,8 @@ static int timer_subscribed = 0, timer_id;
 static int keyboard_subscribed = 0, kbc_id;
 
 static int mouse_subscribed = 0, mouse_id;
+
+static int uart_subscribed = 0, uart_id;
 
 static void (*const ih[])(void) =   {    timer_int_handler,
                                          kbc_ih,
@@ -96,6 +99,16 @@ int (subscribe_all)(void) {
         return SBCR_ERROR;
     }
 
+    /// UART interrupt handling
+    uart_id = 0;
+    uart_enable_int_rx (COM1_ADDR);
+    uart_disable_int_tx(COM1_ADDR);
+    if(subscribe_uart_interrupt(COM1_IRQ, &uart_id)) {
+        printf("%s: failed to subscribe UART interrupts.\n", __func__);
+        return SBCR_ERROR;
+    }
+    uart_subscribed = 1;
+
     return SUCCESS;
 }
 
@@ -139,6 +152,17 @@ int (unsubscribe_all)(void) {
             r = UNSBCR_ERROR;
         }
         mouse_subscribed = 0;
+    }
+
+    // Unsubscribe UART interrupts
+    if (uart_subscribed) {
+        if (unsubscribe_interrupt(&uart_id)) {
+            printf("%s: failed to unsubcribe UART interrupts.\n");
+            r = UNSBCR_ERROR;
+        }
+        uart_enable_int_rx(COM1_ADDR);
+        uart_enable_int_tx(COM1_ADDR);
+        uart_subscribed = 0;
     }
 
     return r;

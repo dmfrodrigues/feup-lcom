@@ -188,6 +188,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     break;
                                 }
                                 break;
+                            #endif
                             case KBC_IRQ:
                                 switch (game_state) {
                                 case MENU:
@@ -213,6 +214,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     break;
                                 }
                                 break;
+                            #ifndef DIOGO
                             case MOUSE_IRQ:
                                 if (counter_mouse_ih >= 3) {
                                     mouse_parse_packet(packet_mouse_ih, &pp);
