@@ -1,8 +1,6 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 
-#include "graph_macros.h"
-
 // Colors in RBG (8 bit)
 #define GRAPH_BLACK               0x000000
 #define GRAPH_WHITE               0xFFFFFF
