@@ -162,11 +162,11 @@ int(proj_main_loop)(int argc, char *argv[]) {
         unsigned long stop = 2;
         long parity = 0;
         unsigned long rate = 9600;
-        unsigned char tx = 1;
-        int stringc = 2;
+        unsigned char tx = 0; (void)tx;
+        int stringc = 2; (void)stringc;
         char *strings[] = {"Hello", "world"}; (void)strings;
-        //if((r = ser_test_conf(COM1_ADDR))) return r;
         //if((r = ser_test_set(COM1_ADDR, bits, stop, parity, rate))) return r;
+        //if((r = ser_test_conf(COM1_ADDR))) return r;
         if((r = ser_test_poll(COM1_ADDR, tx, bits, stop, parity, rate, stringc, strings))) return r;
         printf("DONE\n");
     #endif
