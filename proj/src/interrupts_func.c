@@ -145,8 +145,16 @@ int (unsubscribe_all)(void) {
     return r;
 }
 
-void interrupt_handler(uint8_t handler) {
+void (interrupt_handler)(uint8_t handler) {
     if (handler >= 32)              return;
     if ((*ih[handler]) == NULL)     return;
     (*ih[handler])();
+}
+
+void (timer_manager)() {
+
+}
+
+void (mouse_manager)() {
+
 }

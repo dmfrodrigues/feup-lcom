@@ -36,3 +36,4 @@ int32_t max(int32_t a, int32_t b){ return (a < b ? b : a); }
 
 double min_d(double a, double b){ return (b < a ? b : a); }
 double max_d(double a, double b){ return (a < b ? b : a); }
+double abs_d(double a)          { return (a < 0 ? -a: a); }

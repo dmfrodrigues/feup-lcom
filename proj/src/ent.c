@@ -145,7 +145,6 @@ void (bullet_update_movement)(bullet_t *p){
 }
 
 void (bullet_update_movement_list)(list_t *bullet_list){
-    if (bullet_list == NULL) return;
     if (list_size(bullet_list) == 0) return;
 
     list_node_t *it = list_begin(bullet_list);

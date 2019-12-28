@@ -69,4 +69,7 @@ double min_d(double a, double b);
 double max_d(double a, double b);
 
 
+double abs_d(double a);
+
+
 #endif //UTILS_H_INCLUDED

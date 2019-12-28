@@ -128,6 +128,7 @@ void (text_set_text) (text_t *p, const char *txt){
     if(p->txt == NULL) return;
     strcpy(p->txt, txt);
 }
+char* (text_get_string)(const text_t *p){return p->txt; }
 void (text_set_pos)   (text_t *p, int16_t x, int16_t y   ){ p->x = x; p->y = y; }
 void (text_set_size)  (text_t *p, unsigned size          ){ p->size = size    ; }
 void (text_set_color) (text_t *p, uint32_t color         ){ p->color = color  ; }

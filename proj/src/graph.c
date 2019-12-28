@@ -245,12 +245,13 @@ int (graph_cleanup)(void){
 
 /// PIXEL DRAWING
 int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
-    if (x < 0 || vbe_mem_info.XResolution <= x || y < 0 || vbe_mem_info.YResolution <= y) {
+    //pixels are certain to be inside can reduce lag
+    /*if (x < 0 || vbe_mem_info.XResolution <= x || y < 0 || vbe_mem_info.YResolution <= y) {
         //printf("%s: invalid pixel.\n", __func__);
         return OUT_OF_RANGE;
-    }
-    unsigned int pos = (x + y * vbe_mem_info.XResolution) * graph_get_bytes_pixel();
-    memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
+    }*/
+    unsigned int pos = (x + y * vbe_mem_info.XResolution) * 3/*graph_get_bytes_pixel()*/;
+    memcpy(video_buf + pos, &color, 3/*graph_get_bytes_pixel()*/);
     return SUCCESS;
 }
 void (graph_set_pixel_pos)(unsigned pos, uint32_t color){
@@ -399,7 +400,7 @@ void (sprite_draw)(const sprite_t *p){
         ymin = max(ymin-(int16_t)p->scale-2, 0); ymax = min(ymax+(int16_t)p->scale+2, graph_get_YRes());
     }
     const uint8_t *map = basic_sprite_get_map(p->bsp);
-    const uint16_t bytes_pixel = graph_get_bytes_pixel();
+    const uint16_t bytes_pixel = 3/*graph_get_bytes_pixel()*/;
     for(int16_t u, v, y = ymin; y < ymax; ++y){
         uint8_t *place = video_buf + (xmin + y*graph_get_XRes())*bytes_pixel;
         for(int16_t x = xmin; x < xmax; ++x, place += bytes_pixel){
