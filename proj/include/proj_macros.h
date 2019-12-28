@@ -30,6 +30,12 @@
 #define SHOOTER_SPEED   5   /** @brief Shooter speed */
 #define BULLET_SPEED    8   /** @brief Bullet speet */
 
+// Game States
+#define MENU            0
+#define GAME            1
+#define TEST            2
+#define EXIT            3
+
 // Extra Keys
 #define ESC_MAKE_CODE   0x01    /** @brief ESC Make Code */
 #define ESC_BREAK_CODE  0x81    /** @brief ESC Break Code */
@@ -42,5 +48,10 @@
 #define MIN_SCALE       0.2                  /** @brief Minimum zoom */
 #define DEFAULT_SCALE   0.5                  /** @brief Default zoom */
 #define MAX_SCALE       10.0                 /** @brief Maximum zoom */
+
+// Colors
+#define TEXT_COLOR              0x888888
+#define HIGHLIGHT_COLOR         0xA0A0A0
+#define DELIMITER_COLOR         0x404040
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */

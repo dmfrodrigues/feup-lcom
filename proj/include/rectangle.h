@@ -17,6 +17,7 @@ int16_t  (rectangle_get_x)(const rectangle_t *p);
 int16_t  (rectangle_get_y)(const rectangle_t *p);
 uint16_t (rectangle_get_w)(const rectangle_t *p);
 uint16_t (rectangle_get_h)(const rectangle_t *p);
+int      (rectangle_collide_point)(const rectangle_t *p, int x, int y);
 
 void (rectangle_draw)(const rectangle_t *p);
 
