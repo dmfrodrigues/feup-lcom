@@ -112,7 +112,7 @@ text_t* (text_ctor)(const font_t *fnt, const char *txt){
     ret->x = 0;
     ret->y = 0;
     ret->size = 25;
-    ret->color = BLACK;
+    ret->color = GRAPH_BLACK;
     ret->valign = text_valign_top;
     ret->halign = text_halign_left;
     return ret;

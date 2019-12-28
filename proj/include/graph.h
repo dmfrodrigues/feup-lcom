@@ -3,6 +3,13 @@
 
 #include "graph_macros.h"
 
+// Colors in RBG (8 bit)
+#define GRAPH_BLACK               0x000000
+#define GRAPH_WHITE               0xFFFFFF
+
+// Alpha
+#define ALPHA_THRESHOLD     0x7F
+
 /// MACROS
 #define GET_ALP(n)          (0xFF & ((n) >> 24))
 #define GET_RED(n)          (0xFF & ((n) >> 16))
