@@ -95,7 +95,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     text_timer_t *in_game_timer = timer_ctor(consolas);
 
-    menu_t *main_menu = menu_ctor(consolas);
+    #ifndef DIOGO
+        menu_t *main_menu = menu_ctor(consolas);
+    #endif
 
     list_t *shooter_list = list_ctor();
 
@@ -115,16 +117,21 @@ int(proj_main_loop)(int argc, char *argv[]) {
     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
-    double angle; // mouse angle
-    int32_t *mouse_x = get_mouse_X(), *mouse_y = get_mouse_Y();
-    uint8_t last_lb = 0;
-    struct packet pp;
-    keys_t *keys = get_key_presses();
+    #ifndef DIOGO
+        //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+        double angle; // mouse angle
+        int32_t *mouse_x = get_mouse_X(), *mouse_y = get_mouse_Y();
+        uint8_t last_lb = 0;
+        struct packet pp;
+        keys_t *keys = get_key_presses();
+    #endif
     /// loop stuff
     int ipc_status;
     message msg;
-    int game_state = MENU, click = 0; (void)click;
+    int game_state = MENU;
+    #ifndef DIOGO
+        int click = 0;
+    #endif
 
     while (game_state != EXIT) {
         /* Get a request message. */
