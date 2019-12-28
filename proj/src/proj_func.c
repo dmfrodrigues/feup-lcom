@@ -212,15 +212,15 @@ menu_t* (menu_ctor)(const font_t *fnt){
         ret->t0 == NULL || ret->t1 == NULL || ret->t2 == NULL ||
         ret->frame == NULL) return NULL;
     // VISUAL
-    rectangle_set_fill_color(ret->r0, BLACK);
+    rectangle_set_fill_color(ret->r0, GRAPH_BLACK);
     rectangle_set_outline_width(ret->r0, 2);
-    rectangle_set_outline_color(ret->r0, WHITE);
-    rectangle_set_fill_color(ret->r1, BLACK);
+    rectangle_set_outline_color(ret->r0, GRAPH_WHITE);
+    rectangle_set_fill_color(ret->r1, GRAPH_BLACK);
     rectangle_set_outline_width(ret->r1, 2);
-    rectangle_set_outline_color(ret->r1, WHITE);
-    rectangle_set_fill_color(ret->r2, BLACK);
+    rectangle_set_outline_color(ret->r1, GRAPH_WHITE);
+    rectangle_set_fill_color(ret->r2, GRAPH_BLACK);
     rectangle_set_outline_width(ret->r2, 2);
-    rectangle_set_outline_color(ret->r2, WHITE);
+    rectangle_set_outline_color(ret->r2, GRAPH_WHITE);
     text_set_valign(ret->t0, text_valign_center);
     text_set_halign(ret->t0, text_halign_center);
     text_set_color(ret->t0, TEXT_COLOR);
@@ -230,9 +230,9 @@ menu_t* (menu_ctor)(const font_t *fnt){
     text_set_valign(ret->t2, text_valign_center);
     text_set_halign(ret->t2, text_halign_center);
     text_set_color(ret->t2, TEXT_COLOR);
-    rectangle_set_fill_color(ret->frame, BLACK);
+    rectangle_set_fill_color(ret->frame, GRAPH_BLACK);
     rectangle_set_outline_width(ret->frame, 6);
-    rectangle_set_outline_color(ret->frame, WHITE);
+    rectangle_set_outline_color(ret->frame, GRAPH_WHITE);
     // POSITIONS
     rectangle_set_pos(ret->r0,
                       graph_get_XRes()/2    - rectangle_get_w(ret->r0)/2,
@@ -290,21 +290,21 @@ void (menu_draw)(menu_t *menu) {
         rectangle_draw(menu->r0);
         rectangle_draw(menu->r1);
         rectangle_draw(menu->r2);
-        rectangle_set_fill_color(menu->r0, BLACK);
+        rectangle_set_fill_color(menu->r0, GRAPH_BLACK);
         break;
     case TEST:
         rectangle_set_fill_color(menu->r1, HIGHLIGHT_COLOR);
         rectangle_draw(menu->r0);
         rectangle_draw(menu->r1);
         rectangle_draw(menu->r2);
-        rectangle_set_fill_color(menu->r1, BLACK);
+        rectangle_set_fill_color(menu->r1, GRAPH_BLACK);
         break;
     case EXIT:
         rectangle_set_fill_color(menu->r2, HIGHLIGHT_COLOR);
         rectangle_draw(menu->r0);
         rectangle_draw(menu->r1);
         rectangle_draw(menu->r2);
-        rectangle_set_fill_color(menu->r2, BLACK);
+        rectangle_set_fill_color(menu->r2, GRAPH_BLACK);
         break;
     default:
         rectangle_draw(menu->r0);
