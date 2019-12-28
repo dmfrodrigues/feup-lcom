@@ -41,6 +41,11 @@ int16_t  (rectangle_get_y)(const rectangle_t *p){ return p->y; }
 uint16_t (rectangle_get_w)(const rectangle_t *p){ return p->w; }
 uint16_t (rectangle_get_h)(const rectangle_t *p){ return p->h; }
 
+int (rectangle_collide_point)(const rectangle_t *p, int x, int y) {
+    int16_t x0 = p->x, y0 = p->y;
+    return (x >= x0 && x <= x0 + p->w) && (y >= y0 && y <= y0 + p->h);
+}
+
 static void (rectangle_draw_hline)(int16_t x, int16_t y, int16_t l, uint32_t color){
     if(l < 0){ rectangle_draw_hline(x+l, y, -l, color); return; }
     for(int16_t x_ = max(0,x); x_ < min(x+l,graph_get_XRes()); ++x_){

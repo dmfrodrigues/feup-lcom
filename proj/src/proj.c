@@ -7,6 +7,8 @@
 #include "proj_func.h"
 
 #include "kbc.h"
+#include "kbc_macros.h"
+#include "i8254.h"
 #include "timer.h"
 #include "keyboard.h"
 #include "mouse.h"
@@ -173,6 +175,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
         text_timer_t *in_game_timer = timer_ctor(consolas);
 
+        menu_t *main_menu = menu_ctor(consolas);
+
         list_t *shooter_list = list_ctor();
 
         gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol); if(shooter1 == NULL) printf("Failed to get shooter1\n");
@@ -201,9 +205,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
         /// loop stuff
         int ipc_status;
         message msg;
-        int good = 1;
+        int game_state = MENU, click = 0;
 
-        while (good) {
+        while (game_state != EXIT) {
             /* Get a request message. */
             if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
                 printf("driver_receive failed with %d", r);
@@ -215,52 +219,99 @@ int(proj_main_loop)(int argc, char *argv[]) {
                         for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
                             if (msg.m_notify.interrupts & n) {
                                 interrupt_handler(i);
-                                if ((scancode[0]) == ESC_BREAK_CODE) good = 0;
-                                if (i == 0) {
-                                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
-                                    //if (no_interrupts % refresh_count_value == 0) {
-                                            update_movement(map1, shooter1, keys, shooter_list);
-
-                                            update_game_state(map1, shooter_list, bullet_list);
-
-                                            //update_scale();
-                                            sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
-                                            angle = get_mouse_angle(shooter1);
-                                            gunner_set_angle(shooter1, angle - M_PI_2);
+                                switch (i) {
+                                case TIMER0_IRQ:
+                                    switch (game_state) {
+                                    case MENU:
+                                        if (no_interrupts % 2 == 0){
                                             graph_clear_screen();
+                                            game_state = menu_update_state(main_menu, click);
+                                            menu_draw(main_menu);
 
-                                            ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
-                                                           gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+                                            click = 0;
 
-                                            map_draw   (map1);
-                                            gunner_draw_list(shooter_list);
-                                            bullet_draw_list(bullet_list);
-
-                                            text_draw(in_game_timer->text);
+                                            sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
                                             sprite_draw(sp_crosshair);
                                             graph_draw();
-                                        //}
-                                    }
-                                    else if (i == 12) {
-                                        if (counter_mouse_ih >= 3) {
-                                            mouse_parse_packet(packet_mouse_ih, &pp);
-                                            update_mouse(&pp);
-
-                                            if (last_lb ^ keys->lb_pressed && keys->lb_pressed) {
-                                                shoot_bullet(shooter1, bullet_list, bsp_bullet);
-                                            }
-                                            last_lb = keys->lb_pressed;
-                                            counter_mouse_ih = 0;
-
                                         }
+                                        break;
+                                    case GAME:
+                                        if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+                                        update_movement(map1, shooter1, keys, shooter_list);
+
+                                        update_game_state(map1, shooter_list, bullet_list);
+
+                                        //update_scale();
+                                        angle = get_mouse_angle(shooter1);
+                                        gunner_set_angle(shooter1, angle - M_PI_2);
+
+                                        ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                                       gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+
+                                        graph_clear_screen();
+                                        map_draw   (map1);
+                                        gunner_draw_list(shooter_list);
+                                        bullet_draw_list(bullet_list);
+
+                                        text_draw(in_game_timer->text);
+
+                                        sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
+                                        sprite_draw(sp_crosshair);
+                                        graph_draw();
+                                        break;
                                     }
+                                    break;
+                                case KBC_IRQ:
+                                    switch (game_state) {
+                                    case MENU:
+                                        if ((scancode[0]) == ESC_BREAK_CODE) game_state = EXIT;
+                                        break;
+                                    case GAME:
+                                        if ((scancode[0]) == ESC_BREAK_CODE) {
+                                            game_state = MENU;
+                                            // reset game
+                                            while(list_size(bullet_list) > 0){
+                                                bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
+                                                bullet_dtor(p);
+                                            }
+                                            list_node_t *it = list_begin(shooter_list);
+                                            while (it != list_end(shooter_list)) {
+                                                gunner_t *p = *(gunner_t**)list_node_val(it);
+                                                get_random_spawn(map1, p);
+                                                gunner_set_curr_health(p, gunner_get_health(p));
+                                                it = list_node_next(it);
+                                            }
+                                            timer_reset(in_game_timer);
+                                        }
+                                        break;
+                                    }
+                                    break;
+                                case MOUSE_IRQ:
+                                    if (counter_mouse_ih >= 3) {
+                                        mouse_parse_packet(packet_mouse_ih, &pp);
+                                        update_mouse(&pp);
+                                        switch (game_state) {
+                                        case MENU:
+                                            if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
+                                            break;
+                                        case GAME:
+                                            if (last_lb ^ keys->lb_pressed && keys->lb_pressed)
+                                                shoot_bullet(shooter1, bullet_list, bsp_bullet);
+                                            break;
+                                        }
+                                        last_lb = keys->lb_pressed;
+                                        counter_mouse_ih = 0;
+
+                                    }
+                                    break;
                                 }
                             }
+                        }
 
-                            break;
-                        default:
-                            break; /* no other notifications expected: do nothing */
-                    }
+                        break;
+                    default:
+                        break; /* no other notifications expected: do nothing */
+                }
             } else { /* received standart message, not a notification */
                 /* no standart message expected: do nothing */
             }
