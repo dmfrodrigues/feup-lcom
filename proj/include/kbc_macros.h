@@ -1,6 +1,0 @@
-#ifndef KBC_MACROS_H_INCLUDED
-#define KBC_MACROS_H_INCLUDED
-
-
-
-#endif //KBC_MACROS_H_INCLUDED

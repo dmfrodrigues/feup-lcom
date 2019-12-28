@@ -3,7 +3,6 @@
 #include "mouse.h"
 
 #include "errors.h"
-#include "kbc_macros.h"
 #include "kbc.h"
 
 /* Mouse Data Packet */

@@ -3,7 +3,6 @@
 #include "interrupts_func.h"
 #include "timer.h"
 #include "i8254.h"
-#include "kbc_macros.h"
 #include "keyboard.h"
 #include "mouse.h"
 #include "utils.h"
