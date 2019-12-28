@@ -3,7 +3,6 @@
 #include "keyboard.h"
 
 #include "kbc.h"
-#include "kbc_macros.h"
 #include "utils.h"
 #include "errors.h"
 #include "proj_func.h"

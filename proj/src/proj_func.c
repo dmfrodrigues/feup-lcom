@@ -13,8 +13,6 @@
 #include "rectangle.h"
 #include "font.h"
 
-#include "kbc_macros.h"
-
 #include <math.h>
 
 int cleanup(void) {

@@ -7,7 +7,6 @@
 #include "proj_func.h"
 
 #include "kbc.h"
-#include "kbc_macros.h"
 #include "i8254.h"
 #include "timer.h"
 #include "keyboard.h"
