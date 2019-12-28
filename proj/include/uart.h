@@ -47,7 +47,4 @@ int uart_disable_int_rx(int base_addr);
 int uart_enable_int_tx (int base_addr);
 int uart_disable_int_tx(int base_addr);
 
-int uart_get_char_poll   (int base_addr, uint8_t *p);
-int uart_send_char_poll  (int base_addr, uint8_t  c);
-
 #endif //UART_H_INCLUDED

@@ -1,6 +1,15 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 
+// Graphics modes
+#define INDEXED_1024_768        0x105
+#define DIRECT_640_480_888      0x110
+#define DIRECT_800_600_888      0x115
+#define DIRECT_1024_768_888     0x118
+#define DIRECT_1280_1024_565    0x11A
+#define DIRECT_1280_1024_888    0x11B
+#define LINEAR_FRAME_BUFFER_MD  BIT(14)
+
 // Colors in RBG (8 bit)
 #define GRAPH_BLACK               0x000000
 #define GRAPH_WHITE               0xFFFFFF

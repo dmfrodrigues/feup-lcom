@@ -1,6 +1,6 @@
-#include "rtc.h"
-
 #include <lcom/lcf.h>
+
+#include "rtc.h"
 
 #include "utils.h"
 #include "errors.h"

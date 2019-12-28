@@ -61,12 +61,21 @@
 
 /// LSR
 #define UART_RECEIVER_READY_POS                 0
+#define UART_OVERRUN_ERROR_POS                  1
+#define UART_PARITY_ERROR_POS                   2
+#define UART_FRAMING_ERROR_POS                  3
 #define UART_TRANSMITTER_EMPTY_POS              5
 
 #define UART_RECEIVER_READY                     (BIT(0))
+#define UART_OVERRUN_ERROR                      (BIT(1))
+#define UART_PARITY_ERROR                       (BIT(2))
+#define UART_FRAMING_ERROR                      (BIT(3))
 #define UART_TRANSMITTER_EMPTY                  (BIT(5))
 
 #define UART_GET_RECEIVER_READY(n)              (((n)&UART_RECEIVER_READY           )>>UART_RECEIVER_READY_POS           )
+#define UART_GET_OVERRUN_ERROR                  (((n)&UART_OVERRUN_ERROR            )>>UART_OVERRUN_ERROR_POS            )
+#define UART_GET_PARITY_ERROR                   (((n)&UART_PARITY_ERROR             )>>UART_PARITY_ERROR_POS             )
+#define UART_GET_FRAMING_ERROR                  (((n)&UART_FRAMING_ERROR            )>>UART_FRAMING_ERROR_POS            )
 #define UART_GET_TRANSMITTER_EMPTY(n)           (((n)&UART_TRANSMITTER_EMPTY        )>>UART_TRANSMITTER_EMPTY_POS        )
 
 static void uart_parse_config(uart_config *config){
@@ -241,15 +250,124 @@ int uart_disable_int_tx(int base_addr){
     return uart_set_ier(base_addr, ier);
 }
 
-int uart_get_char_poll(int base_addr, uint8_t *p){
+static int uart_has_communication_error(int base_addr){
     int ret;
-    while(!uart_receiver_ready(base_addr)){}
-    if((ret = uart_get_char(base_addr, p))) return ret;
+    uint8_t lsr;
+    if((ret = uart_get_lsr(base_addr, &lsr))) return 1;
+    lsr &= (UART_OVERRUN_ERROR &
+            UART_PARITY_ERROR  &
+            UART_FRAMING_ERROR);
+    return (lsr ? 1 : 0);
+}
+
+#include "nctp.h"
+
+#define NCTP_START      0x80
+#define NCTP_END        0xFF
+#define NCTP_TRIES      3
+#define NCTP_OK         0xFF
+#define NCTP_NOK        0x00
+#define NCTP_MAX_SIZE   1024 //in bytes
+
+int nctp_send_char_poll(int base_addr, uint8_t  c){
+    for(int i = 0; i < NCTP_TRIES; ++i)
+        if(uart_transmitter_empty(base_addr))
+            return uart_send_char(base_addr, c);
+    return TIMEOUT_ERROR;
+}
+int nctp_get_char_poll (int base_addr, uint8_t *p){
+    for(int i = 0; i < NCTP_TRIES; ++i)
+        if(uart_receiver_ready(base_addr))
+            return uart_get_char(base_addr, p);
+    return TIMEOUT_ERROR;
+}
+
+int nctp_expect_ok(int base_addr){
+    int ret;
+    uint8_t ok;
+    if((ret = nctp_get_char_poll(base_addr, &ok))) return ret;
+    int cnt = 0;
+    while(ok){
+        cnt += ok&1;
+        ok >>= 1;
+    }
+    if(cnt > 4) return SUCCESS;
+    else        return NOK;
+}
+
+int nctp_send_char_try(int base_addr, uint8_t  c){
+    int ret;
+    for(size_t k = 0; k < NCTP_TRIES; ++k){
+        if((ret = nctp_send_char_poll(base_addr, c))) return ret;
+        if(nctp_expect_ok(base_addr) == SUCCESS) return SUCCESS;
+    }
+    return TRANS_FAILED;
+}
+int nctp_get_char_try (int base_addr, uint8_t *p){
+    int ret;
+    for(size_t k = 0; k < NCTP_TRIES; ++k){
+        if((ret = nctp_get_char_poll (base_addr, p))) return ret;
+        if(!uart_has_communication_error(base_addr))
+            return nctp_send_char_try(base_addr, NCTP_OK ); //If it does not have any errors
+    }
+    if((ret = nctp_send_char_poll(base_addr, NCTP_NOK))) return ret;
+    return TRANS_FAILED;
+}
+
+int nctp_send(int port, size_t num, uint8_t* ptr[], size_t sz[]){
+    {
+        int cnt = 0;
+        for(size_t i = 0; i < num; ++i){
+            cnt += sz[i];
+            if(cnt > NCTP_MAX_SIZE) return TRANS_REFUSED;
+        }
+    }
+
+    int base_addr;{
+        switch(port){
+            case 1: base_addr = COM1_ADDR; break;
+            case 2: base_addr = COM2_ADDR; break;
+            default: return INVALID_ARG;
+        }
+    }
+
+    int ret;
+
+    if((ret = uart_disable_int_rx(base_addr))) return ret;
+    if((ret = uart_disable_int_tx(base_addr))) return ret;
+
+    if((ret = nctp_send_char_try(base_addr, NCTP_START))) return ret;
+    for(size_t i = 0; i < num; ++i){
+        uint8_t *p = ptr[i]; size_t s = sz[i];
+        for(size_t j = 0; j < s; ++j, ++p)
+            if((ret = nctp_send_char_try(base_addr, *p)))
+                return ret;
+    }
+    if((ret = nctp_send_char_try(base_addr, NCTP_END))) return ret;
+
     return SUCCESS;
 }
-int uart_send_char_poll(int base_addr, uint8_t  c){
+int ntcp_get(int port, uint8_t *dest){
+    int base_addr;{
+        switch(port){
+            case 1: base_addr = COM1_ADDR; break;
+            case 2: base_addr = COM2_ADDR; break;
+            default: return INVALID_ARG;
+        }
+    }
+
     int ret;
-    while(!uart_transmitter_empty(base_addr)){}
-    if((ret = uart_send_char(base_addr, c))) return ret;
+    free(dest);
+    dest = malloc(NCTP_MAX_SIZE*sizeof(uint8_t)); size_t i = 0;
+    if(dest == NULL) return NULL_PTR;
+    uint8_t c;
+    if((ret = nctp_get_char_try (base_addr, &c     ))) return ret;
+    while(true){
+        if(i >= NCTP_MAX_SIZE) return TRANS_REFUSED;
+        if((ret = nctp_get_char_try (base_addr, &c))) return ret;
+        if(c == NCTP_END) break;
+        else              dest[i] = c;
+        ++i;
+    }
     return SUCCESS;
 }
