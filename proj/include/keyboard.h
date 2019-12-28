@@ -5,6 +5,8 @@
 #ifndef KEYBOARD_H_INCLUDED
 #define KEYBOARD_H_INCLUDED
 
+#include "kbc.h"
+
 /**
  * @brief Subscribes Keyboard Interrupts and disables Minix Default IH
  * @param interrupt_bit Bit of Interrupt Vector that will be set when Keyboard Interrupt is pending
