@@ -1,5 +1,4 @@
 #include "rtc.h"
-#include "rtc_macros.h"
 
 #include <lcom/lcf.h>
 
