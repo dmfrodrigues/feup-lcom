@@ -34,6 +34,8 @@ typedef struct {
     uint8_t modem_stat_int        :1;
 } uart_config;
 
+int (subscribe_uart_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
+
 int uart_get_config(int base_addr, uart_config *config);
 void uart_print_config(uart_config config);
 

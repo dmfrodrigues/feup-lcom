@@ -78,6 +78,12 @@
 #define UART_GET_FRAMING_ERROR                  (((n)&UART_FRAMING_ERROR            )>>UART_FRAMING_ERROR_POS            )
 #define UART_GET_TRANSMITTER_EMPTY(n)           (((n)&UART_TRANSMITTER_EMPTY        )>>UART_TRANSMITTER_EMPTY_POS        )
 
+int (subscribe_uart_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
+    if (interrupt_id == NULL) return 1;
+    *interrupt_id = interrupt_bit;
+    return (sys_irqsetpolicy(COM1_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, interrupt_id));
+}
+
 static void uart_parse_config(uart_config *config){
     /// LCR
     config->bits_per_char          = UART_GET_BITS_PER_CHAR     (config->lcr);
