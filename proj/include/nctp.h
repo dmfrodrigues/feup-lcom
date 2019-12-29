@@ -13,4 +13,6 @@ int nctp_send_char_poll  (int base_addr, uint8_t  c);
  */
 int nctp_send(int port, size_t num, uint8_t* ptr[], size_t sz[]);
 
+int ntcp_get(int port, uint8_t *dest);
+
 #endif //NCTP_H_INCLUDED

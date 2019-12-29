@@ -236,7 +236,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             #endif
                             #ifdef DIOGO
                             case COM1_IRQ:
-                                printf("You've got mail.\n");
+                                char *s = NULL;
+                                hltp_get_string(1, s);
+                                printf("You've got mail: %s\n", s);
                                 break;
                             #endif
                             }
