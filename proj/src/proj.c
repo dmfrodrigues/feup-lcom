@@ -31,7 +31,8 @@
 #include "list.h"
 
 #ifdef DIOGO
-    #include "test7.h"
+    #include "uart.h"
+    #include "hltp.h"
 #endif
 
 int main(int argc, char* argv[]) {
@@ -59,12 +60,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
     /// subscribe interrupts
     if (subscribe_all()) { return 1; }
 
-    /// initialize graphics
-    if(graph_init(GRAPH_MODE)){
-        printf("%s: failed to initalize graphics.\n", __func__);
-        if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
+    #ifndef DIOGO
+        /// initialize graphics
+        if(graph_init(GRAPH_MODE)){
+            printf("%s: failed to initalize graphics.\n", __func__);
+            if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
+            return 1;
+        }
+    #endif
 
     /// Load stuff
     basic_sprite_t       *bsp_crosshair = NULL;
@@ -75,11 +78,13 @@ int(proj_main_loop)(int argc, char *argv[]) {
     map_t                *map1          = NULL;
     sprite_t             *sp_crosshair  = NULL;
     {
-        graph_clear_screen();
-        text_t *txt = text_ctor(consolas, "Loading...");
-        text_draw(txt);
-        text_dtor(txt);
-        graph_draw();
+        #ifndef DIOGO
+            graph_clear_screen();
+            text_t *txt = text_ctor(consolas, "Loading...");
+            text_draw(txt);
+            text_dtor(txt);
+            graph_draw();
+        #endif
 
         bsp_crosshair = get_crosshair(); if(bsp_crosshair == NULL) printf("Failed to get crosshair\n");
         bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
@@ -135,6 +140,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifndef DIOGO
         int click = 0;
+    #endif
+    #ifdef DIOGO
+        char *s = NULL;
     #endif
 
     while (game_state != EXIT) {
@@ -198,11 +206,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 case MENU:
                                     if ((scancode[0]) == ESC_BREAK_CODE) game_state = EXIT;
 
-                                    else if ((scancode[0]) == A_MAKE_CODE) buffer[buffer_pos++] = 'A';
-
+                                    else if ((scancode[0]) == A_MAKE_CODE){
+                                        buffer[buffer_pos++] = 'A';
+                                        printf("%c", buffer[buffer_pos-1]);
+                                    }
                                     else if ((scancode[0]) == ENTER_MAKE_CODE) {
-                                        // func1
-
+                                        buffer[buffer_pos] = '\0';
+                                        printf("\nSending string -%s-\n", buffer);
+                                        printf("Send string output: %d\n",
+                                            hltp_send_string(COM1_ADDR, buffer));
                                         buffer_pos = 0;
                                     }
 
@@ -249,10 +261,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             #endif
                             #ifdef DIOGO
                             case COM1_IRQ:
-                                char *s = NULL;
-                                hltp_get_string(1, s);
-                                printf("You've got mail: %s\n", s);
-                                break;
+                                {
+                                    printf("You've got mail");
+                                    int r = hltp_get_string(COM1_ADDR, &s);
+                                    printf(" (return code %d)", r);
+                                    printf(": -%s-\n", s);
+                                }break;
                             #endif
                             }
                         }
@@ -266,6 +280,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
             /* no standart message expected: do nothing */
         }
     }
+
+    #ifdef DIOGO
+        free(s);
+    #endif
 
     while(list_size(shooter_list) > 0){
         gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
