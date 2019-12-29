@@ -16,6 +16,8 @@
 #define PLUS_BREAK_CODE     0x9A    /** @brief Plus (+) Break Code */
 #define MINUS_MAKE_CODE     0x35    /** @brief Minus (-) Make Code */
 #define MINUS_BREAK_CODE    0xB5    /** @brief Minus (-) Break Code */
+#define ENTER_MAKE_CODE     0x1C
+#define ENTER_BREAK_CODE    0x9C
 
 // Movement Directions
 #define UP      -1  /** @brief Moving to the top side of screen */

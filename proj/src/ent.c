@@ -23,7 +23,7 @@ struct gunner{
     double spawn_x, spawn_y;
     sprite_t *dude;
     sprite_t *weapon;
-    int health, current_health;
+    double health, current_health;
 };
 gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon){
     gunner_t *ret = malloc(sizeof(gunner_t));
@@ -53,11 +53,11 @@ void (gunner_set_angle)(gunner_t *p, double angle      ){
     sprite_set_angle(p->dude  , angle);
     sprite_set_angle(p->weapon, angle);
 }
-void (gunner_set_health)        (gunner_t *p, int health) {
+void (gunner_set_health)        (gunner_t *p, double health) {
     if (health < 0) health = 0;
     p->health = health;
 }
-void (gunner_set_curr_health)   (gunner_t *p, int health) {
+void (gunner_set_curr_health)   (gunner_t *p, double health) {
     if (health < 0) health = 0;
     p->current_health = health;
 }
@@ -66,8 +66,8 @@ double  (gunner_get_y)              (const gunner_t *p){ return p->y; }
 double  (gunner_get_spawn_x)        (const gunner_t *p){ return p->spawn_x; }
 double  (gunner_get_spawn_y)        (const gunner_t *p){ return p->spawn_y; }
 double  (gunner_get_angle)          (const gunner_t *p){ return sprite_get_angle(p->dude); }
-int     (gunner_get_health)         (const gunner_t *p){ return p->health; }
-int     (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
+double  (gunner_get_health)         (const gunner_t *p){ return p->health; }
+double  (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
 int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
 int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (p->y-y_origin)*scale; }
 void (gunner_draw)(gunner_t *p){
@@ -87,9 +87,9 @@ void (gunner_draw_health)(const gunner_t *p) {
     int16_t h = sprite_get_h(p->dude);
     double x = gunner_get_x_screen(p) - w/2;
     double y = gunner_get_y_screen(p) - h/2 - 10;
-    int curr_health = gunner_get_curr_health(p);
-    int health = gunner_get_health(p);
-    double perc = (double)curr_health/health;
+    double curr_health = gunner_get_curr_health(p);
+    double health = gunner_get_health(p);
+    double perc = curr_health/health;
     rectangle_t *green_bar = rectangle_ctor(x, y, (int16_t)(w*perc), 10);
     rectangle_set_fill_color(green_bar, 0x00FF00);
     rectangle_t *red_bar = rectangle_ctor(x+(int16_t)(w*perc), y, (int16_t)(w*(1-perc)), 10);
@@ -105,7 +105,7 @@ struct bullet{
     double x, y; //real position
     double vx, vy;
     sprite_t *b;
-    int damage;
+    double damage;
 };
 bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double x, double y, double vx, double vy){
     bullet_t *ret = malloc(sizeof(bullet_t));
@@ -134,8 +134,8 @@ double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
 int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }
 int16_t (bullet_get_y_screen)(const bullet_t *p){ return (p->y-y_origin)*scale; }
-int     (bullet_get_damage)  (const bullet_t *p){ return p->damage; }
-void    (bullet_set_damage)  (bullet_t *p, int damage) {
+double  (bullet_get_damage)  (const bullet_t *p){ return p->damage; }
+void    (bullet_set_damage)  (bullet_t *p, double damage) {
     if (damage < 0) damage = 0;
     p->damage = damage;
 }

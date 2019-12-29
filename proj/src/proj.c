@@ -129,6 +129,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
     int ipc_status;
     message msg;
     int game_state = MENU;
+
+    char buffer[1024]; // buffer
+    int buffer_pos = 0;
+
     #ifndef DIOGO
         int click = 0;
     #endif
@@ -193,6 +197,16 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 switch (game_state) {
                                 case MENU:
                                     if ((scancode[0]) == ESC_BREAK_CODE) game_state = EXIT;
+
+                                    else if ((scancode[0]) == A_MAKE_CODE) buffer[buffer_pos++] = 'A';
+
+                                    else if ((scancode[0]) == ENTER_MAKE_CODE) {
+                                        // func1
+
+                                        memcpy(buffer, 0, buffer_pos+1);
+                                        buffer_pos = 0;
+                                    }
+
                                     break;
                                 case GAME:
                                     if ((scancode[0]) == ESC_BREAK_CODE) {
