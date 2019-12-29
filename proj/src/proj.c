@@ -14,6 +14,7 @@
 #include "graph.h"
 #include "rtc.h"
 #include "interrupts_func.h"
+#include "makecode_map.h"
 
 #include "graph.h"
 #include "sprite.h"
@@ -206,16 +207,18 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 case MENU:
                                     if ((scancode[0]) == ESC_BREAK_CODE) game_state = EXIT;
 
-                                    else if ((scancode[0]) == A_MAKE_CODE){
-                                        buffer[buffer_pos++] = 'A';
-                                        printf("%c", buffer[buffer_pos-1]);
-                                    }
                                     else if ((scancode[0]) == ENTER_MAKE_CODE) {
                                         buffer[buffer_pos] = '\0';
                                         printf("\nSending string -%s-\n", buffer);
                                         printf("Send string output: %d\n",
                                             hltp_send_string(COM1_ADDR, buffer));
                                         buffer_pos = 0;
+                                    }
+                                    else {
+                                        char c = map_makecode(scancode[0]);
+                                        if (c == ERROR_CODE) break;
+                                        buffer[buffer_pos++] = c;
+                                        printf("%c", c);
                                     }
 
                                     break;
