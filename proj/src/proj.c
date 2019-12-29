@@ -203,7 +203,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     else if ((scancode[0]) == ENTER_MAKE_CODE) {
                                         // func1
 
-                                        memcpy(buffer, 0, buffer_pos+1);
                                         buffer_pos = 0;
                                     }
 
