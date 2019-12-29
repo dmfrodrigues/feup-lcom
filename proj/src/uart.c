@@ -256,7 +256,7 @@ int uart_disable_int_tx(int base_addr){
     return uart_set_ier(base_addr, ier);
 }
 
-static int uart_has_communication_error(int base_addr){
+/*static*/ int uart_has_communication_error(int base_addr){
     int ret;
     uint8_t lsr;
     if((ret = uart_get_lsr(base_addr, &lsr))) return 1;
@@ -305,7 +305,8 @@ int nctp_send_char_try(int base_addr, uint8_t  c){
     int ret;
     for(size_t k = 0; k < NCTP_TRIES; ++k){
         if((ret = nctp_send_char_poll(base_addr, c))) return ret;
-        if(nctp_expect_ok(base_addr) == SUCCESS) return SUCCESS;
+        return SUCCESS;
+        //if(nctp_expect_ok(base_addr) == SUCCESS) return SUCCESS;
     }
     return TRANS_FAILED;
 }
@@ -313,14 +314,15 @@ int nctp_get_char_try (int base_addr, uint8_t *p){
     int ret;
     for(size_t k = 0; k < NCTP_TRIES; ++k){
         if((ret = nctp_get_char_poll (base_addr, p))) return ret;
-        if(!uart_has_communication_error(base_addr))
-            return nctp_send_char_try(base_addr, NCTP_OK ); //If it does not have any errors
+        return SUCCESS;
+        //if(!uart_has_communication_error(base_addr))
+            //return nctp_send_char_try(base_addr, NCTP_OK ); //If it does not have any errors
     }
     if((ret = nctp_send_char_poll(base_addr, NCTP_NOK))) return ret;
     return TRANS_FAILED;
 }
 
-int nctp_send(int port, size_t num, uint8_t* ptr[], size_t sz[]){
+static int nctp_send_inner(int base_addr, size_t num, uint8_t* ptr[], size_t sz[]){
     {
         int cnt = 0;
         for(size_t i = 0; i < num; ++i){
@@ -329,18 +331,7 @@ int nctp_send(int port, size_t num, uint8_t* ptr[], size_t sz[]){
         }
     }
 
-    int base_addr;{
-        switch(port){
-            case 1: base_addr = COM1_ADDR; break;
-            case 2: base_addr = COM2_ADDR; break;
-            default: return INVALID_ARG;
-        }
-    }
-
     int ret;
-
-    if((ret = uart_disable_int_rx(base_addr))) return ret;
-    if((ret = uart_disable_int_tx(base_addr))) return ret;
 
     if((ret = nctp_send_char_try(base_addr, NCTP_START))) return ret;
     for(size_t i = 0; i < num; ++i){
@@ -353,27 +344,36 @@ int nctp_send(int port, size_t num, uint8_t* ptr[], size_t sz[]){
 
     return SUCCESS;
 }
-int ntcp_get(int port, uint8_t *dest){
-    int base_addr;{
-        switch(port){
-            case 1: base_addr = COM1_ADDR; break;
-            case 2: base_addr = COM2_ADDR; break;
-            default: return INVALID_ARG;
-        }
-    }
-
+int nctp_send(int base_addr, size_t num, uint8_t* ptr[], size_t sz[]){
     int ret;
-    free(dest);
-    dest = malloc(NCTP_MAX_SIZE*sizeof(uint8_t)); size_t i = 0;
-    if(dest == NULL) return NULL_PTR;
+    if((ret = uart_disable_int_rx(base_addr))) return ret;
+    if((ret = uart_disable_int_tx(base_addr))) return ret;
+    int r = nctp_send_inner(base_addr, num, ptr, sz);
+    if((ret = uart_enable_int_rx(base_addr))) return ret;
+    if((ret = uart_disable_int_tx(base_addr))) return ret;
+    return r;
+}
+
+static int nctp_get_inner(int base_addr, uint8_t **dest){
+    int ret;
+    free(*dest);
+    *dest = malloc(NCTP_MAX_SIZE*sizeof(uint8_t)); size_t i = 0;
+    if(*dest == NULL) return NULL_PTR;
     uint8_t c;
     if((ret = nctp_get_char_try (base_addr, &c     ))) return ret;
     while(true){
         if(i >= NCTP_MAX_SIZE) return TRANS_REFUSED;
         if((ret = nctp_get_char_try (base_addr, &c))) return ret;
-        if(c == NCTP_END) break;
-        else              dest[i] = c;
-        ++i;
+        if(c == NCTP_END) return SUCCESS;
+        else              (*dest)[i++] = c;
     }
-    return SUCCESS;
+}
+int nctp_get(int base_addr, uint8_t **dest){
+    int ret;
+    if((ret = uart_disable_int_rx(base_addr))) return ret;
+    if((ret = uart_disable_int_tx(base_addr))) return ret;
+    int r = nctp_get_inner(base_addr, dest);
+    if((ret = uart_enable_int_rx(base_addr))) return ret;
+    if((ret = uart_disable_int_tx(base_addr))) return ret;
+    return r;
 }
