@@ -12,7 +12,7 @@
 #include "mouse.h"
 #include "graph.h"
 #include "rtc.h"
-#include "hltp.h"
+#include "uart.h"
 #include "interrupts_func.h"
 #include "makecode_map.h"
 
