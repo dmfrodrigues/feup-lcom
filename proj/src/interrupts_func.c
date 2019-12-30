@@ -2,7 +2,6 @@
 
 #include "interrupts_func.h"
 #include "timer.h"
-#include "i8254.h"
 #include "keyboard.h"
 #include "mouse.h"
 #include "nctp.h"
