@@ -1,4 +1,0 @@
-#ifndef HLTP_H_INCLUDED
-#define HLTP_H_INCLUDED
-
-#endif //HLTP_H_INCLUDED

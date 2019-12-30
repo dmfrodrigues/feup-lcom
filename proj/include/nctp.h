@@ -1,4 +1,0 @@
-#ifndef NCTP_H_INCLUDED
-#define NCTP_H_INCLUDED
-
-#endif //NCTP_H_INCLUDED
