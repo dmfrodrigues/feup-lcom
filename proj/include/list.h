@@ -18,7 +18,11 @@ int     (list_dtor)(list_t *l);
 list_node_t* (list_begin )(list_t *l);
 list_node_t* (list_end   )(list_t *l);
 size_t       (list_size  )(const list_t *l);
+int          (list_empty )(const list_t *l);
 list_node_t* (list_insert)(list_t *l, list_node_t *position, void *val);
 void*        (list_erase )(list_t *l, list_node_t *position);
+void         (list_push_back)(list_t *l, void *val);
+void**       (list_front)(list_t *l);
+void         (list_pop_front)(list_t *l);
 
 #endif //LIST_H_INCLUDED

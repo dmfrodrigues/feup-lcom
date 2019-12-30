@@ -209,7 +209,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         buffer[buffer_pos] = '\0';
                                         printf("\nSending string -%s-", buffer);
                                         printf(" (output: %d)\n",
-                                            hltp_send_string(COM1_ADDR, buffer));
+                                            hltp_send_string(buffer));
                                         buffer_pos = 0;
                                     }
                                     else {
@@ -262,12 +262,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             #endif
                             #ifdef DIOGO
                             case COM1_IRQ:
-                                {
-                                    printf("You've got mail");
-                                    int r = hltp_get_string(COM1_ADDR, &s);
-                                    printf(" (return code %d)", r);
-                                    printf(": -%s-\n", s);
-                                }break;
+                                nctp_ih();
+                                break;
                             #endif
                             }
                         }

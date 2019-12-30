@@ -52,6 +52,7 @@ int (list_dtor)(list_t *l){
 list_node_t* (list_begin )(      list_t *l){ return l->begin_->n; }
 list_node_t* (list_end   )(      list_t *l){ return l->end_; }
 size_t       (list_size  )(const list_t *l){ return l->sz; }
+int          (list_empty )(const list_t *l){ return !(l->sz); }
 list_node_t* (list_insert)(list_t *l, list_node_t *position, void *val){
     list_node_t *node = list_node_ctor(position->p, position, val);
     position->p->n = node;
@@ -66,4 +67,13 @@ void*        (list_erase )(list_t *l, list_node_t *position){
     list_node_dtor(position);
     --l->sz;
     return ret;
+}
+void         (list_push_back)(list_t *l, void *val){
+    list_insert(l, list_end(l), val);
+}
+void**       (list_front)(list_t *l){
+    return list_node_val(list_begin(l));
+}
+void         (list_pop_front)(list_t *l){
+    list_erase(l, list_begin(l));
 }
