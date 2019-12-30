@@ -3,8 +3,6 @@
 
 #include "nctp.h"
 
-int hltp_send_string(int base_addr, const char *p);
-
-int hltp_get_string(int base_addr, char **p);
+int hltp_send_string(const char *p);
 
 #endif //HLTP_H_INCLUDED

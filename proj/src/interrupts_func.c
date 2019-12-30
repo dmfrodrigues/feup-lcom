@@ -5,7 +5,7 @@
 #include "i8254.h"
 #include "keyboard.h"
 #include "mouse.h"
-#include "uart.h"
+#include "nctp.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -106,12 +106,13 @@ int (subscribe_all)(void) {
     uart_set_parity            (COM1_ADDR, uart_parity_even);
     uart_set_bit_rate          (COM1_ADDR, 38400);
     uart_enable_int_rx (COM1_ADDR);
-    uart_disable_int_tx(COM1_ADDR);
+    uart_enable_int_tx(COM1_ADDR);
     if(subscribe_uart_interrupt(COM1_IRQ, &uart_id)) {
         printf("%s: failed to subscribe UART interrupts.\n", __func__);
         return SBCR_ERROR;
     }
     uart_subscribed = 1;
+    nctp_init();
 
     return SUCCESS;
 }
@@ -168,6 +169,7 @@ int (unsubscribe_all)(void) {
         uart_enable_int_tx(COM1_ADDR);
         uart_subscribed = 0;
     }
+    nctp_free();
 
     return r;
 }
