@@ -23,7 +23,7 @@
 #define UART_DLM                                1
 
 /// LCR
-#define UART_BITS_PER_CHAR_POS                  0
+//#define UART_BITS_PER_CHAR_POS                  0
 #define UART_STOP_BITS_POS                      2
 #define UART_PARITY_POS                         3
 #define UART_BREAK_CONTROL_POS                  6
