@@ -275,7 +275,7 @@ int uart_disable_int_tx(int base_addr){
     return uart_set_ier(base_addr, ier);
 }
 
-#include "nctp.h"
+/// NCTP
 
 #define NCTP_START      0x80
 #define NCTP_END        0xFF
