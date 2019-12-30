@@ -23,7 +23,7 @@
 #define UART_DLM                                1
 
 /// LCR
-//#define UART_BITS_PER_CHAR_POS                  0
+#define UART_BITS_PER_CHAR_POS                  0
 #define UART_STOP_BITS_POS                      2
 #define UART_PARITY_POS                         3
 #define UART_BREAK_CONTROL_POS                  6
@@ -80,10 +80,19 @@
 #define UART_GET_TRANSMITTER_EMPTY(n)           (((n)&UART_TRANSMITTER_EMPTY        )>>UART_TRANSMITTER_EMPTY_POS        )
 
 /// IIR
+#define UART_INT_PEND_POS                       1
+
+#define UART_INT_PEND                           (BIT(3)|BIT(2)|BIT(1))
+
 #define UART_GET_IF_INT_PEND(n)                 (!((n)&1))
-#define UART_GET_INT_PEND(n)                    (((n)&0xE)>>1)
-#define UART_INT_RX                             0x2 //0b010
-#define UART_INT_TX                             0x1 //0b001
+typedef enum {
+    uart_int_receiver_line_stat = (         BIT(1) | BIT(0)),
+    uart_int_rx                 = (         BIT(1)         ),
+    uart_int_char_timeout_fifo  = (BIT(2) | BIT(1)         ),
+    uart_int_tx                 = (                  BIT(0)),
+    uart_int_modem_stat         = (0)
+} uart_int_code;
+#define UART_GET_INT_PEND(n)                    ((uart_int_code)(((n)&UART_INT_PEND)>>UART_INT_PEND_POS))
 
 int (subscribe_uart_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     if (interrupt_id == NULL) return 1;
@@ -272,7 +281,6 @@ int uart_disable_int_tx(int base_addr){
 #define NCTP_END        0xFF
 #define NCTP_OK         0xFF
 #define NCTP_NOK        0x00
-#define NCTP_MAX_SIZE   1024 //in bytes
 
 queue_t *out = NULL;
 queue_t *in  = NULL;
@@ -296,10 +304,10 @@ int nctp_free(void){
 
 int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]){
     {
-        int cnt = 0;
+        size_t cnt = 0;
         for(size_t i = 0; i < num; ++i){
             cnt += sz[i];
-            if(cnt > NCTP_MAX_SIZE) return TRANS_REFUSED;
+            if(cnt > queue_max_size) return TRANS_REFUSED;
         }
     }
     int ret;
@@ -337,12 +345,14 @@ static void process(){
 static int nctp_receive(void){
     int ret;
     uint8_t c;
+    int num_ends = 0;
     while(uart_receiver_ready(COM1_ADDR)){
         if((ret = uart_get_char(COM1_ADDR, &c))) return ret;
         uint8_t *tmp = malloc(sizeof(uint8_t)); *tmp = c;
         queue_push(in, tmp);
-        if(c == NCTP_END) process();
+        if(c == NCTP_END) ++num_ends;
     }
+    while(num_ends-- > 0) process();
     return SUCCESS;
 }
 
@@ -352,8 +362,8 @@ void nctp_ih(void){
     if((nctp_ih_err = uart_get_iir(COM1_ADDR, &iir))) return;
     if(UART_GET_IF_INT_PEND(iir)){
         switch(UART_GET_INT_PEND(iir)){
-            case UART_INT_RX: nctp_receive (); break;
-            case UART_INT_TX: nctp_transmit(); break;
+            case uart_int_rx: nctp_receive (); break;
+            case uart_int_tx: nctp_transmit(); break;
             default: break;
         }
     }
