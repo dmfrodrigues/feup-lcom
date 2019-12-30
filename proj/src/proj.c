@@ -207,8 +207,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     #ifdef DIOGO
                                     else if ((scancode[0]) == ENTER_MAKE_CODE) {
                                         buffer[buffer_pos] = '\0';
-                                        printf("\nSending string -%s-\n", buffer);
-                                        printf("Send string output: %d\n",
+                                        printf("\nSending string -%s-", buffer);
+                                        printf(" (output: %d)\n",
                                             hltp_send_string(COM1_ADDR, buffer));
                                         buffer_pos = 0;
                                     }
