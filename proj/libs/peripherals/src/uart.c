@@ -334,12 +334,14 @@ static int nctp_transmit(void){
         return ret;
     }else return SUCCESS;
 }
+
 static void process(){
     free(queue_top(in)); queue_pop(in);
     while(*(uint8_t*)queue_top(in) != NCTP_END){
         printf("%c", *(uint8_t*)queue_top(in));
         free(queue_top(in)); queue_pop(in);
     }
+    printf("\n");
     free(queue_top(in)); queue_pop(in);
 }
 static int nctp_receive(void){
