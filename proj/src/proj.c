@@ -13,6 +13,7 @@
 #include "mouse.h"
 #include "graph.h"
 #include "rtc.h"
+#include "hltp.h"
 #include "interrupts_func.h"
 #include "makecode_map.h"
 
@@ -30,11 +31,6 @@
 #include "map1.h"
 
 #include "list.h"
-
-#ifdef DIOGO
-    #include "uart.h"
-    #include "hltp.h"
-#endif
 
 int main(int argc, char* argv[]) {
 
@@ -136,8 +132,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
     message msg;
     int game_state = MENU;
 
-    char buffer[1024]; // buffer
-    int buffer_pos = 0;
+    #ifdef DIOGO
+        char buffer[1024]; // buffer
+        int buffer_pos = 0;
+    #endif
 
     #ifndef DIOGO
         int click = 0;
@@ -206,7 +204,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 switch (game_state) {
                                 case MENU:
                                     if ((scancode[0]) == ESC_BREAK_CODE) game_state = EXIT;
-
+                                    #ifdef DIOGO
                                     else if ((scancode[0]) == ENTER_MAKE_CODE) {
                                         buffer[buffer_pos] = '\0';
                                         printf("\nSending string -%s-\n", buffer);
@@ -220,7 +218,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                         buffer[buffer_pos++] = c;
                                         printf("%c", c);
                                     }
-
+                                    #endif
                                     break;
                                 case GAME:
                                     if ((scancode[0]) == ESC_BREAK_CODE) {
