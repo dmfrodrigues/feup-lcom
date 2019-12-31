@@ -99,8 +99,6 @@ menu_t* (menu_ctor)(const font_t *fnt){
     return ret;
 }
 
-static int highlighted = -1;
-
 int (menu_update_state)(menu_t *menu, int click) {
 
     if (rectangle_collide_point(menu->r[0], *get_mouse_X(), *get_mouse_Y())) {
