@@ -9,6 +9,7 @@
 - [ ] Implement zombie mode (single-player or co-op).
 - [ ] Implement algorithm to decide when gunner AI needs to shoot.
 - [ ] Implement campaign mode (single-player or co-op).
+- [ ] Visibility algorithm
 
 ### Low Priority
 - [ ] Change sprites.

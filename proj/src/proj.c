@@ -11,6 +11,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "graph.h"
+#include "menu.h"
 #include "rtc.h"
 #include "hltp.h"
 #include "interrupts_func.h"

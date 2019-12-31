@@ -56,16 +56,6 @@ int32_t* get_mouse_Y(void);
  */
 double get_mouse_angle(gunner_t *p);
 
-typedef struct menu menu_t;
-
-menu_t* (menu_ctor)(const font_t *fnt);
-
-int (menu_update_state)(menu_t *menu, int click);
-
-void (menu_draw)(menu_t *menu);
-
-void (menu_dtor)(menu_t *p);
-
 typedef struct timer {
     int time;
     text_t *text;
