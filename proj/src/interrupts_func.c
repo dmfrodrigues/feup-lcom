@@ -4,7 +4,7 @@
 #include "timer.h"
 #include "keyboard.h"
 #include "mouse.h"
-#include "uart.h"
+#include "hltp.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -49,6 +49,18 @@ static void (*const ih[])(void) =   {    timer_int_handler,
                                          NULL,
                                          NULL,
                                      };
+
+static void process_received(const uint8_t *p, const size_t sz){
+    void *q = NULL;
+    hltp_type t = hltp_interpret(p, sz, &q);
+    switch(t){
+        case hltp_type_string:{
+            char *s = q;
+            printf("%s\n", s);
+        } break;
+        default: break;
+    }
+}
 
 int (subscribe_all)(void) {
 
@@ -111,7 +123,7 @@ int (subscribe_all)(void) {
         return SBCR_ERROR;
     }
     uart_subscribed = 1;
-    nctp_init();
+    nctp_init(process_received);
 
     return SUCCESS;
 }

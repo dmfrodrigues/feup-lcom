@@ -284,10 +284,12 @@ int uart_disable_int_tx(int base_addr){
 
 queue_t *out = NULL;
 queue_t *in  = NULL;
+void (*process)(const uint8_t*, const size_t);
 
-int nctp_init(void){
+int nctp_init(void (*proc_func)(const uint8_t*, const size_t)){
     out = queue_ctor(); if(out == NULL) return NULL_PTR;
     in  = queue_ctor(); if(in  == NULL) return NULL_PTR;
+    process = proc_func;
     return SUCCESS;
 }
 int nctp_free(void){
@@ -326,7 +328,6 @@ int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]){
     }
     return SUCCESS;
 }
-
 static int nctp_transmit(void){
     if(!queue_empty(out)){
         int ret = uart_send_char(COM1_ADDR, *(uint8_t*)queue_top(out));
@@ -335,14 +336,19 @@ static int nctp_transmit(void){
     }else return SUCCESS;
 }
 
-static void process(){
+static void nctp_process_received(){
     free(queue_top(in)); queue_pop(in);
+    size_t sz = 1024; uint8_t *p = malloc(sz*sizeof(uint8_t));
+    size_t i = 0;
     while(*(uint8_t*)queue_top(in) != NCTP_END){
-        printf("%c", *(uint8_t*)queue_top(in));
+        //printf("%c\n", *(uint8_t*)queue_top(in));
+        p[i++] = *(uint8_t*)queue_top(in);
         free(queue_top(in)); queue_pop(in);
+        if(i >= sz) p = realloc(p, sz=2*sz);
     }
-    printf("\n");
     free(queue_top(in)); queue_pop(in);
+    process(p, i);
+    free(p);
 }
 static int nctp_receive(void){
     int ret;
@@ -354,7 +360,7 @@ static int nctp_receive(void){
         queue_push(in, tmp);
         if(c == NCTP_END) ++num_ends;
     }
-    while(num_ends-- > 0) process();
+    while(num_ends-- > 0) nctp_process_received();
     return SUCCESS;
 }
 
@@ -369,11 +375,4 @@ void nctp_ih(void){
             default: break;
         }
     }
-}
-
-/// HLTP
-int hltp_send_string(const char *p){
-    uint8_t* ptr[1]; ptr[0] = (uint8_t*)p;
-    size_t    sz[1]; sz[0] = strlen(p)+1;
-    return nctp_send(1, ptr, sz);
 }
