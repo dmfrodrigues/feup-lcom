@@ -9,6 +9,7 @@ struct rectangle{
     int16_t  x, y;
     uint16_t w, h;
     uint32_t fill_color;
+    uint8_t  fill_alpha;
     uint32_t outline_color;
     int16_t  outline_width;
 };
@@ -21,6 +22,7 @@ rectangle_t* (rectangle_ctor)(int16_t x, int16_t y, uint16_t w, uint16_t h){
     ret->w = w;
     ret->h = h;
     ret->fill_color    = 0xFFFFFF;
+    ret->fill_alpha    = 0xFF;
     ret->outline_color = 0x000000;
     ret->outline_width = 0;
     return ret;
@@ -33,6 +35,7 @@ void (rectangle_dtor)(rectangle_t *p){
 void (rectangle_set_pos)          (rectangle_t *p,  int16_t x,  int16_t y){ p->x = x; p->y = y; }
 void (rectangle_set_size)         (rectangle_t *p, uint16_t w, uint16_t h){ p->w = w; p->h = h; }
 void (rectangle_set_fill_color)   (rectangle_t *p, uint32_t color        ){ p->fill_color = color; }
+void (rectangle_set_fill_trans)   (rectangle_t *p, uint8_t  alpha        ){ p->fill_alpha = alpha; }
 void (rectangle_set_outline_color)(rectangle_t *p, uint32_t color        ){ p->outline_color = color; }
 void (rectangle_set_outline_width)(rectangle_t *p,  int16_t width        ){ p->outline_width = width; }
 
@@ -52,7 +55,6 @@ static void (rectangle_draw_hline)(int16_t x, int16_t y, int16_t l, uint32_t col
         graph_set_pixel(x_, y, color);
     }
 }
-
 static void (rectangle_draw_vline)(int16_t x, int16_t y, int16_t l, uint32_t color){
     if(l < 0){ rectangle_draw_vline(x, y+l, -l, color); return; }
     for(int16_t y_ = max(0,y); y_ < min(y+l,graph_get_YRes()); ++y_){
@@ -61,9 +63,11 @@ static void (rectangle_draw_vline)(int16_t x, int16_t y, int16_t l, uint32_t col
 }
 
 void (rectangle_draw)(const rectangle_t *p){
-    for(int16_t y = max(p->y,0); y < min(p->y+p->h, graph_get_YRes()); ++y)
-        rectangle_draw_hline(p->x, y, p->w, p->fill_color);
-
+    /// fill
+    if(p->fill_alpha > ALPHA_THRESHOLD)
+        for(int16_t y = max(p->y,0); y < min(p->y+p->h, graph_get_YRes()); ++y)
+            rectangle_draw_hline(p->x, y, p->w, p->fill_color);
+    /// border
     int16_t step = (p->outline_width > 0 ? 1 : -1);
     int16_t l = p->x, r = p->x+p->w, t = p->y, b = p->y+p->h;
     if(step > 0){

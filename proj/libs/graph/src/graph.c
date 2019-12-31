@@ -278,8 +278,6 @@ int (graph_clear_screen)(void){ memset(video_buf, 0, graph_get_vram_size()); ret
 int (graph_draw)(void){ memcpy(video_mem, video_buf, graph_get_vram_size()); return SUCCESS; }
 
 ///SPRITE
-#include "sprite.h"
-
 #include "utils.h"
 #include "fast_math.h"
 #include <math.h>
