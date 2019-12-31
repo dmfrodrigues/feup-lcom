@@ -13,6 +13,7 @@
 // Colors in RBG (8 bit)
 #define GRAPH_BLACK               0x000000
 #define GRAPH_WHITE               0xFFFFFF
+#define GRAPH_TRANSPARENT         0x00
 
 // Alpha
 #define ALPHA_THRESHOLD     0x7F

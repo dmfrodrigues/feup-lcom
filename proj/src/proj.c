@@ -159,17 +159,15 @@ int(proj_main_loop)(int argc, char *argv[]) {
                             case TIMER0_IRQ:
                                 switch (game_state) {
                                 case MENU:
-                                    if (no_interrupts % 2 == 0){
-                                        graph_clear_screen();
-                                        game_state = menu_update_state(main_menu, click);
-                                        menu_draw(main_menu);
+                                    graph_clear_screen();
+                                    game_state = menu_update_state(main_menu, click);
+                                    menu_draw(main_menu);
 
-                                        click = 0;
+                                    click = 0;
 
-                                        sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
-                                        sprite_draw(sp_crosshair);
-                                        graph_draw();
-                                    }
+                                    sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
+                                    sprite_draw(sp_crosshair);
+                                    graph_draw();
                                     break;
                                 case GAME:
                                     if (no_interrupts % 60 == 0) timer_update(in_game_timer);

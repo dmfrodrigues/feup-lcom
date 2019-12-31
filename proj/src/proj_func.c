@@ -213,12 +213,15 @@ menu_t* (menu_ctor)(const font_t *fnt){
     rectangle_set_fill_color(ret->r0, GRAPH_BLACK);
     rectangle_set_outline_width(ret->r0, 2);
     rectangle_set_outline_color(ret->r0, GRAPH_WHITE);
+    rectangle_set_fill_trans(ret->r0, GRAPH_TRANSPARENT);
     rectangle_set_fill_color(ret->r1, GRAPH_BLACK);
     rectangle_set_outline_width(ret->r1, 2);
     rectangle_set_outline_color(ret->r1, GRAPH_WHITE);
+    rectangle_set_fill_trans(ret->r1, GRAPH_TRANSPARENT);
     rectangle_set_fill_color(ret->r2, GRAPH_BLACK);
     rectangle_set_outline_width(ret->r2, 2);
     rectangle_set_outline_color(ret->r2, GRAPH_WHITE);
+    rectangle_set_fill_trans(ret->r2, GRAPH_TRANSPARENT);
     text_set_valign(ret->t0, text_valign_center);
     text_set_halign(ret->t0, text_halign_center);
     text_set_color(ret->t0, TEXT_COLOR);
@@ -231,6 +234,7 @@ menu_t* (menu_ctor)(const font_t *fnt){
     rectangle_set_fill_color(ret->frame, GRAPH_BLACK);
     rectangle_set_outline_width(ret->frame, 6);
     rectangle_set_outline_color(ret->frame, GRAPH_WHITE);
+    rectangle_set_fill_trans(ret->frame, GRAPH_TRANSPARENT);
     // POSITIONS
     rectangle_set_pos(ret->r0,
                       graph_get_XRes()/2    - rectangle_get_w(ret->r0)/2,
