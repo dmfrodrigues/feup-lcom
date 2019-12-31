@@ -50,15 +50,12 @@ int uart_enable_int_tx (int base_addr);
 int uart_disable_int_tx(int base_addr);
 
 /// NCTP - Non-critical transmission protocol
-int nctp_init(void);
+int nctp_init(void (*proc_func)(const uint8_t*, const size_t));
 int nctp_free(void);
 
 int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]);
 
 int nctp_ih_err;
 void nctp_ih(void);
-
-/// HLTP - High-level transmission protocol
-int hltp_send_string(const char *p);
 
 #endif //UART_H_INCLUDED
