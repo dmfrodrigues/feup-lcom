@@ -2,7 +2,7 @@
 #define PISTOL_H_INCLUDED
 
 #include "pistol.xpm"
-#include "sprite.h"
+#include "graph.h"
 
 basic_sprite_t* get_pistol(void){
     return basic_sprite_ctor((const char **)pistol_xpm, 34, 34);

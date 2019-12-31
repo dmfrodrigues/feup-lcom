@@ -3,7 +3,7 @@
 
 #include "map1.xpm"
 #include "map1_collide.xpm"
-#include "sprite.h"
+#include "graph.h"
 
 #include "xpm_utils.h"
 

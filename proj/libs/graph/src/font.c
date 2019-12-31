@@ -59,8 +59,7 @@ struct font{
     size_t nchars;
     glyph_t **glyphs;
 };
-#include "sprite.h"
-#include "rectangle.h"
+
 font_t* (font_ctor)(const char *s){
     font_t *ret = malloc(sizeof(font_t));
     if(ret == NULL) return NULL;

@@ -2,7 +2,7 @@
 #define BULLET_H_INCLUDED
 
 #include "bullet.xpm"
-#include "sprite.h"
+#include "graph.h"
 
 basic_sprite_t* get_bullet(void){
     return basic_sprite_ctor((const char **)bullet_xpm, 3, 7);

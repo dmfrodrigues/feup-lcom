@@ -1,8 +1,6 @@
 #include <lcom/lcf.h>
 
 #include "timer.h"
-#include "graph.h"
-#include "sprite.h"
 
 #define TIMER_FREQ     1193182                                                          /**< @brief clock frequency for timer in PC and AT */
 #define TIMER_MIN_FREQ (TIMER_FREQ/UINT16_MAX) + ((TIMER_FREQ % UINT16_MAX) ? 1 : 0)    /**< @brief mininum frequency for timer */
