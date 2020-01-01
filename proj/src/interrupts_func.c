@@ -49,7 +49,7 @@ static void (*const ih[])(void) =   {    timer_int_handler,
                                          NULL,
                                          NULL,
                                      };
-
+/*
 static void process_received(const uint8_t *p, const size_t sz){
     void *q = NULL;
     hltp_type t = hltp_interpret(p, sz, &q);
@@ -61,7 +61,7 @@ static void process_received(const uint8_t *p, const size_t sz){
         default: break;
     }
 }
-
+*/
 int (subscribe_all)(void) {
 
     /// Timer interrupt handling
@@ -123,7 +123,7 @@ int (subscribe_all)(void) {
         return SBCR_ERROR;
     }
     uart_subscribed = 1;
-    nctp_init(process_received);
+    nctp_init();
 
     return SUCCESS;
 }

@@ -22,24 +22,6 @@ struct menu {
     rectangle_t *frame;
 };
 
-menu_t* (menu_ctor)(const font_t *fnt){
-    if(fnt == NULL) return NULL;
-    menu_t *ret = (menu_t*)malloc(sizeof(menu_t));
-    if (ret == NULL) return NULL;
-    ret->fnt = fnt;
-    ret->sz = 0;
-    ret->r = NULL;
-    ret->t = NULL;
-
-    ret->frame = rectangle_ctor(0, 0, 800, 500);
-    rectangle_set_fill_color(ret->frame, GRAPH_BLACK);
-    rectangle_set_outline_width(ret->frame, 6);
-    rectangle_set_outline_color(ret->frame, GRAPH_WHITE);
-    rectangle_set_fill_trans(ret->frame, GRAPH_TRANSPARENT);
-
-    return ret;
-}
-
 static int menu_recalculate(menu_t *menu){
     const int Wtotal = 2*W1+W;
     const int Htotal = 2*H1+menu->sz*H+(menu->sz-1)*H2;
@@ -53,6 +35,26 @@ static int menu_recalculate(menu_t *menu){
         text_set_pos     (menu->t[i], x+W/2, y+H/2);
     }
     return SUCCESS;
+}
+
+menu_t* (menu_ctor)(const font_t *fnt){
+    if(fnt == NULL) return NULL;
+    menu_t *ret = (menu_t*)malloc(sizeof(menu_t));
+    if (ret == NULL) return NULL;
+    ret->fnt = fnt;
+    ret->sz = 0;
+    ret->r = NULL;
+    ret->t = NULL;
+
+    ret->frame = rectangle_ctor(0, 0, 0, 0);
+    rectangle_set_fill_color(ret->frame, GRAPH_BLACK);
+    rectangle_set_outline_width(ret->frame, 6);
+    rectangle_set_outline_color(ret->frame, GRAPH_WHITE);
+    rectangle_set_fill_trans(ret->frame, GRAPH_TRANSPARENT);
+
+    menu_recalculate(ret);
+
+    return ret;
 }
 
 int (menu_add_item)(menu_t *menu, const char *s){

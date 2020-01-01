@@ -70,24 +70,20 @@ int(proj_main_loop)(int argc, char *argv[]) {
     /// subscribe interrupts
     if (subscribe_all()) { return 1; }
 
-    #ifndef DIOGO
-        /// initialize graphics
-        if(graph_init(GRAPH_MODE)){
-            printf("%s: failed to initalize graphics.\n", __func__);
-            if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
-            return 1;
-        }
-    #endif
+    /// initialize graphics
+    if(graph_init(GRAPH_MODE)){
+        printf("%s: failed to initalize graphics.\n", __func__);
+        if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
+        return 1;
+    }
 
     /// Load stuff
     {
-        #ifndef DIOGO
-            graph_clear_screen();
-            text_t *txt = text_ctor(consolas, "Loading...");
-            text_draw(txt);
-            text_dtor(txt);
-            graph_draw();
-        #endif
+        graph_clear_screen();
+        text_t *txt = text_ctor(consolas, "Loading...");
+        text_draw(txt);
+        text_dtor(txt);
+        graph_draw();
 
         bsp_crosshair = get_crosshair(); if(bsp_crosshair == NULL) printf("Failed to get crosshair\n");
         bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
@@ -99,31 +95,21 @@ int(proj_main_loop)(int argc, char *argv[]) {
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
 
-    #ifndef DIOGO
-        menu_t *main_menu = menu_ctor(consolas);
-        menu_add_item(main_menu, "Play");
-        menu_add_item(main_menu, "Chat");
-        menu_add_item(main_menu, "Exit");
-    #endif
+    menu_t *main_menu = menu_ctor(consolas);
+    menu_add_item(main_menu, "Play");
+    menu_add_item(main_menu, "Chat");
+    menu_add_item(main_menu, "Exit");
 
-    #ifndef DIOGO
-        //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
-        uint8_t last_lb = 0;
-        struct packet pp;
-        keys_t *keys = get_key_presses();
-    #endif
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+
     /// loop stuff
     int ipc_status;
     message msg;
 
-    #ifdef DIOGO
-        char buffer[1024]; // buffer
-        int buffer_pos = 0;
-    #endif
-
-    #ifndef DIOGO
-        int click = 0;
-    #endif
+    int click = 0;
 
     int good = true;
 
@@ -140,7 +126,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                         if (msg.m_notify.interrupts & n) {
                             interrupt_handler(i);
                             switch (i) {
-                            #ifndef DIOGO
                             case TIMER0_IRQ:
 
                                 graph_clear_screen();
@@ -159,25 +144,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 graph_draw();
 
                                 break;
-                            #endif
                             case KBC_IRQ:
                                 if ((scancode[0]) == ESC_BREAK_CODE) good = false;
-                                #ifdef DIOGO
-                                else if ((scancode[0]) == ENTER_MAKE_CODE) {
-                                    buffer[buffer_pos] = '\0';
-                                    printf("\nSending string -%s-", buffer);
-                                    printf(" (output: %d)\n",
-                                        hltp_send_string(buffer));
-                                    buffer_pos = 0;
-                                }
-                                else {
-                                    char c = map_makecode(scancode[0]);
-                                    if (c == ERROR_CODE) break;
-                                    buffer[buffer_pos++] = c;
-                                    printf("%c", c);
-                                }
-                                #endif
-                            #ifndef DIOGO
                             case MOUSE_IRQ:
                                 if (counter_mouse_ih >= 3) {
                                     mouse_parse_packet(packet_mouse_ih, &pp);
@@ -187,12 +155,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     counter_mouse_ih = 0;
                                 }
                                 break;
-                            #endif
-                            #ifdef DIOGO
-                            case COM1_IRQ:
-                                nctp_ih();
-                                break;
-                            #endif
                             }
                         }
                     }
@@ -220,7 +182,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
             printf("%s: failed to cleanup.\n", __func__);
         return 1;
     }
-
 
     if (cleanup()) {
         printf("%s: failed to cleanup.\n", __func__);
@@ -362,6 +323,173 @@ int (game)(void){
     return SUCCESS;
 }
 
+#define CHAT_MAX_SIZE   64
+#define CHAT_MAX_NUM    10
+
+text_t      *t_text[CHAT_MAX_NUM] = {NULL};
+rectangle_t *r_text               =  NULL;
+
+static void chat_process(const uint8_t *p, const size_t sz){
+    char buffer2[CHAT_MAX_NUM+3];
+    void *dest = NULL;
+    hltp_type tp = hltp_interpret(p, sz, &dest);
+    switch(tp){
+        case hltp_type_string:
+            strcpy(buffer2, dest);
+            strncat(buffer2, " <", 2);
+            for(size_t i = CHAT_MAX_NUM-1; i; --i)
+                text_set_text(t_text[i], text_get_string(t_text[i-1]));
+            text_set_text(t_text[0], buffer2);
+            for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
+                if(text_get_string(t_text[i])[0] == '>'){
+                    text_set_pos(t_text[i], rectangle_get_x(r_text)+50, text_get_y(t_text[i]));
+                    text_set_halign(t_text[i], text_halign_left);
+                }else{
+                    text_set_pos(t_text[i], rectangle_get_x(r_text)+rectangle_get_w(r_text)-50, text_get_y(t_text[i]));
+                    text_set_halign(t_text[i], text_halign_right);
+                }
+            }
+            break;
+        default: break;
+    }
+}
+
 int (chat)(void){
+    int r;
+
+    nctp_set_processor(chat_process);
+
+    struct packet pp;
+
+    rectangle_t *r_buffer = NULL; {
+        r_buffer = rectangle_ctor(0,0,750,70);
+        rectangle_set_pos(r_buffer, graph_get_XRes()/2  -rectangle_get_w(r_buffer)/2,
+                                    graph_get_YRes()*0.8-rectangle_get_h(r_buffer)/2);
+        rectangle_set_fill_color   (r_buffer, GRAPH_BLACK);
+        rectangle_set_outline_width(r_buffer, 2);
+        rectangle_set_outline_color(r_buffer, GRAPH_WHITE);
+        rectangle_set_fill_trans(r_buffer, GRAPH_TRANSPARENT);
+    }
+    text_t      *t_buffer = NULL; {
+        t_buffer = text_ctor(consolas, "");
+        text_set_pos(t_buffer, rectangle_get_x(r_buffer)+50,
+                               rectangle_get_y(r_buffer)+rectangle_get_h(r_buffer)/2);
+        text_set_halign(t_buffer, text_halign_left);
+        text_set_valign(t_buffer, text_valign_center);
+        text_set_color (t_buffer, TEXT_COLOR);
+    }
+
+    /** r_text */ {
+        r_text = rectangle_ctor(0,0,750,500);
+        rectangle_set_pos(r_text, graph_get_XRes()/2  -rectangle_get_w(r_buffer)/2,
+                                  graph_get_YRes()*0.1-rectangle_get_h(r_buffer)/2);
+        rectangle_set_fill_color   (r_text, GRAPH_BLACK);
+        rectangle_set_outline_width(r_text, 2);
+        rectangle_set_outline_color(r_text, GRAPH_WHITE);
+        rectangle_set_fill_trans(r_text, GRAPH_TRANSPARENT);
+    }
+    /** t_text */ {
+        for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
+            t_text[i] = text_ctor(consolas, " ");
+            text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
+                                       rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-30*i);
+            text_set_halign(t_text[i], text_halign_left);
+            text_set_valign(t_text[i], text_valign_bottom);
+            text_set_color (t_text[i], TEXT_COLOR);
+        }
+    }
+
+    /// loop stuff
+    int ipc_status;
+    message msg;
+
+    char buffer[CHAT_MAX_SIZE] = "";
+
+    int good = true;
+
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+                        if (msg.m_notify.interrupts & n) {
+                            interrupt_handler(i);
+                            switch (i) {
+                            case TIMER0_IRQ:
+                                graph_clear_screen();
+                                sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+
+                                rectangle_draw(r_buffer);
+                                text_draw(t_buffer);
+
+                                rectangle_draw(r_text);
+                                for(size_t i = 0; i < CHAT_MAX_NUM; ++i) text_draw(t_text[i]);
+
+                                sprite_draw(sp_crosshair);
+                                graph_draw();
+                                break;
+                            case KBC_IRQ:
+                                if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                                else if ((scancode[0]) == ENTER_MAKE_CODE) {
+                                    hltp_send_string(buffer);
+                                    char buffer2[CHAT_MAX_SIZE+3] = "> ";
+                                    strncat(buffer2, buffer, strlen(buffer));
+                                    for(size_t i = CHAT_MAX_NUM-1; i; --i)
+                                        text_set_text(t_text[i], text_get_string(t_text[i-1]));
+                                    text_set_text(t_text[0], buffer2);
+                                    for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
+                                        if(text_get_string(t_text[i])[0] == '>'){
+                                            text_set_pos(t_text[i], rectangle_get_x(r_text)+50, text_get_y(t_text[i]));
+                                            text_set_halign(t_text[i], text_halign_left);
+                                        }else{
+                                            text_set_pos(t_text[i], rectangle_get_x(r_text)+rectangle_get_w(r_text)-50, text_get_y(t_text[i]));
+                                            text_set_halign(t_text[i], text_halign_right);
+                                        }
+                                    }
+
+                                    buffer[0] = '\0';
+                                    text_set_text(t_buffer, buffer);
+                                }
+                                else {
+                                    char c = map_makecode(scancode[0]);
+                                    if (c == ERROR_CODE) break;
+                                    if(strlen(buffer) < CHAT_MAX_SIZE) strncat(buffer, &c, 1);
+                                    else                    printf("Char limit exceeded\n");
+                                    text_set_text(t_buffer, buffer);
+                                }
+                            case MOUSE_IRQ:
+                                if (counter_mouse_ih >= 3) {
+                                    mouse_parse_packet(packet_mouse_ih, &pp);
+                                    update_mouse(&pp);
+                                    counter_mouse_ih = 0;
+                                }
+                                break;
+                            case COM1_IRQ:
+                                nctp_ih();
+                                break;
+                            }
+                        }
+                    }
+
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+    }
+
+    rectangle_dtor(r_buffer);
+    text_dtor     (t_buffer);
+
+    rectangle_dtor(r_text);
+    for(size_t i = 0; i < CHAT_MAX_NUM; ++i) text_dtor(t_text[i]);
+
     return SUCCESS;
 }
