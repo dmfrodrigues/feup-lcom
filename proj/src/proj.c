@@ -29,6 +29,8 @@
 #include "bullet.h"
 #include "map1.h"
 
+#include "errors.h"
+
 #include "list.h"
 
 int main(int argc, char* argv[]) {
@@ -46,11 +48,22 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+font_t               *consolas      = NULL;
+basic_sprite_t       *bsp_crosshair = NULL;
+basic_sprite_t       *bsp_shooter   = NULL;
+basic_sprite_t       *bsp_pistol    = NULL;
+basic_sprite_t       *bsp_nothing   = NULL;
+basic_sprite_t       *bsp_bullet    = NULL;
+map_t                *map1          = NULL;
+sprite_t             *sp_crosshair  = NULL;
+
+static int (game)(void);
+
 int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
 
-    font_t *consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
+    consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
     if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
 
     /// subscribe interrupts
@@ -66,13 +79,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     #endif
 
     /// Load stuff
-    basic_sprite_t       *bsp_crosshair = NULL;
-    basic_sprite_t       *bsp_shooter   = NULL;
-    basic_sprite_t       *bsp_pistol    = NULL;
-    basic_sprite_t       *bsp_nothing   = NULL;
-    basic_sprite_t       *bsp_bullet    = NULL;
-    map_t                *map1          = NULL;
-    sprite_t             *sp_crosshair  = NULL;
     {
         #ifndef DIOGO
             graph_clear_screen();
@@ -120,8 +126,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifndef DIOGO
         //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
-        double angle; // mouse angle
-        int32_t *mouse_x = get_mouse_X(), *mouse_y = get_mouse_Y();
         uint8_t last_lb = 0;
         struct packet pp;
         keys_t *keys = get_key_presses();
@@ -163,7 +167,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     graph_clear_screen();
                                     switch(menu_update_state(main_menu, click)){
                                         case -1: game_state = MENU; break;
-                                        case  0: game_state = GAME; break;
+                                        case  0: game_state = GAME; game(); break;
                                         case  1: game_state = TEST; break;
                                         case  2: game_state = EXIT; break;
                                     }
@@ -171,7 +175,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                                     click = 0;
 
-                                    sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
+                                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
                                     sprite_draw(sp_crosshair);
                                     graph_draw();
                                     break;
@@ -182,7 +186,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     update_game_state(map1, shooter_list, bullet_list);
 
                                     //update_scale();
-                                    angle = get_mouse_angle(shooter1);
+                                    double angle = get_mouse_angle(shooter1);
                                     gunner_set_angle(shooter1, angle - M_PI_2);
 
                                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
@@ -195,7 +199,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                                     text_draw(in_game_timer->text);
 
-                                    sprite_set_pos(sp_crosshair, *mouse_x, *mouse_y);
+                                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
                                     sprite_draw(sp_crosshair);
                                     graph_draw();
                                     break;
@@ -320,4 +324,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     return 0;
+}
+
+static int (game)(void){
+    return SUCCESS;
 }
