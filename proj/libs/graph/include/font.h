@@ -29,6 +29,8 @@ void (text_set_size)  (text_t *p, unsigned size);
 void (text_set_color) (text_t *p, uint32_t color);
 void (text_set_valign)(text_t *p, enum text_valign valign);
 void (text_set_halign)(text_t *p, enum text_halign halign);
+int16_t (text_get_x)  (const text_t *p);
+int16_t (text_get_y)  (const text_t *p);
 int (text_draw)     (const text_t *p);
 
 #endif //FONT_H_INCLUDED

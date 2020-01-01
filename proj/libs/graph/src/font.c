@@ -133,6 +133,8 @@ void (text_set_size)  (text_t *p, unsigned size          ){ p->size = size    ; 
 void (text_set_color) (text_t *p, uint32_t color         ){ p->color = color  ; }
 void (text_set_valign)(text_t *p, enum text_valign valign){ p->valign = valign; }
 void (text_set_halign)(text_t *p, enum text_halign halign){ p->halign = halign; }
+int16_t (text_get_x)  (const text_t *p){ return p->x; }
+int16_t (text_get_y)  (const text_t *p){ return p->y; }
 
 int (text_draw)(const text_t *p){
     if(p == NULL) return NULL_PTR;

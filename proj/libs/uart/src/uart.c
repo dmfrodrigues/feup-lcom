@@ -286,9 +286,12 @@ queue_t *out = NULL;
 queue_t *in  = NULL;
 void (*process)(const uint8_t*, const size_t);
 
-int nctp_init(void (*proc_func)(const uint8_t*, const size_t)){
+int nctp_init(){
     out = queue_ctor(); if(out == NULL) return NULL_PTR;
     in  = queue_ctor(); if(in  == NULL) return NULL_PTR;
+    return SUCCESS;
+}
+int nctp_set_processor(void (*proc_func)(const uint8_t*, const size_t)){
     process = proc_func;
     return SUCCESS;
 }
