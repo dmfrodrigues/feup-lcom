@@ -57,7 +57,8 @@ basic_sprite_t       *bsp_bullet    = NULL;
 map_t                *map1          = NULL;
 sprite_t             *sp_crosshair  = NULL;
 
-static int (game)(void);
+int (game)(void);
+int (chat)(void);
 
 int(proj_main_loop)(int argc, char *argv[]) {
 
@@ -100,6 +101,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifndef DIOGO
         menu_t *main_menu = menu_ctor(consolas);
+        menu_add_item(main_menu, "Play");
+        menu_add_item(main_menu, "Chat");
+        menu_add_item(main_menu, "Exit");
     #endif
 
     #ifndef DIOGO
@@ -119,9 +123,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     #ifndef DIOGO
         int click = 0;
-    #endif
-    #ifdef DIOGO
-        char *s = NULL;
     #endif
 
     int good = true;
@@ -146,7 +147,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 switch(menu_update_state(main_menu, click)){
                                     case -1: break;
                                     case  0: game(); break;
-                                    case  1: good = false; break;
+                                    case  1: chat(); break;
                                     case  2: good = false; break;
                                 }
                                 menu_draw(main_menu);
@@ -229,7 +230,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return 0;
 }
 
-static int (game)(void){
+int (game)(void){
 
     int r;
 
@@ -262,9 +263,9 @@ static int (game)(void){
     /// loop stuff
     int ipc_status;
     message msg;
-    int game_state = GAME;
+    int good = true;
 
-    while (game_state == GAME) {
+    while (good) {
        /* Get a request message. */
        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
            printf("driver_receive failed with %d", r);
@@ -305,7 +306,7 @@ static int (game)(void){
                                break;
                            case KBC_IRQ:
                                if ((scancode[0]) == ESC_BREAK_CODE) {
-                                   game_state = MENU;
+                                   good = false;
                                    // reset game
                                    while(list_size(bullet_list) > 0){
                                        bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
@@ -344,23 +345,23 @@ static int (game)(void){
        }
     }
 
-    #ifdef DIOGO
-        free(s);
-    #endif
-
     while(list_size(shooter_list) > 0){
         gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
         gunner_dtor(p);
     }
+    if(list_dtor(shooter_list)) printf("COULD NOT DESTRUCT SHOOTER LIST\n");
 
     while(list_size(bullet_list) > 0){
         bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
         bullet_dtor(p);
     }
-    if(list_dtor(shooter_list)) printf("COULD NOT DESTRUCT SHOOTER LIST\n");
     if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
 
     timer_dtor(in_game_timer); in_game_timer = NULL;
 
+    return SUCCESS;
+}
+
+int (chat)(void){
     return SUCCESS;
 }

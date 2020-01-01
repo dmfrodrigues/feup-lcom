@@ -37,10 +37,6 @@ menu_t* (menu_ctor)(const font_t *fnt){
     rectangle_set_outline_color(ret->frame, GRAPH_WHITE);
     rectangle_set_fill_trans(ret->frame, GRAPH_TRANSPARENT);
 
-    menu_add_item(ret, "Play");
-    menu_add_item(ret, "Test");
-    menu_add_item(ret, "Exit");
-
     return ret;
 }
 
