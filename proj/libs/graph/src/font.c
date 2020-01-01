@@ -168,15 +168,13 @@ int (text_draw)(const text_t *p){
         if(alp_new_buf == NULL) return ALLOC_ERROR;
 
         for(size_t newy = 0; newy < newH; ++newy){
-            size_t y = newy/factor;
+            size_t y = newy/factor+0.5;
             for(size_t newx = 0; newx < newW; ++newx){
-                size_t x = newx/factor;
+                size_t x = newx/factor+0.5;
                 *(alp_new_buf+newx+newy*newW) = *(alp_buf+x+y*W);
             }
         }
         free(alp_buf);
-
-
     }
     // Get initial value of x
     int16_t initx;{

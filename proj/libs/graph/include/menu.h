@@ -7,6 +7,8 @@ typedef struct menu menu_t;
 
 menu_t* (menu_ctor)(const font_t *fnt);
 
+int (menu_add_item)(menu_t *menu, const char *s);
+
 int (menu_update_state)(menu_t *menu, int click);
 
 void (menu_draw)(menu_t *menu);

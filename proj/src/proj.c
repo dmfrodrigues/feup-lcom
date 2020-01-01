@@ -161,7 +161,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 switch (game_state) {
                                 case MENU:
                                     graph_clear_screen();
-                                    game_state = menu_update_state(main_menu, click);
+                                    switch(menu_update_state(main_menu, click)){
+                                        case -1: game_state = MENU; break;
+                                        case  0: game_state = GAME; break;
+                                        case  1: game_state = TEST; break;
+                                        case  2: game_state = EXIT; break;
+                                    }
                                     menu_draw(main_menu);
 
                                     click = 0;
