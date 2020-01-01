@@ -50,8 +50,8 @@
 #define MAX_SCALE       10.0                 /** @brief Maximum zoom */
 
 // Colors
-#define TEXT_COLOR              0x888888
-#define HIGHLIGHT_COLOR         0xA0A0A0
+#define TEXT_COLOR              0xFFFFFF
+#define HIGHLIGHT_COLOR         0x404040
 #define DELIMITER_COLOR         0x404040
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */
