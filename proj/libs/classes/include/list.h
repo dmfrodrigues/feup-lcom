@@ -24,5 +24,6 @@ void*        (list_erase )(list_t *l, list_node_t *position);
 void         (list_push_back)(list_t *l, void *val);
 void**       (list_front)(list_t *l);
 void         (list_pop_front)(list_t *l);
+list_node_t* (list_find)(list_t *l, void *val);
 
 #endif //LIST_H_INCLUDED

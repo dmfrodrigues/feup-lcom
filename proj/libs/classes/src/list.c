@@ -77,3 +77,10 @@ void**       (list_front)(list_t *l){
 void         (list_pop_front)(list_t *l){
     list_erase(l, list_begin(l));
 }
+list_node_t* (list_find)(list_t *l, void *val){
+    list_node_t *it = list_begin(l);
+    while(it != list_end(l) && *list_node_val(it) != val){
+        it = list_node_next(it);
+    }
+    return it;
+}

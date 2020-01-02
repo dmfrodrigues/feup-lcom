@@ -117,8 +117,7 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
                 /// Change health
                 gunner_set_curr_health(shooter, gunner_get_curr_health(shooter) - bullet_get_damage(bullet));
                 if (gunner_get_curr_health(shooter) <= 0) {
-                    gunner_set_curr_health(shooter, gunner_get_health(shooter));
-                    get_random_spawn(map, shooter);
+                    gunner_dtor(list_erase(shooter_list, shooter_it));
                 }
                 /// Delete bullet
                 bullet_dtor(list_erase(bullet_list, bullet_it)); deleted_bullet = true;
