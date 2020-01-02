@@ -51,6 +51,7 @@ int uart_disable_int_tx(int base_addr);
 
 /// NCTP - Non-critical transmission protocol
 int nctp_init(void);
+int nctp_dump(void);
 int nctp_set_processor(void (*proc_func)(const uint8_t*, const size_t));
 int nctp_free(void);
 

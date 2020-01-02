@@ -284,12 +284,17 @@ int uart_disable_int_tx(int base_addr){
 
 queue_t *out = NULL;
 queue_t *in  = NULL;
-void (*process)(const uint8_t*, const size_t);
+void (*process)(const uint8_t*, const size_t) = NULL;
 
-int nctp_init(){
+int nctp_init(void){
     out = queue_ctor(); if(out == NULL) return NULL_PTR;
     in  = queue_ctor(); if(in  == NULL) return NULL_PTR;
     return SUCCESS;
+}
+int nctp_dump(void){
+    int ret;
+    if((ret = nctp_free())) return ret;
+    return nctp_init();
 }
 int nctp_set_processor(void (*proc_func)(const uint8_t*, const size_t)){
     process = proc_func;
@@ -350,7 +355,7 @@ static void nctp_process_received(){
         if(i >= sz) p = realloc(p, sz=2*sz);
     }
     free(queue_top(in)); queue_pop(in);
-    process(p, i);
+    if(process != NULL) process(p, i);
     free(p);
 }
 static int nctp_receive(void){
