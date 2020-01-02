@@ -24,6 +24,7 @@
 
 #include "crosshair.h"
 #include "shooter.h"
+#include "zombie.h"
 #include "pistol.h"
 #include "nothing.h"
 #include "bullet.h"
@@ -87,7 +88,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
         bsp_crosshair = get_crosshair(); if(bsp_crosshair == NULL) printf("Failed to get crosshair\n");
         bsp_shooter   = get_shooter  (); if(bsp_shooter   == NULL) printf("Failed to get shooter\n");
-        bsp_zombie    = bsp_shooter;     if(bsp_zombie    == NULL) printf("Failed to get zombie\n");
+        bsp_zombie    = get_zombie   (); if(bsp_zombie    == NULL) printf("Failed to get zombie\n");
         bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
         bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
         bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n");
