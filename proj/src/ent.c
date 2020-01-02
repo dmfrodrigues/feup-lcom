@@ -23,8 +23,9 @@ struct gunner{
     sprite_t *dude;
     sprite_t *weapon;
     double health, current_health;
+    gunner_type type;
 };
-gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon){
+gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type tp){
     gunner_t *ret = malloc(sizeof(gunner_t));
     if(ret == NULL) return NULL;
     ret->spawn_x = 0.0;
@@ -33,6 +34,7 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon){
     ret->y = 0.0;
     ret->health = 100;
     ret->current_health = ret->health;
+    ret->type = tp;
     ret->dude   = sprite_ctor(dude  );
     ret->weapon = sprite_ctor(weapon);
     if(ret->dude == NULL || ret->weapon == NULL){
@@ -69,6 +71,7 @@ double  (gunner_get_health)         (const gunner_t *p){ return p->health; }
 double  (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
 int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
 int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (p->y-y_origin)*scale; }
+gunner_type (gunner_get_type)       (const gunner_t *p){ return p->type; }
 void (gunner_draw)(gunner_t *p){
     const int16_t x_screen = gunner_get_x_screen(p);
     const int16_t y_screen = gunner_get_y_screen(p);

@@ -11,9 +11,15 @@ double (ent_get_scale)  (void);
 double (ent_get_XLength)(void);
 double (ent_get_YLength)(void);
 
+typedef enum {
+    gunner_meelee,
+    gunner_ranged,
+    gunner_player
+} gunner_type;
+
 struct gunner;
 typedef struct gunner gunner_t;
-gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon);
+gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type tp);
 void      (gunner_dtor)(gunner_t *p);
 void (gunner_set_pos)               (gunner_t *p, double x, double y);
 void (gunner_set_spawn)             (gunner_t *p, double x, double y);
@@ -29,6 +35,7 @@ double  (gunner_get_health)         (const gunner_t *p);
 double  (gunner_get_curr_health)    (const gunner_t *p);
 int16_t (gunner_get_x_screen)       (const gunner_t *p);
 int16_t (gunner_get_y_screen)       (const gunner_t *p);
+gunner_type (gunner_get_type)       (const gunner_t *p);
 void (gunner_draw)(gunner_t *p);
 void (gunner_draw_health)(const gunner_t *p);
 
