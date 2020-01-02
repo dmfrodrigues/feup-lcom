@@ -57,9 +57,8 @@ basic_sprite_t       *bsp_bullet    = NULL;
 map_t                *map1          = NULL;
 sprite_t             *sp_crosshair  = NULL;
 
-int (game)(void);
-int (chat)(void);
-
+static int (singleplayer)(void);
+static int (chat)(void);
 int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
@@ -132,7 +131,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 graph_clear_screen();
                                 switch(menu_update_state(main_menu, click)){
                                     case -1: break;
-                                    case  0: game(); break;
+                                    case  0: singleplayer(); break; //campaign(); break;
                                     case  1: break;
                                     case  2: chat(); break;
                                     case  3: good = false; break;
@@ -194,7 +193,90 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return 0;
 }
 
-int (game)(void){
+static int (campaign)(void);
+
+static int (singleplayer)(void) {
+
+    int r;
+
+    menu_t *main_menu = menu_ctor(consolas);
+    menu_add_item(main_menu, "Campaign");
+    menu_add_item(main_menu, "Zombies");
+    menu_add_item(main_menu, "Back");
+
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+
+    /// loop stuff
+    int ipc_status;
+    message msg;
+
+    int click = 0;
+
+    int good = true;
+
+    while (good) {
+        /* Get a request message. */
+        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+            printf("driver_receive failed with %d", r);
+            continue;
+        }
+        if (is_ipc_notify(ipc_status)) { /* received notification */
+            switch (_ENDPOINT_P(msg.m_source)) {
+                case HARDWARE: /* hardware interrupt notification */
+                    for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+                        if (msg.m_notify.interrupts & n) {
+                            interrupt_handler(i);
+                            switch (i) {
+                            case TIMER0_IRQ:
+
+                                graph_clear_screen();
+                                switch(menu_update_state(main_menu, click)){
+                                    case -1: break;
+                                    case  0: campaign(); break;
+                                    case  1: break;
+                                    case  2: good = false; break;
+                                }
+                                menu_draw(main_menu);
+
+                                click = 0;
+
+                                sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+                                sprite_draw(sp_crosshair);
+                                graph_draw();
+
+                                break;
+                            case KBC_IRQ:
+                                if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                            case MOUSE_IRQ:
+                                if (counter_mouse_ih >= 3) {
+                                    mouse_parse_packet(packet_mouse_ih, &pp);
+                                    update_mouse(&pp);
+                                    if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
+                                    last_lb = keys->lb_pressed;
+                                    counter_mouse_ih = 0;
+                                }
+                                break;
+                            case COM1_IRQ: nctp_ih(); break;
+                            }
+                        }
+                    }
+
+                    break;
+                default:
+                    break; /* no other notifications expected: do nothing */
+            }
+        } else { /* received standart message, not a notification */
+            /* no standart message expected: do nothing */
+        }
+    }
+
+    return 0;
+}
+
+static int (campaign)(void){
 
     int r;
 
@@ -329,10 +411,8 @@ int (game)(void){
 
 #define CHAT_MAX_SIZE   75
 #define CHAT_MAX_NUM    19
-
 text_t      *t_text[CHAT_MAX_NUM] = {NULL};
 rectangle_t *r_text               =  NULL;
-
 static void chat_process(const uint8_t *p, const size_t sz){
     char buffer2[CHAT_MAX_NUM+3];
     void *dest = NULL;
@@ -357,8 +437,7 @@ static void chat_process(const uint8_t *p, const size_t sz){
         default: break;
     }
 }
-
-int (chat)(void){
+static int (chat)(void){
     int r;
 
     nctp_dump();
