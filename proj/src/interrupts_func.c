@@ -198,3 +198,25 @@ void (timer_manager)() {
 void (mouse_manager)() {
 
 }
+
+int get_interrupts_vector(uint32_t *p){
+    int r;
+
+    *p = 0;
+
+    int ipc_status;
+    message msg;
+    if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+        printf("driver_receive failed with %d", r);
+        return OTHER_ERROR;
+    }
+    if (is_ipc_notify(ipc_status)) { /* received notification */
+        switch (_ENDPOINT_P(msg.m_source)) {
+            case HARDWARE: /* hardware interrupt notification */
+                *p = msg.m_notify.interrupts;
+                return SUCCESS;
+            default: break; /* no other notifications expected: do nothing */
+        }
+    }
+    return SUCCESS;
+}

@@ -21,4 +21,6 @@ int (unsubscribe_all)(void);
  */
 void interrupt_handler(uint8_t handler);
 
+int get_interrupts_vector(uint32_t *p);
+
 #endif /* end of include guard: INTERRUPTS_FUNC_H_INCLUDED */
