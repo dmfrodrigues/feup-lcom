@@ -96,7 +96,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     }
 
     menu_t *main_menu = menu_ctor(consolas);
-    menu_add_item(main_menu, "Play");
+    menu_add_item(main_menu, "Single player");
+    menu_add_item(main_menu, "Multiplayer");
     menu_add_item(main_menu, "Chat");
     menu_add_item(main_menu, "Exit");
 
@@ -132,8 +133,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                 switch(menu_update_state(main_menu, click)){
                                     case -1: break;
                                     case  0: game(); break;
-                                    case  1: chat(); break;
-                                    case  2: good = false; break;
+                                    case  1: break;
+                                    case  2: chat(); break;
+                                    case  3: good = false; break;
                                 }
                                 menu_draw(main_menu);
 
