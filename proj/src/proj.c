@@ -288,11 +288,11 @@ static int (campaign)(void){
 
     list_t *shooter_list = list_ctor();
 
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 75, 75);
     gunner_set_pos(shooter1, 75, 75);
 
-    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing, gunner_player);
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing, gunner_player, 2);
     gunner_set_spawn(shooter2, 975, 75);
     gunner_set_pos(shooter2, 775, 75);
 
@@ -343,8 +343,8 @@ static int (campaign)(void){
 
                                graph_clear_screen();
                                map_draw   (map1);
-                               gunner_draw_list(shooter_list);
                                bullet_draw_list(bullet_list);
+                               gunner_draw_list(shooter_list);
 
                                text_draw(in_game_timer->text);
 
@@ -424,7 +424,7 @@ static int (zombies)(void){
 
     list_t *shooter_list = list_ctor();
 
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 75, 75);
     gunner_set_pos(shooter1, 75, 75);
 
@@ -444,10 +444,11 @@ static int (zombies)(void){
     int ipc_status;
     message msg;
     int good = true;
+    int dead = false;
 
     int health = 50;
 
-    while (good) {
+    while (good && !dead) {
        /* Get a request message. */
        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
            printf("driver_receive failed with %d", r);
@@ -467,6 +468,12 @@ static int (zombies)(void){
 
                                update_game_state(map1, shooter_list, bullet_list);//printf("L468\n");
 
+                               if(list_find(shooter_list, shooter1) == list_end(shooter_list)){ printf("YOU DIED\n");
+                                   good = false;
+                                   dead = true;
+                                   break;
+                               } //printf("L489\n");
+
                                //update_scale();
                                double angle = get_mouse_angle(shooter1);//printf("L471\n");
                                gunner_set_angle(shooter1, angle - M_PI_2); //printf("L472\n");
@@ -475,7 +482,7 @@ static int (zombies)(void){
                                               gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                                while(list_size(shooter_list) < ZOMBIES_NUM){
-                                   gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, gunner_meelee);
+                                   gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, gunner_meelee, 3);
                                    gunner_set_health(zombie, health);
                                    gunner_set_curr_health(zombie, health);
                                    health *= ZOMBIE_HEALTH_FACTOR;
@@ -483,14 +490,10 @@ static int (zombies)(void){
                                    list_push_back(shooter_list, zombie);
                                } //printf("L484\n");
 
-                               if(list_find(shooter_list, shooter1) == list_end(shooter_list)){
-                                   good = false;
-                                   break;
-                               } //printf("L489\n");
                                graph_clear_screen();
                                map_draw   (map1);
+                               bullet_draw_list(bullet_list);
                                gunner_draw_list(shooter_list);
-                               bullet_draw_list(bullet_list); //printf("L502\n");
 
                                text_draw(in_game_timer->text);
 
@@ -552,6 +555,10 @@ static int (zombies)(void){
         bullet_dtor(p);
     }
     if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
+
+    if(dead){
+        printf("YOU DIED\n");
+    }
 
     timer_dtor(in_game_timer); in_game_timer = NULL;
 
