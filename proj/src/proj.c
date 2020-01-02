@@ -155,6 +155,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                                     counter_mouse_ih = 0;
                                 }
                                 break;
+                            case COM1_IRQ: nctp_ih(); break;
                             }
                         }
                     }
@@ -294,6 +295,7 @@ int (game)(void){
 
                                }
                                break;
+                           case COM1_IRQ: nctp_ih(); break;
                            }
                        }
                    }
@@ -323,8 +325,8 @@ int (game)(void){
     return SUCCESS;
 }
 
-#define CHAT_MAX_SIZE   64
-#define CHAT_MAX_NUM    10
+#define CHAT_MAX_SIZE   75
+#define CHAT_MAX_NUM    19
 
 text_t      *t_text[CHAT_MAX_NUM] = {NULL};
 rectangle_t *r_text               =  NULL;
@@ -357,14 +359,16 @@ static void chat_process(const uint8_t *p, const size_t sz){
 int (chat)(void){
     int r;
 
+    nctp_dump();
     nctp_set_processor(chat_process);
 
     struct packet pp;
 
+    char buffer[CHAT_MAX_SIZE] = "";
     rectangle_t *r_buffer = NULL; {
-        r_buffer = rectangle_ctor(0,0,750,70);
+        r_buffer = rectangle_ctor(0,0,900,70);
         rectangle_set_pos(r_buffer, graph_get_XRes()/2  -rectangle_get_w(r_buffer)/2,
-                                    graph_get_YRes()*0.8-rectangle_get_h(r_buffer)/2);
+                                    graph_get_YRes()*0.87-rectangle_get_h(r_buffer)/2);
         rectangle_set_fill_color   (r_buffer, GRAPH_BLACK);
         rectangle_set_outline_width(r_buffer, 2);
         rectangle_set_outline_color(r_buffer, GRAPH_WHITE);
@@ -378,11 +382,23 @@ int (chat)(void){
         text_set_valign(t_buffer, text_valign_center);
         text_set_color (t_buffer, TEXT_COLOR);
     }
+    text_t      *t_size   = NULL; {
+        t_size = text_ctor(consolas, "");
+        text_set_pos(t_size, rectangle_get_x(r_buffer)+rectangle_get_w(r_buffer)-5,
+                             rectangle_get_y(r_buffer)+rectangle_get_h(r_buffer)-5);
+        text_set_halign(t_size, text_halign_right);
+        text_set_valign(t_size, text_valign_bottom);
+        text_set_color (t_size, TEXT_COLOR);
+        text_set_size  (t_size, 18);
+        char buffer2[20];
+        sprintf(buffer2, "%d/%d", strlen(buffer), CHAT_MAX_SIZE);
+        text_set_text(t_size, buffer2);
+    }
 
     /** r_text */ {
-        r_text = rectangle_ctor(0,0,750,500);
+        r_text = rectangle_ctor(0,0,900,550);
         rectangle_set_pos(r_text, graph_get_XRes()/2  -rectangle_get_w(r_buffer)/2,
-                                  graph_get_YRes()*0.1-rectangle_get_h(r_buffer)/2);
+                                  graph_get_YRes()*0.09);
         rectangle_set_fill_color   (r_text, GRAPH_BLACK);
         rectangle_set_outline_width(r_text, 2);
         rectangle_set_outline_color(r_text, GRAPH_WHITE);
@@ -392,7 +408,7 @@ int (chat)(void){
         for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
             t_text[i] = text_ctor(consolas, " ");
             text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
-                                       rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-30*i);
+                                       rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-25*i);
             text_set_halign(t_text[i], text_halign_left);
             text_set_valign(t_text[i], text_valign_bottom);
             text_set_color (t_text[i], TEXT_COLOR);
@@ -402,11 +418,7 @@ int (chat)(void){
     /// loop stuff
     int ipc_status;
     message msg;
-
-    char buffer[CHAT_MAX_SIZE] = "";
-
     int good = true;
-
     while (good) {
         /* Get a request message. */
         if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -426,6 +438,7 @@ int (chat)(void){
 
                                 rectangle_draw(r_buffer);
                                 text_draw(t_buffer);
+                                text_draw(t_size);
 
                                 rectangle_draw(r_text);
                                 for(size_t i = 0; i < CHAT_MAX_NUM; ++i) text_draw(t_text[i]);
@@ -434,8 +447,8 @@ int (chat)(void){
                                 graph_draw();
                                 break;
                             case KBC_IRQ:
-                                if ((scancode[0]) == ESC_BREAK_CODE) good = false;
-                                else if ((scancode[0]) == ENTER_MAKE_CODE) {
+                                if      (scancode[0] == ESC_BREAK_CODE) good = false;
+                                else if (scancode[0] == ENTER_MAKE_CODE) {
                                     hltp_send_string(buffer);
                                     char buffer2[CHAT_MAX_SIZE+3] = "> ";
                                     strncat(buffer2, buffer, strlen(buffer));
@@ -451,17 +464,19 @@ int (chat)(void){
                                             text_set_halign(t_text[i], text_halign_right);
                                         }
                                     }
-
                                     buffer[0] = '\0';
-                                    text_set_text(t_buffer, buffer);
-                                }
-                                else {
+                                } else if(scancode[0] == BACKSPACE_MAKE_CODE){
+                                    buffer[strlen(buffer)-1] = '\0';
+                                } else {
                                     char c = map_makecode(scancode[0]);
                                     if (c == ERROR_CODE) break;
                                     if(strlen(buffer) < CHAT_MAX_SIZE) strncat(buffer, &c, 1);
-                                    else                    printf("Char limit exceeded\n");
-                                    text_set_text(t_buffer, buffer);
+                                    else                               printf("Char limit exceeded\n");
                                 }
+                                text_set_text(t_buffer, buffer);
+                                char buffer2[20];
+                                sprintf(buffer2, "%d/%d", strlen(buffer), CHAT_MAX_SIZE);
+                                text_set_text(t_size, buffer2);
                             case MOUSE_IRQ:
                                 if (counter_mouse_ih >= 3) {
                                     mouse_parse_packet(packet_mouse_ih, &pp);
@@ -469,13 +484,10 @@ int (chat)(void){
                                     counter_mouse_ih = 0;
                                 }
                                 break;
-                            case COM1_IRQ:
-                                nctp_ih();
-                                break;
+                            case COM1_IRQ: nctp_ih(); break;
                             }
                         }
                     }
-
                     break;
                 default:
                     break; /* no other notifications expected: do nothing */
@@ -490,6 +502,8 @@ int (chat)(void){
 
     rectangle_dtor(r_text);
     for(size_t i = 0; i < CHAT_MAX_NUM; ++i) text_dtor(t_text[i]);
+
+    nctp_set_processor(NULL);
 
     return SUCCESS;
 }
