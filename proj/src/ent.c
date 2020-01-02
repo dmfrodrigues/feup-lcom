@@ -24,8 +24,9 @@ struct gunner{
     sprite_t *weapon;
     double health, current_health;
     gunner_type type;
+    int team;
 };
-gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type tp){
+gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type type, int team){
     gunner_t *ret = malloc(sizeof(gunner_t));
     if(ret == NULL) return NULL;
     ret->spawn_x = 0.0;
@@ -34,7 +35,8 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_typ
     ret->y = 0.0;
     ret->health = 100;
     ret->current_health = ret->health;
-    ret->type = tp;
+    ret->type = type;
+    ret->team = team;
     ret->dude   = sprite_ctor(dude  );
     ret->weapon = sprite_ctor(weapon);
     if(ret->dude == NULL || ret->weapon == NULL){
@@ -72,6 +74,7 @@ double  (gunner_get_curr_health)    (const gunner_t *p){ return p->current_healt
 int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
 int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (p->y-y_origin)*scale; }
 gunner_type (gunner_get_type)       (const gunner_t *p){ return p->type; }
+int     (gunner_get_team)           (const gunner_t *p){ return p->team; }
 void (gunner_draw)(gunner_t *p){
     const int16_t x_screen = gunner_get_x_screen(p);
     const int16_t y_screen = gunner_get_y_screen(p);
@@ -100,6 +103,12 @@ void (gunner_draw_health)(const gunner_t *p) {
     rectangle_draw(red_bar);
     rectangle_dtor(green_bar);
     rectangle_dtor(red_bar);
+}
+
+double (gunner_distance)(const gunner_t *p1, const gunner_t *p2){
+    double dx = gunner_get_x(p1) - gunner_get_x(p2);
+    double dy = gunner_get_y(p1) - gunner_get_y(p2);
+    return sqrt(dx*dx+dy*dy);
 }
 
 struct bullet{
@@ -141,6 +150,7 @@ void    (bullet_set_damage)  (bullet_t *p, double damage) {
     if (damage < 0) damage = 0;
     p->damage = damage;
 }
+const gunner_t* (bullet_get_shooter)(const bullet_t *p){ return p->shooter; }
 void (bullet_update_movement)(bullet_t *p){
     p->x += p->vx;
     p->y += p->vy;

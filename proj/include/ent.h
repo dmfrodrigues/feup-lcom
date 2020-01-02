@@ -19,7 +19,7 @@ typedef enum {
 
 struct gunner;
 typedef struct gunner gunner_t;
-gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type tp);
+gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type type, int team);
 void      (gunner_dtor)(gunner_t *p);
 void (gunner_set_pos)               (gunner_t *p, double x, double y);
 void (gunner_set_spawn)             (gunner_t *p, double x, double y);
@@ -36,8 +36,11 @@ double  (gunner_get_curr_health)    (const gunner_t *p);
 int16_t (gunner_get_x_screen)       (const gunner_t *p);
 int16_t (gunner_get_y_screen)       (const gunner_t *p);
 gunner_type (gunner_get_type)       (const gunner_t *p);
+int     (gunner_get_team)           (const gunner_t *p);
 void (gunner_draw)(gunner_t *p);
 void (gunner_draw_health)(const gunner_t *p);
+
+double (gunner_distance)(const gunner_t *p1, const gunner_t *p2);
 
 struct bullet;
 typedef struct bullet bullet_t;
@@ -49,6 +52,7 @@ int16_t (bullet_get_x_screen)(const bullet_t *p);
 int16_t (bullet_get_y_screen)(const bullet_t *p);
 double  (bullet_get_damage)  (const bullet_t *p);
 void    (bullet_set_damage)  (bullet_t *p, double damage);
+const gunner_t* (bullet_get_shooter)(const bullet_t *p);
 void (bullet_update_movement)(bullet_t *p);
 void (bullet_update_movement_list)(list_t *bullet_list);
 void (bullet_draw)(bullet_t *p);
