@@ -3,6 +3,7 @@
 
 #include "ent.h"
 #include "font.h"
+#include "proj_structures.h"
 
 #include <stdint.h>
 
@@ -12,17 +13,6 @@
  * @see {_ERRORS_H_::errors}
  */
 int cleanup(void);
-
-typedef struct keys {
-    uint8_t w_pressed       : 1;
-    uint8_t a_pressed       : 1;
-    uint8_t s_pressed       : 1;
-    uint8_t d_pressed       : 1;
-    uint8_t ctrl_pressed    : 1;
-    uint8_t plus_pressed    : 1;
-    uint8_t minus_pressed   : 1;
-    uint8_t lb_pressed      : 1;
-} keys_t;
 
 void update_key_presses(void);
 

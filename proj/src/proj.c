@@ -60,7 +60,7 @@ map_t                *map1          = NULL;
 sprite_t             *sp_crosshair  = NULL;
 
 static int (singleplayer)(void);
-//static int (multiplayer)(void);
+static int (multiplayer)(void);
 static int (chat)(void);
 int(proj_main_loop)(int argc, char *argv[]) {
 
@@ -130,7 +130,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                     switch(menu_update_state(main_menu, click)){
                         case -1: break;
                         case  0: singleplayer(); break; //campaign(); break;
-                        case  1: break;
+                        case  1: multiplayer() ; break;
                         case  2: chat(); break;
                         case  3: good = false; break;
                     }
@@ -184,50 +184,95 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return 0;
 }
 
-typedef struct __attribute__((packed)) {
-    // player 1
-    double player1_x;
-    double player1_y;
-    double player1_health;
-    double player1_current_health;
+host_info_t     *host   = NULL;
+remote_info_t   *remote = NULL;
 
-    // player 2
-    double player2_x;
-    double player2_y;
-    double player2_health;
-    double player2_current_health;
-
-    // bullets
-    size_t no_bullets;
-    double *bullets_x;
-    double *bullets_y;
-    double *bullets_vx;
-    double *bullets_vy;
-    bool   *bullet_shooter; // 0 for player 1, otherwise 1 for player 2
-} host_info;
-
-typedef struct __attribute__((packed)) {
-    keys_t client_keys_pressed;
-    int32_t client_mouse_x;
-    int32_t client_mouse_y;
-    size_t bullets_shot;
-    double *bullets_x;
-    double *bullets_y;
-} client_info;
-/*
-static void host_to_client_process(const uint8_t *p, const size_t sz) {
-
+static void multiplayer_process(const uint8_t *p, const size_t sz) {
+    void *dest = NULL;
+    hltp_type tp = hltp_interpret(p, sz, &dest);
+    switch(tp){
+        case hltp_type_host:
+            host_info_dtor(host);
+            host = (host_info_t*)dest;
+            break;
+        case hltp_type_remote:
+            remote_info_dtor(remote);
+            remote = (remote_info_t*)dest;
+            break;
+        default: break;
+    }
 }
-
-static void client_to_host_process(const uint8_t *p, const size_t sz) {
-}
-
+static int (multiplayer_host)(void);
+static int (multiplayer_remote)(void);
 static int (multiplayer)(void) {
+    int r;
 
+    menu_t *main_menu = menu_ctor(consolas);
+    menu_add_item(main_menu, "Create");
+    menu_add_item(main_menu, "Connect");
+    menu_add_item(main_menu, "Back");
+
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+
+    /// loop stuff
+    int click = 0;
+    uint32_t int_vector = 0;
+    int good = true;
+    while (good) {
+        /* Get a request message. */
+        if((r = get_interrupts_vector(&int_vector))) return r;
+        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            if (int_vector & n) {
+                interrupt_handler(i);
+                switch (i) {
+                    case TIMER0_IRQ:
+
+                    graph_clear_screen();
+                    switch(menu_update_state(main_menu, click)){
+                        case -1: break;
+                        case  0: multiplayer_host(); break;
+                        case  1: multiplayer_remote(); break;
+                        case  2: good = false; break;
+                    }
+                    menu_draw(main_menu);
+
+                    click = 0;
+
+                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+                    sprite_draw(sp_crosshair);
+                    graph_draw();
+
+                    break;
+                    case KBC_IRQ:
+                    if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                    case MOUSE_IRQ:
+                    if (counter_mouse_ih >= 3) {
+                        mouse_parse_packet(packet_mouse_ih, &pp);
+                        update_mouse(&pp);
+                        if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
+                        last_lb = keys->lb_pressed;
+                        counter_mouse_ih = 0;
+                    }
+                    break;
+                    case COM1_IRQ: nctp_ih(); break;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+static int (multiplayer_host)(void) {
     //int r;
 
+    nctp_dump();
+    nctp_set_processor(multiplayer_process);/*
+
     ent_set_scale(DEFAULT_SCALE);
-    //text_timer_t *in_game_timer = timer_ctor(consolas);
+    text_timer_t *in_game_timer = timer_ctor(consolas);
 
     list_t *shooter_list = list_ctor();
 
@@ -258,11 +303,96 @@ static int (multiplayer)(void) {
     /// loop stuff
     uint32_t int_vector = 0;
     int good = true;
+    int state = 0; // -1 for remote win, 0 for draw, 1 for host win
+    while (good) {
+        if ((r = get_interrupts_vector(&int_vector))) return r;
+        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            interrupt_handler(i);
+            switch (i) {
+                case TIMER0_IRQ:
 
-    // incomplete
+                break;
+
+                case KBC_IRQ:
+
+                break;
+
+                case MOUSE_IRQ:
+
+
+                break;
+
+                case COM1_IRQ: nctp_ih(); break;
+            }
+        }
+    }*/
 
     return 0;
-}*/
+}
+static int (multiplayer_remote)(void) {/*
+    int r;
+
+    nctp_dump();
+    nctp_set_processor(multiplayer_process);
+
+    ent_set_scale(DEFAULT_SCALE);
+    text_timer_t *in_game_timer = timer_ctor(consolas);
+
+    list_t *shooter_list = list_ctor();
+
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_set_spawn(shooter1, 75, 75);
+
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
+    gunner_set_spawn(shooter2, 975, 75);
+
+    list_insert(shooter_list, list_end(shooter_list), shooter1);
+    list_insert(shooter_list, list_end(shooter_list), shooter2);
+
+    do {
+        get_random_spawn(map1, shooter1, shooter_list);
+        get_random_spawn(map1, shooter2, shooter_list);
+    } while (distance_gunners(shooter1, shooter2) < 700);
+
+    list_t *bullet_list  = list_ctor();
+
+    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+
+    /// loop stuff
+    uint32_t int_vector = 0;
+    int good = true;
+    int state = 0; // -1 for remote win, 0 for draw, 1 for host win
+    while (good) {
+        if ((r = get_interrupts_vector(&int_vector))) return r;
+        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            interrupt_handler(i);
+            switch (i) {
+                case TIMER0_IRQ:
+
+                break;
+
+                case KBC_IRQ:
+
+                break;
+
+                case MOUSE_IRQ:
+
+
+                break;
+
+                case COM1_IRQ: nctp_ih(); break;
+            }
+        }
+    }*/
+
+    return 0;
+}
 
 static int (campaign)(void);
 static int (zombies)(void);
@@ -649,16 +779,16 @@ static int (chat)(void){
     rectangle_set_outline_width(r_text, 2);
     rectangle_set_outline_color(r_text, GRAPH_WHITE);
     rectangle_set_fill_trans(r_text, GRAPH_TRANSPARENT);
-}
-/** t_text */ {
-for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
-    t_text[i] = text_ctor(consolas, " ");
-    text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
-    rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-25*i);
-    text_set_halign(t_text[i], text_halign_left);
-    text_set_valign(t_text[i], text_valign_bottom);
-    text_set_color (t_text[i], TEXT_COLOR);
-}
+    }
+    /** t_text */ {
+    for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
+        t_text[i] = text_ctor(consolas, " ");
+        text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
+        rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-25*i);
+        text_set_halign(t_text[i], text_halign_left);
+        text_set_valign(t_text[i], text_valign_bottom);
+        text_set_color (t_text[i], TEXT_COLOR);
+    }
 }
 
 /// loop stuff

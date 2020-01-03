@@ -27,6 +27,34 @@ int cleanup(void) {
 
 static keys_t key_presses;
 
+void host_info_dtor(host_info_t *p) {
+    if (p==NULL) return;
+
+    if ((p->bullets_x) != NULL){ free(p->bullets_x); p->bullets_x = NULL; }
+
+    if ((p->bullets_y) != NULL){ free(p->bullets_y); p->bullets_y = NULL; }
+
+    if ((p->bullets_vx) != NULL){ free(p->bullets_vx); p->bullets_vx = NULL; }
+
+    if ((p->bullets_vy) != NULL){ free(p->bullets_vy); p->bullets_vy = NULL; }
+
+    if ((p->bullets_shooter) != NULL){ free(p->bullets_shooter); p->bullets_shooter = NULL; }
+
+    free(p);
+}
+
+void remote_info_dtor(remote_info_t *p) {
+    if (p==NULL) return;
+
+    if ((p->bullets_x) != NULL){ free(p->bullets_x); p->bullets_x = NULL; }
+
+    if ((p->bullets_y) != NULL){ free(p->bullets_y); p->bullets_y = NULL; }
+
+    if ((p->bullets_angle) != NULL){ free(p->bullets_angle); p->bullets_angle = NULL; }
+
+    free(p);
+}
+
 void update_key_presses(void) {
     if (sz == 1) {
         switch(scancode[0]) {
