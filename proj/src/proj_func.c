@@ -48,7 +48,7 @@ void update_key_presses(void) {
     }
 }
 
-void update_movement(const map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list) {
+void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list) {
     int ver_mov = keys->s_pressed - keys->w_pressed;
     int hor_mov = keys->d_pressed - keys->a_pressed;
     double x = gunner_get_x(p);
@@ -80,6 +80,20 @@ void update_movement(const map_t *map, gunner_t *p, keys_t *keys, list_t *shoote
             }
             it = list_node_next(it);
         }
+    }
+
+    // Update zombie positions
+    map_make_dijkstra(map, gunner_get_x(p), gunner_get_y(p));
+    list_node_t *it = list_begin(shooter_list);
+    while(it != list_end(shooter_list)){
+        gunner_t *g = *(gunner_t**)list_node_val(it);
+        if(gunner_get_type(g) & gunner_follow){
+            //float theta = 0.0;
+            //map_where_to_follow(map, &theta);
+            //float c = fm_cos(theta), s = fm_sin(theta);
+
+        }
+        it = list_node_next(it);
     }
 }
 
@@ -138,7 +152,8 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
         list_node_t *it2 = list_begin(shooter_list);
         while(it2 != list_end(shooter_list)){
             gunner_t *s2 = *list_node_val(it2);
-            if(s1 != s2 && gunner_distance(s1, s2) < MELEE_RANGE)
+            if(gunner_get_team(s1) != gunner_get_team(s2) &&
+               gunner_distance(s1, s2) < MELEE_RANGE)
                 gunner_set_curr_health(s2, gunner_get_curr_health(s2) - MELEE_DAMAGE);
             if(gunner_get_curr_health(s2) <= 0){
                 list_node_t *aux = list_node_next(it2);
@@ -150,15 +165,26 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
     }
 }
 
-void (get_random_spawn)(const map_t *map, gunner_t *p) {
+void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l) {
     uint16_t w = map_get_width(map), h = map_get_height(map);
     double x, y;
 
-    do {
+    while(true){
         x = rand() % w;
         y = rand() % h;
         gunner_set_pos(p, x, y);
-    } while (map_collides_gunner(map, p));
+        if(map_collides_gunner(map, p)) continue;
+        int collides = false;
+        list_node_t *it = list_begin(l);
+        while(it != list_end(l)){
+            if(gunner_collides_gunner(p, *list_node_val(it))){
+                collides = true;
+                break;
+            }
+            it = list_node_next(it);
+        }
+        if(!collides) return;
+    }
 }
 
 void update_scale(void) {

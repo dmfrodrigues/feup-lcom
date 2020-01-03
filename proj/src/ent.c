@@ -5,7 +5,12 @@
 #include "graph.h"
 #include "utils.h"
 #include "rectangle.h"
+#include "font.h"
+#include "errors.h"
+#include "queue.h"
 #include <math.h>
+
+#define GREEN_HEALTH_COLOR      0x009900
 
 static double scale = 1.0;
 static int16_t x_origin = 0;
@@ -23,6 +28,7 @@ struct gunner{
     sprite_t *dude;
     sprite_t *weapon;
     double health, current_health;
+    text_t *txt;
     gunner_type type;
     int team;
 };
@@ -35,6 +41,7 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_typ
     ret->y = 0.0;
     ret->health = 100;
     ret->current_health = ret->health;
+    ret->txt = text_ctor(consolas, "");
     ret->type = type;
     ret->team = team;
     ret->dude   = sprite_ctor(dude  );
@@ -42,12 +49,18 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_typ
     if(ret->dude == NULL || ret->weapon == NULL){
         gunner_dtor(ret);
         return NULL;
-    } else return ret;
+    }
+    text_set_size(ret->txt, 15);
+    text_set_valign(ret->txt, text_valign_center);
+    text_set_halign(ret->txt, text_halign_center);
+    text_set_color(ret->txt, GRAPH_WHITE);
+    return ret;
 }
 void (gunner_dtor)(gunner_t *p){
     if(p == NULL) return;
     sprite_dtor(p->dude);
     sprite_dtor(p->weapon);
+    text_dtor(p->txt);
     free(p);
 }
 void (gunner_set_pos)  (gunner_t *p, double x, double y){ p->x = x; p->y = y; }
@@ -96,13 +109,18 @@ void (gunner_draw_health)(const gunner_t *p) {
     double health = gunner_get_health(p);
     double perc = curr_health/health;
     rectangle_t *green_bar = rectangle_ctor(x, y, (int16_t)(w*perc), 10);
-    rectangle_set_fill_color(green_bar, 0x00FF00);
+    rectangle_set_fill_color(green_bar, GREEN_HEALTH_COLOR);
     rectangle_t *red_bar = rectangle_ctor(x+(int16_t)(w*perc), y, (int16_t)(w*(1-perc)), 10);
-    rectangle_set_fill_color(red_bar, 0xFF0000);
+    rectangle_set_fill_color(red_bar, GRAPH_RED);
+    char buf[20]; sprintf(buf, "%d/%d", (int)p->current_health, (int)p->health);
+    text_set_text(p->txt, buf);
+    text_set_pos(p->txt, x+w/2, y+10/2);
     rectangle_draw(green_bar);
     rectangle_draw(red_bar);
+    text_draw(p->txt);
     rectangle_dtor(green_bar);
     rectangle_dtor(red_bar);
+
 }
 
 double (gunner_distance)(const gunner_t *p1, const gunner_t *p2){
@@ -198,6 +216,8 @@ struct map{
     basic_sprite_t *bsp_background;
     sprite_t *background;
     uint8_t *collide;
+    int *x_prev;
+    int *y_prev;
 };
 map_t* (map_ctor)(const char **background, const char **collide){
     map_t *ret = malloc(sizeof(map_t));
@@ -206,11 +226,13 @@ map_t* (map_ctor)(const char **background, const char **collide){
     ret->bsp_background = NULL;
     ret->background     = NULL;
     ret->collide        = NULL;
+    ret->x_prev         = NULL;
+    ret->y_prev         = NULL;
 
     ret->bsp_background = basic_sprite_ctor(background, 0, 0);
     ret->background     = sprite_ctor(ret->bsp_background);
     if(ret->bsp_background == NULL ||
-        ret->background     == NULL){ map_dtor(ret); return NULL; }
+       ret->background     == NULL){ map_dtor(ret); return NULL; }
 
     basic_sprite_t *bsp_collide = basic_sprite_ctor(collide, 0, 0);
     if(bsp_collide == NULL){ map_dtor(ret); return NULL; }
@@ -224,6 +246,13 @@ map_t* (map_ctor)(const char **background, const char **collide){
     }
     basic_sprite_dtor(bsp_collide);
 
+    ret->x_prev = malloc(W*H*sizeof(int));
+    ret->y_prev = malloc(W*H*sizeof(int));
+
+    if(ret->x_prev == NULL || ret->y_prev == NULL){
+        map_dtor(ret);
+        return NULL;
+    }
     return ret;
 }
 void (map_dtor)(map_t *p){
@@ -231,6 +260,8 @@ void (map_dtor)(map_t *p){
     sprite_dtor(p->background);
     basic_sprite_dtor(p->bsp_background);
     free(p->collide);
+    free(p->x_prev);
+    free(p->y_prev);
     free(p);
 }
 int16_t (map_get_x_screen)(const map_t *p){ return (-x_origin)*scale; }
@@ -244,6 +275,28 @@ int (map_collides_point)(const map_t *p, double x, double y){
     uint32_t pos = x_ + y_*w;
     return p->collide[pos];
 }
+int (map_make_dijkstra)(map_t *p, uint16_t x, uint16_t y){
+    const uint16_t W = basic_sprite_get_w(p->bsp_background),
+                   H = basic_sprite_get_h(p->bsp_background);
+    for(size_t i = 0; i < W*H; ++i)
+        p->x_prev[i] = p->y_prev[i] = -1;
+    /// ACTUAL DIJKSTRA
+    queue_t *q = queue_ctor();
+    int *ptr;
+    p->x_prev[y*W+x] = x; p->x_prev[y*W+x] = y;
+    ptr = malloc(sizeof(int)); *ptr = y*W+x; queue_push(q, ptr);
+    while(!queue_empty(q)){
+        int c = *(int*)list_node_val(queue_top(q)); free(queue_top(q)); queue_pop(q);
+        if(p->collide[c]){ p->x_prev[c] = p->y_prev[c] = -1; continue; }
+        uint16_t x = c%W, y = c/W;
+        if(0   <= x-1){ int pos = y*W+(x-1); if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+        if(x+1 <  W  ){ int pos = y*W+(x+1); if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+        if(0   <= y-1){ int pos = (y-1)*W+x; if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+        if(y+1 <  H  ){ int pos = (y+1)*W+x; if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+    }
+    return SUCCESS;
+}
+
 
 int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
     double radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
