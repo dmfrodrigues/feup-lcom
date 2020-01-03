@@ -29,4 +29,6 @@
 #define MELEE_RANGE    80
 #define MELEE_DAMAGE   1
 
+#define ZOMBIE_SPEED    1.0
+
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */

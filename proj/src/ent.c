@@ -216,9 +216,18 @@ struct map{
     basic_sprite_t *bsp_background;
     sprite_t *background;
     uint8_t *collide;
-    int *x_prev;
-    int *y_prev;
+    uint8_t *collide_gunner;
+    int32_t *prev;
+    uint8_t *visited;
 };
+static int (map_collides_gunner_pos)(const map_t *p, double shooter_x, double shooter_y, double radius) {
+    for (double x = -radius; x <= radius; x += 1) {
+        double y1 = sqrt(radius*radius - x*x);
+        double y2 = -y1;
+        if (map_collides_point(p, shooter_x + x, shooter_y + y1) || map_collides_point(p, shooter_x + x, shooter_y + y2)) return 1;
+    }
+    return 0;
+}
 map_t* (map_ctor)(const char **background, const char **collide){
     map_t *ret = malloc(sizeof(map_t));
     if(ret == NULL) return NULL;
@@ -226,8 +235,8 @@ map_t* (map_ctor)(const char **background, const char **collide){
     ret->bsp_background = NULL;
     ret->background     = NULL;
     ret->collide        = NULL;
-    ret->x_prev         = NULL;
-    ret->y_prev         = NULL;
+    ret->prev           = NULL;
+    ret->visited        = NULL;
 
     ret->bsp_background = basic_sprite_ctor(background, 0, 0);
     ret->background     = sprite_ctor(ret->bsp_background);
@@ -246,10 +255,17 @@ map_t* (map_ctor)(const char **background, const char **collide){
     }
     basic_sprite_dtor(bsp_collide);
 
-    ret->x_prev = malloc(W*H*sizeof(int));
-    ret->y_prev = malloc(W*H*sizeof(int));
+    ret->collide_gunner = malloc(W*H*sizeof(uint8_t));
+    if(ret->collide_gunner == NULL){ map_dtor(ret); return NULL; }
+    for(size_t i = 0; i < W*H; ++i){
+        int16_t x = i%W, y = i/W;
+        ret->collide_gunner[i] = (map_collides_gunner_pos(ret, x, y, 36) ? 1 : 0);
+    }
 
-    if(ret->x_prev == NULL || ret->y_prev == NULL){
+    ret->prev = malloc(W*H*sizeof(int32_t));
+    ret->visited = malloc(W*H*sizeof(uint8_t));
+
+    if(ret->prev == NULL || ret->visited == NULL){
         map_dtor(ret);
         return NULL;
     }
@@ -260,8 +276,8 @@ void (map_dtor)(map_t *p){
     sprite_dtor(p->background);
     basic_sprite_dtor(p->bsp_background);
     free(p->collide);
-    free(p->x_prev);
-    free(p->y_prev);
+    free(p->prev);
+    free(p->visited);
     free(p);
 }
 int16_t (map_get_x_screen)(const map_t *p){ return (-x_origin)*scale; }
@@ -275,39 +291,54 @@ int (map_collides_point)(const map_t *p, double x, double y){
     uint32_t pos = x_ + y_*w;
     return p->collide[pos];
 }
-int (map_make_dijkstra)(map_t *p, uint16_t x, uint16_t y){
-    const uint16_t W = basic_sprite_get_w(p->bsp_background),
-                   H = basic_sprite_get_h(p->bsp_background);
-    for(size_t i = 0; i < W*H; ++i)
-        p->x_prev[i] = p->y_prev[i] = -1;
-    /// ACTUAL DIJKSTRA
-    queue_t *q = queue_ctor();
-    int *ptr;
-    p->x_prev[y*W+x] = x; p->x_prev[y*W+x] = y;
-    ptr = malloc(sizeof(int)); *ptr = y*W+x; queue_push(q, ptr);
-    while(!queue_empty(q)){
-        int c = *(int*)list_node_val(queue_top(q)); free(queue_top(q)); queue_pop(q);
-        if(p->collide[c]){ p->x_prev[c] = p->y_prev[c] = -1; continue; }
-        uint16_t x = c%W, y = c/W;
-        if(0   <= x-1){ int pos = y*W+(x-1); if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
-        if(x+1 <  W  ){ int pos = y*W+(x+1); if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
-        if(0   <= y-1){ int pos = (y-1)*W+x; if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
-        if(y+1 <  H  ){ int pos = (y+1)*W+x; if(p->x_prev[pos] == -1){ p->x_prev[pos] = x; p->y_prev[pos] = y; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
-    }
-    return SUCCESS;
-}
-
-
 int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
     double radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
-    double shooter_x = gunner_get_x(shooter);
-    double shooter_y = gunner_get_y(shooter);
-    for (double x = -radius; x < radius; x += 1) {
-        double y1 = sqrt(radius*radius - x*x);
-        double y2 = -y1;
-        if (map_collides_point(p, shooter_x + x, shooter_y + y1) || map_collides_point(p, shooter_x + x, shooter_y + y2)) return 1;
+    return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
+}
+int (map_make_dijkstra)(map_t *p, int16_t x, int16_t y){
+
+    const uint16_t W = basic_sprite_get_w(p->bsp_background),
+                   H = basic_sprite_get_h(p->bsp_background);
+
+    static uint8_t first_time = true;
+    if(first_time){
+        for(size_t i = 0; i < W*H; ++i) p->prev[i] = -1;
+        first_time = false;
     }
-    return 0;
+    /// ACTUAL DIJKSTRA
+    queue_t *q = queue_ctor();
+
+    memset(p->visited, false, W*H*sizeof(uint8_t));
+
+    int *ptr;
+    int32_t c, pos;
+    c = y*W+x; p->prev[c] = c; ptr = malloc(sizeof(int)); *ptr = c; queue_push(q, ptr);
+
+    while(!queue_empty(q)){
+        c = *(int*)queue_top(q); free(queue_top(q)); queue_pop(q);
+        x = c%W, y = c/W;
+        if(p->visited[c]) continue;
+        p->visited[c] = true;
+        if(p->collide_gunner[c]) continue;
+        if(0   <= x-1){ pos = y*W+(x-1); if(!p->visited[pos] && p->prev[pos] != c){ p->prev[pos] = c; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+        if(x+1 <  W  ){ pos = y*W+(x+1); if(!p->visited[pos] && p->prev[pos] != c){ p->prev[pos] = c; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+        if(0   <= y-1){ pos = (y-1)*W+x; if(!p->visited[pos] && p->prev[pos] != c){ p->prev[pos] = c; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+        if(y+1 <  H  ){ pos = (y+1)*W+x; if(!p->visited[pos] && p->prev[pos] != c){ p->prev[pos] = c; ptr = malloc(sizeof(int)); *ptr = pos; queue_push(q, ptr); }}
+    }
+
+    queue_dtor(q);
+
+    return SUCCESS;
+}
+int (map_where_to_follow)(const map_t *p, float x, float y, float *theta){
+    const uint16_t W = basic_sprite_get_w(p->bsp_background);
+    int x_ = x, y_ = y;
+    int pos = y_*W+x_;
+    //printf("Is in %d,%d\n", x_, y_);
+    int newx = p->prev[pos]%W, newy = p->prev[pos]/W;
+    //printf("from %d,%d to %d,%d\n", x_, y_, newx, newy);
+    *theta = atan2(-(newy-y_), newx-x_);
+    return SUCCESS;
 }
 
 int (map_collides_bullet)(const map_t *p, const bullet_t *bull){

@@ -83,6 +83,10 @@ int(proj_main_loop)(int argc, char *argv[]) {
     {
         graph_clear_screen();
         text_t *txt = text_ctor(consolas, "Loading...");
+        text_set_pos(txt, graph_get_XRes()/2, graph_get_YRes()/2);
+        text_set_valign(txt, text_valign_center);
+        text_set_halign(txt, text_halign_center);
+        text_set_color(txt, TEXT_COLOR);
         text_draw(txt);
         text_dtor(txt);
         graph_draw();
@@ -362,6 +366,7 @@ static int (campaign)(void){
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
         for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            if(!good) break;
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
@@ -394,19 +399,6 @@ static int (campaign)(void){
                     case KBC_IRQ:
                     if ((scancode[0]) == ESC_BREAK_CODE) {
                         good = false;
-                        // reset game
-                        while(list_size(bullet_list) > 0){
-                            bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
-                            bullet_dtor(p);
-                        }
-                        list_node_t *it = list_begin(shooter_list);
-                        while (it != list_end(shooter_list)) {
-                            gunner_t *p = *(gunner_t**)list_node_val(it);
-                            get_random_spawn(map1, p, shooter_list);
-                            gunner_set_curr_health(p, gunner_get_health(p));
-                            it = list_node_next(it);
-                        }
-                        timer_reset(in_game_timer);
                     }
                     break;
                     case MOUSE_IRQ:
@@ -445,7 +437,6 @@ static int (campaign)(void){
 
 #define ZOMBIES_NUM             5
 #define ZOMBIE_HEALTH_FACTOR    1.1
-
 static int (zombies)(void){
 
     int r;
@@ -478,15 +469,30 @@ static int (zombies)(void){
 
     int health = 50;
 
+    /** #DEV */ /* {
+        gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, gunner_melee | gunner_follow, 3);
+        gunner_set_health(zombie, health);
+        gunner_set_curr_health(zombie, health);
+        health *= ZOMBIE_HEALTH_FACTOR;
+        gunner_set_pos(zombie, 1100, 75);
+        list_push_back(shooter_list, zombie);
+    }*/ //\#DEV
+
+    map_make_dijkstra(map1, gunner_get_x(shooter1), gunner_get_y(shooter1));
+
     while (good && !dead) {
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
         for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            if(!good || dead) break;
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
                     case TIMER0_IRQ:
                     if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+                    if (no_interrupts %  6 == 0){
+                        map_make_dijkstra(map1, gunner_get_x(shooter1), gunner_get_y(shooter1));
+                    }
 
                     update_movement(map1, shooter1, keys, shooter_list);
 
@@ -504,7 +510,7 @@ static int (zombies)(void){
                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-                    while(list_size(shooter_list) < ZOMBIES_NUM){
+                    while(list_size(shooter_list) < ZOMBIES_NUM+1){
                         gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, gunner_melee | gunner_follow, 3);
                         gunner_set_health(zombie, health);
                         gunner_set_curr_health(zombie, health);
