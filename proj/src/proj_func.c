@@ -130,16 +130,16 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
         /// Advance iterator if necessary
         bullet_it = list_node_next(bullet_it);
     }
-    /// MEELEE
+    /// MELEE
     list_node_t *it1 = list_begin(shooter_list);
     while(it1 != list_end(shooter_list)){
         gunner_t *s1 = *list_node_val(it1);
-        if(gunner_get_type(s1) != gunner_meelee){ it1 = list_node_next(it1); continue; }
+        if(!(gunner_get_type(s1) & gunner_melee)){ it1 = list_node_next(it1); continue; }
         list_node_t *it2 = list_begin(shooter_list);
         while(it2 != list_end(shooter_list)){
             gunner_t *s2 = *list_node_val(it2);
-            if(s1 != s2 && gunner_distance(s1, s2) < MEELEE_RANGE)
-                gunner_set_curr_health(s2, gunner_get_curr_health(s2) - MEELEE_DAMAGE);
+            if(s1 != s2 && gunner_distance(s1, s2) < MELEE_RANGE)
+                gunner_set_curr_health(s2, gunner_get_curr_health(s2) - MELEE_DAMAGE);
             if(gunner_get_curr_health(s2) <= 0){
                 list_node_t *aux = list_node_next(it2);
                 gunner_dtor(list_erase(shooter_list, it2));
