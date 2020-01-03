@@ -83,15 +83,33 @@ void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list
     }
 
     // Update zombie positions
-    map_make_dijkstra(map, gunner_get_x(p), gunner_get_y(p));
     list_node_t *it = list_begin(shooter_list);
     while(it != list_end(shooter_list)){
         gunner_t *g = *(gunner_t**)list_node_val(it);
         if(gunner_get_type(g) & gunner_follow){
-            //float theta = 0.0;
-            //map_where_to_follow(map, &theta);
-            //float c = fm_cos(theta), s = fm_sin(theta);
-
+            float theta = 0.0;
+            map_where_to_follow(map, gunner_get_x(g), gunner_get_y(g), &theta);
+            float c = fm_cos(theta), s = fm_sin(theta);
+            float dx = ZOMBIE_SPEED*c, dy = -ZOMBIE_SPEED*s;
+            double x = gunner_get_x(g);
+            double y = gunner_get_y(g);
+            gunner_set_pos(g, x+dx, y+dy);
+            if (map_collides_gunner(map, g)){
+                //printf("Zombie colliding with map\n");
+                gunner_set_pos(g, x, y);
+            } else {
+                list_node_t *it = list_begin(shooter_list);
+                while (it != list_end(shooter_list)) {
+                    gunner_t *p2 = *(gunner_t**)list_node_val(it);
+                    if (g != p2 && gunner_collides_gunner(g, p2)) {
+                        //printf("Zombie colliding with zombie\n");
+                        gunner_set_pos(g, x, y);
+                        break;
+                    }
+                    it = list_node_next(it);
+                }
+            }
+            gunner_set_angle(g, theta-M_PI_2); /*printf("angle: %d.%d\n", (int)theta, abs((int)(theta*1000)%1000));*/
         }
         it = list_node_next(it);
     }
