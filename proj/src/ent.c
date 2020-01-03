@@ -28,6 +28,7 @@ struct gunner{
     sprite_t *dude;
     sprite_t *weapon;
     double health, current_health;
+    rectangle_t *green_bar, *red_bar;
     text_t *txt;
     gunner_type type;
     int team;
@@ -41,15 +42,19 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_typ
     ret->y = 0.0;
     ret->health = 100;
     ret->current_health = ret->health;
-    ret->txt = text_ctor(default_font, "");
+    ret->green_bar = rectangle_ctor(0,0,0,0);
+    ret->red_bar   = rectangle_ctor(0,0,0,0);
+    ret->txt = text_ctor(font_get_default(), "");
     ret->type = type;
     ret->team = team;
     ret->dude   = sprite_ctor(dude  );
     ret->weapon = sprite_ctor(weapon);
-    if(ret->dude == NULL || ret->weapon == NULL){
+    if(ret->txt == NULL || ret->dude == NULL || ret->weapon == NULL || ret->green_bar == NULL || ret->red_bar == NULL){
         gunner_dtor(ret);
         return NULL;
     }
+    rectangle_set_fill_color(ret->green_bar, GREEN_HEALTH_COLOR);
+    rectangle_set_fill_color(ret->red_bar  , GRAPH_RED         );
     text_set_size(ret->txt, 15);
     text_set_valign(ret->txt, text_valign_center);
     text_set_halign(ret->txt, text_halign_center);
@@ -60,6 +65,8 @@ void (gunner_dtor)(gunner_t *p){
     if(p == NULL) return;
     sprite_dtor(p->dude);
     sprite_dtor(p->weapon);
+    rectangle_dtor(p->green_bar);
+    rectangle_dtor(p->red_bar);
     text_dtor(p->txt);
     free(p);
 }
@@ -99,7 +106,6 @@ void (gunner_draw)(gunner_t *p){
     sprite_draw     (p->dude  );
     gunner_draw_health(p);
 }
-
 void (gunner_draw_health)(const gunner_t *p) {
     int16_t w = sprite_get_w(p->dude);
     int16_t h = sprite_get_h(p->dude);
@@ -108,19 +114,14 @@ void (gunner_draw_health)(const gunner_t *p) {
     double curr_health = gunner_get_curr_health(p);
     double health = gunner_get_health(p);
     double perc = curr_health/health;
-    rectangle_t *green_bar = rectangle_ctor(x, y, (int16_t)(w*perc), 10);
-    rectangle_set_fill_color(green_bar, GREEN_HEALTH_COLOR);
-    rectangle_t *red_bar = rectangle_ctor(x+(int16_t)(w*perc), y, (int16_t)(w*(1-perc)), 10);
-    rectangle_set_fill_color(red_bar, GRAPH_RED);
+    rectangle_set_pos(p->green_bar, x, y); rectangle_set_size(p->green_bar, (int16_t)(w*perc), 10);
+    rectangle_set_pos(p->red_bar, x+(int16_t)(w*perc), y); rectangle_set_size(p->red_bar, (int16_t)(w*(1-perc)), 10);
     char buf[20]; sprintf(buf, "%d/%d", (int)p->current_health, (int)p->health);
-    text_set_text(p->txt, buf);
+    text_set_string(p->txt, buf);
     text_set_pos(p->txt, x+w/2, y+10/2);
-    rectangle_draw(green_bar);
-    rectangle_draw(red_bar);
+    rectangle_draw(p->green_bar);
+    rectangle_draw(p->red_bar);
     text_draw(p->txt);
-    rectangle_dtor(green_bar);
-    rectangle_dtor(red_bar);
-
 }
 
 double (gunner_distance)(const gunner_t *p1, const gunner_t *p2){
