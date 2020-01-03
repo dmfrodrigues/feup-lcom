@@ -111,7 +111,6 @@ static remote_info_t* hltp_interpret_remote_info(const uint8_t *p) {
 
     return ret;
 }
-
 int hltp_send_remote_info(const remote_info_t *p) {
     // struct size
     size_t struct_size = sizeof(keys_t) + sizeof(int32_t) * 2 + sizeof(size_t) + sizeof(double) * (3 *p->bullets_shot);

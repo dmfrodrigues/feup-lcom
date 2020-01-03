@@ -49,7 +49,6 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-font_t               *consolas      = NULL;
 basic_sprite_t       *bsp_crosshair = NULL;
 basic_sprite_t       *bsp_shooter   = NULL;
 basic_sprite_t       *bsp_zombie    = NULL;
@@ -66,8 +65,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     int r;
 
-    consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
-    if(consolas == NULL){ printf("Failed to load consolas\n"); return 1; }
+    if(font_init()){ printf("Failed to initialize fonts\n"); return 1; }
 
     /// subscribe interrupts
     if (subscribe_all()) { return 1; }
@@ -82,7 +80,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     /// Load stuff
     {
         graph_clear_screen();
-        text_t *txt = text_ctor(consolas, "Loading...");
+        text_t *txt = text_ctor(default_font, "Loading...");
         text_set_pos(txt, graph_get_XRes()/2, graph_get_YRes()/2);
         text_set_valign(txt, text_valign_center);
         text_set_halign(txt, text_halign_center);
@@ -102,7 +100,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
 
-    menu_t *main_menu = menu_ctor(consolas);
+    menu_t *main_menu = menu_ctor(default_font);
     menu_add_item(main_menu, "Single player");
     menu_add_item(main_menu, "Multiplayer");
     menu_add_item(main_menu, "Chat");
@@ -167,7 +165,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
     basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
     map_dtor               (map1         ); map1          = NULL;
-    font_dtor              (consolas     ); consolas      = NULL;
+    if(font_free()){ printf("Failed to free fonts\n"); return 1; }
 
     // Unsubscribe interrupts
     if (unsubscribe_all()) {
@@ -207,7 +205,7 @@ static int (multiplayer_remote)(void);
 static int (multiplayer)(void) {
     int r;
 
-    menu_t *main_menu = menu_ctor(consolas);
+    menu_t *main_menu = menu_ctor(default_font);
     menu_add_item(main_menu, "Create");
     menu_add_item(main_menu, "Connect");
     menu_add_item(main_menu, "Back");
@@ -272,7 +270,7 @@ static int (multiplayer_host)(void) {
     nctp_set_processor(multiplayer_process);/*
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(consolas);
+    text_timer_t *in_game_timer = timer_ctor(default_font);
 
     list_t *shooter_list = list_ctor();
 
@@ -336,7 +334,7 @@ static int (multiplayer_remote)(void) {/*
     nctp_set_processor(multiplayer_process);
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(consolas);
+    text_timer_t *in_game_timer = timer_ctor(default_font);
 
     list_t *shooter_list = list_ctor();
 
@@ -400,7 +398,7 @@ static int (singleplayer)(void) {
 
     int r;
 
-    menu_t *main_menu = menu_ctor(consolas);
+    menu_t *main_menu = menu_ctor(default_font);
     menu_add_item(main_menu, "Campaign");
     menu_add_item(main_menu, "Zombies");
     menu_add_item(main_menu, "Back");
@@ -464,7 +462,7 @@ static int (campaign)(void){
     int r;
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(consolas);
+    text_timer_t *in_game_timer = timer_ctor(default_font);
 
     list_t *shooter_list = list_ctor();
 
@@ -572,7 +570,7 @@ static int (zombies)(void){
     int r;
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(consolas);
+    text_timer_t *in_game_timer = timer_ctor(default_font);
 
     list_t *shooter_list = list_ctor();
 
@@ -751,7 +749,7 @@ static int (chat)(void){
         rectangle_set_fill_trans(r_buffer, GRAPH_TRANSPARENT);
     }
     text_t      *t_buffer = NULL; {
-        t_buffer = text_ctor(consolas, "");
+        t_buffer = text_ctor(default_font, "");
         text_set_pos(t_buffer, rectangle_get_x(r_buffer)+50,
         rectangle_get_y(r_buffer)+rectangle_get_h(r_buffer)/2);
         text_set_halign(t_buffer, text_halign_left);
@@ -759,7 +757,7 @@ static int (chat)(void){
         text_set_color (t_buffer, TEXT_COLOR);
     }
     text_t      *t_size   = NULL; {
-        t_size = text_ctor(consolas, "");
+        t_size = text_ctor(default_font, "");
         text_set_pos(t_size, rectangle_get_x(r_buffer)+rectangle_get_w(r_buffer)-5,
         rectangle_get_y(r_buffer)+rectangle_get_h(r_buffer)-5);
         text_set_halign(t_size, text_halign_right);
@@ -782,7 +780,7 @@ static int (chat)(void){
     }
     /** t_text */ {
     for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
-        t_text[i] = text_ctor(consolas, " ");
+        t_text[i] = text_ctor(default_font, " ");
         text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
         rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-25*i);
         text_set_halign(t_text[i], text_halign_left);

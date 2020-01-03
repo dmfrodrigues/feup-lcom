@@ -16,9 +16,13 @@ enum text_halign{
 struct font;
 typedef struct font font_t;
 font_t* (font_ctor)(const char *s);
-void    (font_dtor)(font_t *p);
+int     (font_dtor)(font_t *p);
 
 font_t *consolas;
+font_t *default_font;
+
+int (font_init)(void);
+int (font_free)(void);
 
 struct text;
 typedef struct text text_t;
