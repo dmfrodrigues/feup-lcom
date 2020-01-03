@@ -80,7 +80,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     /// Load stuff
     {
         graph_clear_screen();
-        text_t *txt = text_ctor(default_font, "Loading...");
+        text_t *txt = text_ctor(font_get_default(), "Loading...");
         text_set_pos(txt, graph_get_XRes()/2, graph_get_YRes()/2);
         text_set_valign(txt, text_valign_center);
         text_set_halign(txt, text_halign_center);
@@ -100,7 +100,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
 
-    menu_t *main_menu = menu_ctor(default_font);
+    menu_t *main_menu = menu_ctor(font_get_default());
     menu_add_item(main_menu, "Single player");
     menu_add_item(main_menu, "Multiplayer");
     menu_add_item(main_menu, "Chat");
@@ -205,7 +205,7 @@ static int (multiplayer_remote)(void);
 static int (multiplayer)(void) {
     int r;
 
-    menu_t *main_menu = menu_ctor(default_font);
+    menu_t *main_menu = menu_ctor(font_get_default());
     menu_add_item(main_menu, "Create");
     menu_add_item(main_menu, "Connect");
     menu_add_item(main_menu, "Back");
@@ -270,7 +270,7 @@ static int (multiplayer_host)(void) {
     nctp_set_processor(multiplayer_process);/*
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(default_font);
+    text_timer_t *in_game_timer = timer_ctor(font_get_default());
 
     list_t *shooter_list = list_ctor();
 
@@ -334,7 +334,7 @@ static int (multiplayer_remote)(void) {/*
     nctp_set_processor(multiplayer_process);
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(default_font);
+    text_timer_t *in_game_timer = timer_ctor(font_get_default());
 
     list_t *shooter_list = list_ctor();
 
@@ -398,7 +398,7 @@ static int (singleplayer)(void) {
 
     int r;
 
-    menu_t *main_menu = menu_ctor(default_font);
+    menu_t *main_menu = menu_ctor(font_get_default());
     menu_add_item(main_menu, "Campaign");
     menu_add_item(main_menu, "Zombies");
     menu_add_item(main_menu, "Back");
@@ -462,7 +462,7 @@ static int (campaign)(void){
     int r;
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(default_font);
+    text_timer_t *in_game_timer = timer_ctor(font_get_default());
 
     list_t *shooter_list = list_ctor();
 
@@ -570,7 +570,7 @@ static int (zombies)(void){
     int r;
 
     ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(default_font);
+    text_timer_t *in_game_timer = timer_ctor(font_get_default());
 
     list_t *shooter_list = list_ctor();
 
@@ -715,8 +715,8 @@ static void chat_process(const uint8_t *p, const size_t sz){
         strcpy(buffer2, dest);
         strncat(buffer2, " <", 2);
         for(size_t i = CHAT_MAX_NUM-1; i; --i)
-        text_set_text(t_text[i], text_get_string(t_text[i-1]));
-        text_set_text(t_text[0], buffer2);
+        text_set_string(t_text[i], text_get_string(t_text[i-1]));
+        text_set_string(t_text[0], buffer2);
         for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
             if(text_get_string(t_text[i])[0] == '>'){
                 text_set_pos(t_text[i], rectangle_get_x(r_text)+50, text_get_y(t_text[i]));
@@ -749,7 +749,7 @@ static int (chat)(void){
         rectangle_set_fill_trans(r_buffer, GRAPH_TRANSPARENT);
     }
     text_t      *t_buffer = NULL; {
-        t_buffer = text_ctor(default_font, "");
+        t_buffer = text_ctor(font_get_default(), "");
         text_set_pos(t_buffer, rectangle_get_x(r_buffer)+50,
         rectangle_get_y(r_buffer)+rectangle_get_h(r_buffer)/2);
         text_set_halign(t_buffer, text_halign_left);
@@ -757,7 +757,7 @@ static int (chat)(void){
         text_set_color (t_buffer, TEXT_COLOR);
     }
     text_t      *t_size   = NULL; {
-        t_size = text_ctor(default_font, "");
+        t_size = text_ctor(font_get_default(), "");
         text_set_pos(t_size, rectangle_get_x(r_buffer)+rectangle_get_w(r_buffer)-5,
         rectangle_get_y(r_buffer)+rectangle_get_h(r_buffer)-5);
         text_set_halign(t_size, text_halign_right);
@@ -766,7 +766,7 @@ static int (chat)(void){
         text_set_size  (t_size, 18);
         char buffer2[20];
         sprintf(buffer2, "%d/%d", strlen(buffer), CHAT_MAX_SIZE);
-        text_set_text(t_size, buffer2);
+        text_set_string(t_size, buffer2);
     }
 
     /** r_text */ {
@@ -780,7 +780,7 @@ static int (chat)(void){
     }
     /** t_text */ {
     for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
-        t_text[i] = text_ctor(default_font, " ");
+        t_text[i] = text_ctor(font_get_default(), " ");
         text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
         rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-25*i);
         text_set_halign(t_text[i], text_halign_left);
@@ -820,8 +820,8 @@ while (good) {
                     char buffer2[CHAT_MAX_SIZE+3] = "> ";
                     strncat(buffer2, buffer, strlen(buffer));
                     for(size_t i = CHAT_MAX_NUM-1; i; --i)
-                    text_set_text(t_text[i], text_get_string(t_text[i-1]));
-                    text_set_text(t_text[0], buffer2);
+                    text_set_string(t_text[i], text_get_string(t_text[i-1]));
+                    text_set_string(t_text[0], buffer2);
                     for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
                         if(text_get_string(t_text[i])[0] == '>'){
                             text_set_pos(t_text[i], rectangle_get_x(r_text)+50, text_get_y(t_text[i]));
@@ -840,10 +840,10 @@ while (good) {
                     if(strlen(buffer) < CHAT_MAX_SIZE) strncat(buffer, &c, 1);
                     else                               printf("Char limit exceeded\n");
                 }
-                text_set_text(t_buffer, buffer);
+                text_set_string(t_buffer, buffer);
                 char buffer2[20];
                 sprintf(buffer2, "%d/%d", strlen(buffer), CHAT_MAX_SIZE);
-                text_set_text(t_size, buffer2);
+                text_set_string(t_size, buffer2);
                 case MOUSE_IRQ:
                 if (counter_mouse_ih >= 3) {
                     mouse_parse_packet(packet_mouse_ih, &pp);

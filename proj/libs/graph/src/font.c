@@ -8,6 +8,7 @@
 #include "errors.h"
 #include <assert.h>
 
+/// GLYPH
 struct glyph{
     uint16_t w, h;
     uint8_t *map;
@@ -55,11 +56,11 @@ static int (glyph_draw_to_alpha_buffer)(const glyph_t *p, int16_t x, int16_t y, 
     return SUCCESS;
 }
 
+/// FONT
 struct font{
     size_t nchars;
     glyph_t **glyphs;
 };
-
 font_t* (font_ctor)(const char *s){
     font_t *ret = malloc(sizeof(font_t));
     if(ret == NULL) return NULL;
@@ -93,8 +94,8 @@ int (font_dtor)(font_t *p){
     return SUCCESS;
 }
 
-font_t *consolas = NULL;
-font_t *default_font = NULL;
+static font_t *consolas     = NULL;
+static font_t *default_font = NULL;
 
 int (font_init)(void){
     consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
@@ -102,6 +103,8 @@ int (font_init)(void){
     default_font = consolas;
     return SUCCESS;
 }
+const font_t* font_get_default(void){ return default_font; }
+const font_t* font_get_consolas(void){ return consolas; }
 int (font_free)(void){
     int r;
     if((r = font_dtor(consolas))) return r;
@@ -110,14 +113,15 @@ int (font_free)(void){
     return SUCCESS;
 }
 
+/// TEXT
 struct text{
     const font_t *fnt;
     char *txt;
     int16_t x, y;
     int size;
     uint32_t color;
-    enum text_valign valign;
-    enum text_halign halign;
+    text_valign valign;
+    text_halign halign;
 };
 text_t* (text_ctor)(const font_t *fnt, const char *txt){
     if(fnt == NULL) return NULL;
@@ -125,7 +129,7 @@ text_t* (text_ctor)(const font_t *fnt, const char *txt){
     if(ret == NULL) return NULL;
     ret->fnt = fnt;
     ret->txt = NULL;
-    text_set_text(ret, txt);
+    text_set_string(ret, txt);
     ret->x = 0;
     ret->y = 0;
     ret->size = 25;
@@ -139,18 +143,18 @@ void (text_dtor)(text_t *p){
     free(p->txt);
     free(p);
 }
-void (text_set_text) (text_t *p, const char *txt){
+void (text_set_string) (text_t *p, const char *txt){
     size_t sz = strlen(txt);
     p->txt = realloc(p->txt, (sz+1)*sizeof(char));
     if(p->txt == NULL) return;
     strcpy(p->txt, txt);
 }
 char* (text_get_string)(const text_t *p){return p->txt; }
-void (text_set_pos)   (text_t *p, int16_t x, int16_t y   ){ p->x = x; p->y = y; }
-void (text_set_size)  (text_t *p, unsigned size          ){ p->size = size    ; }
-void (text_set_color) (text_t *p, uint32_t color         ){ p->color = color  ; }
-void (text_set_valign)(text_t *p, enum text_valign valign){ p->valign = valign; }
-void (text_set_halign)(text_t *p, enum text_halign halign){ p->halign = halign; }
+void (text_set_pos)   (text_t *p, int16_t x, int16_t y){ p->x = x; p->y = y; }
+void (text_set_size)  (text_t *p, unsigned size       ){ p->size = size    ; }
+void (text_set_color) (text_t *p, uint32_t color      ){ p->color = color  ; }
+void (text_set_valign)(text_t *p, text_valign valign  ){ p->valign = valign; }
+void (text_set_halign)(text_t *p, text_halign halign  ){ p->halign = halign; }
 int16_t (text_get_x)  (const text_t *p){ return p->x; }
 int16_t (text_get_y)  (const text_t *p){ return p->y; }
 
