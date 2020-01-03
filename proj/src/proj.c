@@ -109,73 +109,55 @@ int(proj_main_loop)(int argc, char *argv[]) {
     keys_t *keys = get_key_presses();
 
     /// loop stuff
-    int ipc_status;
-    message msg;
-
     int click = 0;
-
+    uint32_t int_vector = 0;
     int good = true;
-
     while (good) {
         /* Get a request message. */
-        if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
-            printf("driver_receive failed with %d", r);
-            continue;
-        }
-        if (is_ipc_notify(ipc_status)) { /* received notification */
-            switch (_ENDPOINT_P(msg.m_source)) {
-                case HARDWARE: /* hardware interrupt notification */
-                for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
-                    if (msg.m_notify.interrupts & n) {
-                        interrupt_handler(i);
-                        switch (i) {
-                            case TIMER0_IRQ:
+        if((r = get_interrupts_vector(&int_vector))) return r;
+        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            if (int_vector & n) {
+                interrupt_handler(i);
+                switch (i) {
+                    case TIMER0_IRQ:
 
-                            graph_clear_screen();
-                            switch(menu_update_state(main_menu, click)){
-                                case -1: break;
-                                case  0: singleplayer(); break; //campaign(); break;
-                                case  1: break;
-                                case  2: chat(); break;
-                                case  3: good = false; break;
-                            }
-                            menu_draw(main_menu);
-
-                            click = 0;
-
-                            sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
-                            sprite_draw(sp_crosshair);
-                            graph_draw();
-
-                            break;
-                            case KBC_IRQ:
-                            if ((scancode[0]) == ESC_BREAK_CODE) good = false;
-                            case MOUSE_IRQ:
-                            if (counter_mouse_ih >= 3) {
-                                mouse_parse_packet(packet_mouse_ih, &pp);
-                                update_mouse(&pp);
-                                if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
-                                last_lb = keys->lb_pressed;
-                                counter_mouse_ih = 0;
-                            }
-                            break;
-                            case COM1_IRQ: nctp_ih(); break;
-                        }
+                    graph_clear_screen();
+                    switch(menu_update_state(main_menu, click)){
+                        case -1: break;
+                        case  0: singleplayer(); break; //campaign(); break;
+                        case  1: break;
+                        case  2: chat(); break;
+                        case  3: good = false; break;
                     }
-                }
+                    menu_draw(main_menu);
 
-                break;
-                default:
-                break; /* no other notifications expected: do nothing */
+                    click = 0;
+
+                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+                    sprite_draw(sp_crosshair);
+                    graph_draw();
+
+                    break;
+                    case KBC_IRQ:
+                    if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                    case MOUSE_IRQ:
+                    if (counter_mouse_ih >= 3) {
+                        mouse_parse_packet(packet_mouse_ih, &pp);
+                        update_mouse(&pp);
+                        if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
+                        last_lb = keys->lb_pressed;
+                        counter_mouse_ih = 0;
+                    }
+                    break;
+                    case COM1_IRQ: nctp_ih(); break;
+                }
             }
-        } else { /* received standart message, not a notification */
-            /* no standart message expected: do nothing */
         }
     }
 
     basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
     basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;
-    /*basic_sprite_dtor      (bsp_zombie   );*/ bsp_zombie    = NULL;
+    basic_sprite_dtor      (bsp_zombie   ); bsp_zombie    = NULL;
     sprite_dtor            (sp_crosshair ); sp_crosshair  = NULL;
     basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
     basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
@@ -339,7 +321,7 @@ static int (campaign)(void){
                         list_node_t *it = list_begin(shooter_list);
                         while (it != list_end(shooter_list)) {
                             gunner_t *p = *(gunner_t**)list_node_val(it);
-                            get_random_spawn(map1, p);
+                            get_random_spawn(map1, p, shooter_list);
                             gunner_set_curr_health(p, gunner_get_health(p));
                             it = list_node_next(it);
                         }
@@ -425,9 +407,6 @@ static int (zombies)(void){
                     case TIMER0_IRQ:
                     if (no_interrupts % 60 == 0) timer_update(in_game_timer);
 
-                    clock_t t1, t2;
-                    t1 = clock();
-
                     update_movement(map1, shooter1, keys, shooter_list);
 
                     update_game_state(map1, shooter_list, bullet_list);
@@ -449,7 +428,7 @@ static int (zombies)(void){
                         gunner_set_health(zombie, health);
                         gunner_set_curr_health(zombie, health);
                         health *= ZOMBIE_HEALTH_FACTOR;
-                        get_random_spawn(map1, zombie);
+                        get_random_spawn(map1, zombie, shooter_list);
                         list_push_back(shooter_list, zombie);
                     }
 
@@ -464,26 +443,10 @@ static int (zombies)(void){
                     sprite_draw(sp_crosshair);
                     graph_draw();
 
-                    t2 = clock();
-                    printf("%d microseconds\n", t2-t1);
-
                     break;
                     case KBC_IRQ:
                     if ((scancode[0]) == ESC_BREAK_CODE) {
                         good = false;
-                        // reset game
-                        while(list_size(bullet_list) > 0){
-                            bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
-                            bullet_dtor(p);
-                        }
-                        list_node_t *it = list_begin(shooter_list);
-                        while (it != list_end(shooter_list)) {
-                            gunner_t *p = *(gunner_t**)list_node_val(it);
-                            get_random_spawn(map1, p);
-                            gunner_set_curr_health(p, gunner_get_health(p));
-                            it = list_node_next(it);
-                        }
-                        timer_reset(in_game_timer);
                     }
                     break;
                     case MOUSE_IRQ:

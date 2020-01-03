@@ -197,10 +197,14 @@ int (text_draw)(const text_t *p){
         }
     }
     // Draw text
-    for(int16_t newy = 0; newy < newH; ++newy){
+    for(int16_t x, y, newy = 0; newy < newH; ++newy){
+        y = inity+newy;
         for(int16_t newx = 0; newx < newW; ++newx){
+            x = initx+newx;
+            if(!(0 <= x && x < graph_get_XRes() &&
+                 0 <= y && y < graph_get_YRes())) continue;
             uint8_t a = *(alp_new_buf+newx+newy*newW);
-            if(a < 0x7F) graph_set_pixel(initx+newx,inity+newy,p->color);
+            if(a < ALPHA_THRESHOLD) graph_set_pixel(x,y,p->color);
         }
     }
     free(alp_new_buf);

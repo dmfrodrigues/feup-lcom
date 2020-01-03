@@ -18,6 +18,8 @@ typedef struct font font_t;
 font_t* (font_ctor)(const char *s);
 void    (font_dtor)(font_t *p);
 
+font_t *consolas;
+
 struct text;
 typedef struct text text_t;
 text_t* (text_ctor)(const font_t *fnt, const char *txt);

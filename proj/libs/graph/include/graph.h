@@ -11,9 +11,10 @@
 #define LINEAR_FRAME_BUFFER_MD  BIT(14)
 
 // Colors in RBG (8 bit)
-#define GRAPH_BLACK               0x000000
-#define GRAPH_WHITE               0xFFFFFF
-#define GRAPH_TRANSPARENT         0x00
+#define GRAPH_BLACK             0x000000
+#define GRAPH_WHITE             0xFFFFFF
+#define GRAPH_TRANSPARENT       0x00
+#define GRAPH_RED               0xFF0000
 
 // Alpha
 #define ALPHA_THRESHOLD     0x7F
