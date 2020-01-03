@@ -84,12 +84,30 @@ font_t* (font_ctor)(const char *s){
         return NULL;
     }
 }
-void (font_dtor)(font_t *p){
-    if(p == NULL) return;
+int (font_dtor)(font_t *p){
+    if(p == NULL) return SUCCESS;
     for(size_t i = 0; i < p->nchars; ++i)
         glyph_dtor(p->glyphs[i]);
     free(p->glyphs);
     free(p);
+    return SUCCESS;
+}
+
+font_t *consolas = NULL;
+font_t *default_font = NULL;
+
+int (font_init)(void){
+    consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
+    if(consolas == NULL) return NULL_PTR;
+    default_font = consolas;
+    return SUCCESS;
+}
+int (font_free)(void){
+    int r;
+    if((r = font_dtor(consolas))) return r;
+    consolas = NULL;
+    default_font = NULL;
+    return SUCCESS;
 }
 
 struct text{

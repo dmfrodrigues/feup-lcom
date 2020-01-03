@@ -41,7 +41,7 @@ gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_typ
     ret->y = 0.0;
     ret->health = 100;
     ret->current_health = ret->health;
-    ret->txt = text_ctor(consolas, "");
+    ret->txt = text_ctor(default_font, "");
     ret->type = type;
     ret->team = team;
     ret->dude   = sprite_ctor(dude  );
