@@ -60,6 +60,7 @@ map_t                *map1          = NULL;
 sprite_t             *sp_crosshair  = NULL;
 
 static int (singleplayer)(void);
+//static int (multiplayer)(void);
 static int (chat)(void);
 int(proj_main_loop)(int argc, char *argv[]) {
 
@@ -178,6 +179,86 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     return 0;
 }
+
+typedef struct __attribute__((packed)) {
+    // player 1
+    double player1_x;
+    double player1_y;
+    double player1_health;
+    double player1_current_health;
+
+    // player 2
+    double player2_x;
+    double player2_y;
+    double player2_health;
+    double player2_current_health;
+
+    // bullets
+    size_t no_bullets;
+    double *bullets_x;
+    double *bullets_y;
+    double *bullets_vx;
+    double *bullets_vy;
+    bool   *bullet_shooter; // 0 for player 1, otherwise 1 for player 2
+} host_info;
+
+typedef struct __attribute__((packed)) {
+    keys_t client_keys_pressed;
+    int32_t client_mouse_x;
+    int32_t client_mouse_y;
+    size_t bullets_shot;
+    double *bullets_x;
+    double *bullets_y;
+} client_info;
+/*
+static void host_to_client_process(const uint8_t *p, const size_t sz) {
+
+}
+
+static void client_to_host_process(const uint8_t *p, const size_t sz) {
+}
+
+static int (multiplayer)(void) {
+
+    //int r;
+
+    ent_set_scale(DEFAULT_SCALE);
+    //text_timer_t *in_game_timer = timer_ctor(consolas);
+
+    list_t *shooter_list = list_ctor();
+
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_set_spawn(shooter1, 75, 75);
+
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
+    gunner_set_spawn(shooter2, 975, 75);
+
+    list_insert(shooter_list, list_end(shooter_list), shooter1);
+    list_insert(shooter_list, list_end(shooter_list), shooter2);
+
+    do {
+        get_random_spawn(map1, shooter1, shooter_list);
+        get_random_spawn(map1, shooter2, shooter_list);
+    } while (distance_gunners(shooter1, shooter2) < 700);
+
+    list_t *bullet_list  = list_ctor();
+
+    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+
+    /// loop stuff
+    uint32_t int_vector = 0;
+    int good = true;
+
+    // incomplete
+
+    return 0;
+}*/
 
 static int (campaign)(void);
 static int (zombies)(void);
