@@ -357,73 +357,103 @@ int16_t        (basic_sprite_alpha_get_v0) (const basic_sprite_alpha_t *p){ retu
 struct sprite{
     const basic_sprite_t *bsp;
     int16_t x, y; //position in screen
-    double theta, s, c;
-    double scale;
+    int16_t su0, sv0;
+    float theta, s, c;
+    float scale;
+    uint8_t *sbuf;
 };
 sprite_t* (sprite_ctor)(const basic_sprite_t *bsp){
     sprite_t *ret = malloc(sizeof(sprite_t));
     if(ret == NULL) return NULL;
     ret->bsp = bsp;
+    ret->sbuf = NULL;
     ret->x = 0;
     ret->y = 0;
     sprite_set_angle(ret, 0.0);
-    ret->scale = 1.0;
+    sprite_set_scale(ret, 1.0);
     return ret;
 }
 void (sprite_dtor)(sprite_t *p){
     if(p == NULL) return;
+    free(p->sbuf);
     free(p);
 }
 void (sprite_set_pos)   (sprite_t *p, int16_t x , int16_t y ){ p->x = x; p->y = y; }
 void (sprite_set_angle) (sprite_t *p, double angle          ){ p->theta = angle; p->c = fm_cos(p->theta); p->s = fm_sin(p->theta); }
-void (sprite_set_scale) (sprite_t *p, double scale          ){ p->scale = scale; }
+void (sprite_set_scale) (sprite_t *p, double scale          ){
+    if(p->scale == scale) return;
+    p->scale = scale;
+
+    p->su0 = p->bsp->u0*p->scale;
+    p->sv0 = p->bsp->u0*p->scale;
+
+    const uint16_t W = basic_sprite_get_w(p->bsp),
+                   H = basic_sprite_get_h(p->bsp);
+    uint16_t sW = W*scale, sH = H*scale;
+    p->sbuf = realloc(p->sbuf, sW*sH*4);
+    const uint8_t *map = basic_sprite_get_map(p->bsp);
+    for(uint16_t sx = 0; sx < sW; ++sx){
+        for(uint16_t sy = 0; sy < sH; ++sy){
+            uint16_t x = sx/scale, y = sy/scale;
+            if(x > W || y > H) continue;
+            memcpy(p->sbuf+4*(sx+sy*sW), map+4*(x+y*W), 4);
+        }
+    }
+}
 int16_t  (sprite_get_x)(const sprite_t *p){ return p->x; }
 int16_t  (sprite_get_y)(const sprite_t *p){ return p->y; }
 double   (sprite_get_angle)(const sprite_t *p){ return p->theta; }
 uint16_t (sprite_get_w)(const sprite_t *p){ return basic_sprite_get_w(p->bsp); }
 uint16_t (sprite_get_h)(const sprite_t *p){ return basic_sprite_get_h(p->bsp); }
-void (sprite_src2pic)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
-    double dx = (x - p->x)/p->scale;
-    double dy = (y - p->y)/p->scale;
-    int16_t du = dx*p->c - dy*p->s - 0.5;
-    int16_t dv = dx*p->s + dy*p->c - 0.5;
-    *u = du + basic_sprite_get_u0(p->bsp);
-    *v = dv + basic_sprite_get_v0(p->bsp);
+void (sprite_src2sbuf)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int16_t *v){
+    if(p->theta == 0.0){
+        *u = x - p->x + p->su0;
+        *v = y - p->y + p->sv0;
+    }else{
+        float dx = x - p->x;
+        float dy = y - p->y;
+        int16_t du = dx*p->c - dy*p->s - 0.5f;
+        int16_t dv = dx*p->s + dy*p->c - 0.5f;
+        *u = du + p->su0;
+        *v = dv + p->sv0;
+    }
 }
-void (sprite_pic2src)(const sprite_t *p, int16_t u, int16_t v, int16_t *x, int16_t *y){
-    int16_t du = u - basic_sprite_get_u0(p->bsp);
-    int16_t dv = v - basic_sprite_get_v0(p->bsp);
+void (sprite_sbuf2src)(const sprite_t *p, int16_t u, int16_t v, int16_t *x, int16_t *y){
+    int16_t du = u - p->su0;
+    int16_t dv = v - p->sv0;
     double dx =  du*p->c + dv*p->s;
     double dy = -du*p->s + dv*p->c;
-    *x = dx*p->scale + 0.5 + p->x;
-    *y = dy*p->scale + 0.5 + p->y;
+    *x = dx + 0.5 + p->x;
+    *y = dy + 0.5 + p->y;
 }
+
 void (sprite_draw)(const sprite_t *p){
-    const uint16_t w = basic_sprite_get_w(p->bsp);
-    const uint16_t h = basic_sprite_get_h(p->bsp);
+    const uint16_t sw = p->scale*basic_sprite_get_w(p->bsp);
+    const uint16_t sh = p->scale*basic_sprite_get_h(p->bsp);
     int16_t xmin, xmax, ymin, ymax; {
         int16_t x, y;
-        sprite_pic2src(p, 0, 0, &x, &y);
+        sprite_sbuf2src(p, 0 , 0 , &x, &y);
         xmin = x; xmax = x; ymin = y; ymax = y;
-        sprite_pic2src(p, w, 0, &x, &y);
+        sprite_sbuf2src(p, sw, 0 , &x, &y);
         xmin = min(x, xmin); xmax = max(x, xmax); ymin = min(y, ymin); ymax = max(y, ymax);
-        sprite_pic2src(p, 0, h, &x, &y);
+        sprite_sbuf2src(p, 0 , sh, &x, &y);
         xmin = min(x, xmin); xmax = max(x, xmax); ymin = min(y, ymin); ymax = max(y, ymax);
-        sprite_pic2src(p, w, h, &x, &y);
+        sprite_sbuf2src(p, sw, sh, &x, &y);
         xmin = min(x, xmin); xmax = max(x, xmax); ymin = min(y, ymin); ymax = max(y, ymax);
-        xmin = max(xmin-(int16_t)p->scale-2, 0); xmax = min(xmax+(int16_t)p->scale+2, graph_get_XRes());
-        ymin = max(ymin-(int16_t)p->scale-2, 0); ymax = min(ymax+(int16_t)p->scale+2, graph_get_YRes());
+        xmin = max(xmin-2, 0); xmax = min(xmax+2, graph_get_XRes());
+        ymin = max(ymin-2, 0); ymax = min(ymax+2, graph_get_YRes());
     }
-    const uint8_t *map = basic_sprite_get_map(p->bsp);
     const uint16_t bytes_pixel = 3/*graph_get_bytes_pixel()*/;
     for(int16_t u, v, y = ymin; y < ymax; ++y){
         uint8_t *place = video_buf + (xmin + y*graph_get_XRes())*bytes_pixel;
         for(int16_t x = xmin; x < xmax; ++x, place += bytes_pixel){
-            sprite_src2pic(p, x, y, &u, &v);
-            if(0 <= u && u < w && 0 <= v && v < h){
-                const uint8_t *c_p = map+(v*w+u)*4;
-                if(*(c_p+3) < ALPHA_THRESHOLD) //alpha
+            sprite_src2sbuf(p, x, y, &u, &v);
+            //u = x; v = y;
+            if(0 <= u && u < sw && 0 <= v && v < sh){
+                const uint8_t *c_p = p->sbuf+(v*sw+u)*4;
+                if(*(c_p+3) < ALPHA_THRESHOLD){ //alpha
                     memcpy(place, c_p, bytes_pixel);
+                }
             }
         }
     }
