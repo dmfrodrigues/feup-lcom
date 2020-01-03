@@ -26,7 +26,7 @@
 #define HIGHLIGHT_COLOR         0x404040
 #define DELIMITER_COLOR         0x404040
 
-#define MEELEE_RANGE    150
-#define MEELEE_DAMAGE   1
+#define MELEE_RANGE    150
+#define MELEE_DAMAGE   1
 
 #endif /* end of include guard: PROJ_MACROS_H_INCLUDED */

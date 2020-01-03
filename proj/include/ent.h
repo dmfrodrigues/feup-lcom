@@ -12,9 +12,10 @@ double (ent_get_XLength)(void);
 double (ent_get_YLength)(void);
 
 typedef enum {
-    gunner_meelee,
-    gunner_ranged,
-    gunner_player
+    gunner_melee  = BIT(0),
+    gunner_ranged = BIT(1),
+    gunner_player = BIT(2),
+    gunner_follow = BIT(3)
 } gunner_type;
 
 struct gunner;
