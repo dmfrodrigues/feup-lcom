@@ -73,6 +73,7 @@ int16_t (map_get_width)   (const map_t *p);
 int16_t (map_get_height)  (const map_t *p);
 int (map_make_dijkstra)(map_t *p, uint16_t x, uint16_t y);
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull);
+double (distance_gunners)(const gunner_t *shooter1, const gunner_t *shooter2);
 int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2);
 void   (map_draw)(map_t *p);
 
