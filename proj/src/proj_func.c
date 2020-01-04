@@ -27,6 +27,28 @@ int cleanup(void) {
 
 static keys_t key_presses;
 
+host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote) {
+    host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
+    if (ret == NULL) return ret;
+
+    ret->host_x               = gunner_get_x          (host);
+    ret->host_y               = gunner_get_y          (host);
+    ret->host_angle           = gunner_get_angle      (host);
+    ret->host_health          = gunner_get_health     (host);
+    ret->host_current_health  = gunner_get_curr_health(host);
+
+    // remote
+    ret->remote_x               = gunner_get_x          (remote);
+    ret->remote_y               = gunner_get_y          (remote);
+    ret->remote_angle           = gunner_get_angle      (remote);
+    ret->remote_health          = gunner_get_health     (remote);
+    ret->remote_current_health  = gunner_get_curr_health(remote);
+
+    ret->no_bullets = 0;
+
+    return ret;
+}
+
 void host_info_dtor(host_info_t *p) {
     if (p==NULL) return;
 
@@ -43,15 +65,33 @@ void host_info_dtor(host_info_t *p) {
     free(p);
 }
 
+remote_info_t* remote_info_ctor() {
+    remote_info_t *ret = (remote_info_t*)malloc(sizeof(remote_info_t));
+    if (ret == NULL) return ret;
+
+    memset(&(ret->remote_keys_pressed), 0, sizeof(keys_t));
+
+    ret->remote_angle = 0;
+
+    return ret;
+}
+
 void remote_info_dtor(remote_info_t *p) {
     if (p==NULL) return;
+    free(p);
+}
 
-    if ((p->bullets_x) != NULL){ free(p->bullets_x); p->bullets_x = NULL; }
+bullet_info_t* bullet_info_ctor() {
+    bullet_info_t *ret = (bullet_info_t*)malloc(sizeof(bullet_info_t));
+    if (ret == NULL) return ret;
 
-    if ((p->bullets_y) != NULL){ free(p->bullets_y); p->bullets_y = NULL; }
+    ret->new_bullet = false;
 
-    if ((p->bullets_angle) != NULL){ free(p->bullets_angle); p->bullets_angle = NULL; }
+    return ret;
+}
 
+void bullet_info_dtor(bullet_info_t *p) {
+    if (p == NULL) return;
     free(p);
 }
 
@@ -276,6 +316,49 @@ int32_t* get_mouse_Y(void) { return &mouse_y; }
 
 double get_mouse_angle(gunner_t *p) {
     return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
+}
+
+void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list_t *bullet_list) {
+    // host
+    p->host_x               = gunner_get_x          (host);
+    p->host_y               = gunner_get_y          (host);
+    p->host_angle           = gunner_get_angle      (host);
+    p->host_health          = gunner_get_health     (host);
+    p->host_current_health  = gunner_get_curr_health(host);
+
+    // remote
+    p->remote_x               = gunner_get_x          (remote);
+    p->remote_y               = gunner_get_y          (remote);
+    p->remote_angle           = gunner_get_angle      (remote);
+    p->remote_health          = gunner_get_health     (remote);
+    p->remote_current_health  = gunner_get_curr_health(remote);
+
+    // bullets
+    size_t sz = list_size(bullet_list);
+    p->no_bullets = sz;
+    p->bullets_x        = (double*)realloc(p->bullets_x         , sz * sizeof(double));
+    p->bullets_y        = (double*)realloc(p->bullets_y         , sz * sizeof(double));
+    p->bullets_vx       = (double*)realloc(p->bullets_vx        , sz * sizeof(double));
+    p->bullets_vy       = (double*)realloc(p->bullets_vy        , sz * sizeof(double));
+    p->bullets_shooter  = (bool*)  realloc(p->bullets_shooter   , sz * sizeof(bool  ));
+
+    list_node_t *it = list_begin(bullet_list);
+    size_t i = 0;
+    while (it != list_end(bullet_list)) {
+        bullet_t *bullet = *list_node_val(it);
+        p->bullets_x        [i] = bullet_get_x                      (bullet);
+        p->bullets_y        [i] = bullet_get_y                      (bullet);
+        p->bullets_vx       [i] = bullet_get_vx                     (bullet);
+        p->bullets_vy       [i] = bullet_get_vy                     (bullet);
+        p->bullets_shooter  [i] = gunner_get_team(bullet_get_shooter(bullet)) != gunner_get_team(host);
+        it = list_node_next(it);
+        i++;
+    }
+}
+
+void build_remote_structure(remote_info_t *p, keys_t *keys, double angle) {
+    memcpy(&(p->remote_keys_pressed), keys, sizeof(keys_t));
+    p->remote_angle = angle;
 }
 
 text_timer_t* (timer_ctor)(const font_t *fnt){

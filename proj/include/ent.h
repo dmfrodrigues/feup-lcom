@@ -49,6 +49,8 @@ bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double
 void      (bullet_dtor)(bullet_t *p);
 double  (bullet_get_x)       (const bullet_t *p);
 double  (bullet_get_y)       (const bullet_t *p);
+double  (bullet_get_vx)      (const bullet_t *p);
+double  (bullet_get_vy)      (const bullet_t *p);
 int16_t (bullet_get_x_screen)(const bullet_t *p);
 int16_t (bullet_get_y_screen)(const bullet_t *p);
 double  (bullet_get_damage)  (const bullet_t *p);

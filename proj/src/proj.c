@@ -182,20 +182,25 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return 0;
 }
 
-host_info_t     *host   = NULL;
-remote_info_t   *remote = NULL;
+host_info_t     *host_info   = NULL;
+remote_info_t   *remote_info = NULL;
+bullet_info_t   *bullet_info = NULL;
 
 static void multiplayer_process(const uint8_t *p, const size_t sz) {
     void *dest = NULL;
     hltp_type tp = hltp_interpret(p, sz, &dest);
     switch(tp){
         case hltp_type_host:
-            host_info_dtor(host);
-            host = (host_info_t*)dest;
+            host_info_dtor(host_info);
+            host_info = (host_info_t*)dest;
             break;
         case hltp_type_remote:
-            remote_info_dtor(remote);
-            remote = (remote_info_t*)dest;
+            remote_info_dtor(remote_info);
+            remote_info = (remote_info_t*)dest;
+            break;
+        case hltp_type_bullet:
+            bullet_info_dtor(bullet_info);
+            bullet_info = (bullet_info_t*)dest;
             break;
         default: break;
     }
@@ -264,70 +269,6 @@ static int (multiplayer)(void) {
 }
 
 static int (multiplayer_host)(void) {
-    //int r;
-
-    nctp_dump();
-    nctp_set_processor(multiplayer_process);/*
-
-    ent_set_scale(DEFAULT_SCALE);
-    text_timer_t *in_game_timer = timer_ctor(font_get_default());
-
-    list_t *shooter_list = list_ctor();
-
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
-    gunner_set_spawn(shooter1, 75, 75);
-
-    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
-    gunner_set_spawn(shooter2, 975, 75);
-
-    list_insert(shooter_list, list_end(shooter_list), shooter1);
-    list_insert(shooter_list, list_end(shooter_list), shooter2);
-
-    do {
-        get_random_spawn(map1, shooter1, shooter_list);
-        get_random_spawn(map1, shooter2, shooter_list);
-    } while (distance_gunners(shooter1, shooter2) < 700);
-
-    list_t *bullet_list  = list_ctor();
-
-    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
-    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
-
-    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
-    uint8_t last_lb = 0;
-    struct packet pp;
-    keys_t *keys = get_key_presses();
-
-    /// loop stuff
-    uint32_t int_vector = 0;
-    int good = true;
-    int state = 0; // -1 for remote win, 0 for draw, 1 for host win
-    while (good) {
-        if ((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
-            interrupt_handler(i);
-            switch (i) {
-                case TIMER0_IRQ:
-
-                break;
-
-                case KBC_IRQ:
-
-                break;
-
-                case MOUSE_IRQ:
-
-
-                break;
-
-                case COM1_IRQ: nctp_ih(); break;
-            }
-        }
-    }*/
-
-    return 0;
-}
-static int (multiplayer_remote)(void) {/*
     int r;
 
     nctp_dump();
@@ -341,7 +282,7 @@ static int (multiplayer_remote)(void) {/*
     gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 75, 75);
 
-    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 2); if(shooter2 == NULL) printf("Failed to get shooter2\n");
     gunner_set_spawn(shooter2, 975, 75);
 
     list_insert(shooter_list, list_end(shooter_list), shooter1);
@@ -350,7 +291,145 @@ static int (multiplayer_remote)(void) {/*
     do {
         get_random_spawn(map1, shooter1, shooter_list);
         get_random_spawn(map1, shooter2, shooter_list);
-    } while (distance_gunners(shooter1, shooter2) < 700);
+    } while (distance_gunners(shooter1, shooter2) < 500);
+
+    host_info = host_info_ctor(shooter1, shooter2);
+    remote_info = remote_info_ctor();
+    bullet_info = bullet_info_ctor();
+
+    list_t *bullet_list  = list_ctor();
+
+    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+    /// loop stuff
+    uint32_t int_vector = 0;
+    int good = true;
+    int state = 0; // -1 for remote win, 0 for draw, 1 for host win
+    list_node_t *p1, *p2; // player states
+    int state_1, state_2;
+    while (good) {
+        if ((r = get_interrupts_vector(&int_vector))) return r;
+        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+            if (int_vector & n) {
+                interrupt_handler(i);
+                switch (i) {
+                    case TIMER0_IRQ:
+                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+
+                    update_movement(map1, shooter1, keys, shooter_list);
+                    update_movement(map1, shooter2, &(remote_info->remote_keys_pressed), shooter_list);
+
+                    update_game_state(map1, shooter_list, bullet_list);
+
+                    p1 = list_find(shooter_list, shooter1);
+                    p2 = list_find(shooter_list, shooter2);
+
+                    if ((state_1 = (p1 == list_end(shooter_list))) || (state_2 = (p2 == list_end(shooter_list)))) {
+                        state = state_1 - state_2;
+                        good = false;
+                        break;
+                    }
+
+                    double angle = get_mouse_angle(shooter1);
+                    gunner_set_angle(shooter1, angle - M_PI_2);
+
+                    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                   gunner_get_y(shooter1)-ent_get_YLength()/2.0);
+
+                    gunner_set_angle(shooter2, remote_info->remote_angle);
+
+                    build_host_structure(host_info, shooter1, shooter2, bullet_list);
+
+                    hltp_send_host_info(host_info);
+
+                    graph_clear_screen();
+                    map_draw   (map1);
+                    bullet_draw_list(bullet_list);
+                    gunner_draw_list(shooter_list);
+
+                    text_draw(in_game_timer->text);
+
+                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+                    sprite_draw(sp_crosshair);
+                    graph_draw();
+
+                    break;
+                    case KBC_IRQ:
+                    if ((scancode[0]) == ESC_BREAK_CODE) {
+                        good = false;
+                    }
+                    break;
+                    case MOUSE_IRQ:
+                    if (counter_mouse_ih >= 3) {
+                        mouse_parse_packet(packet_mouse_ih, &pp);
+                        update_mouse(&pp);
+                        if (last_lb ^ keys->lb_pressed && keys->lb_pressed)
+                        shoot_bullet(shooter1, bullet_list, bsp_bullet);
+                        last_lb = keys->lb_pressed;
+                        counter_mouse_ih = 0;
+                    }
+                    break;
+
+                    case COM1_IRQ:
+                        nctp_ih();
+                        if (bullet_info->new_bullet) {
+                            shoot_bullet(shooter2, bullet_list, bsp_bullet);
+                            bullet_info->new_bullet = false;
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    while(list_size(shooter_list) > 0){
+        gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
+        gunner_dtor(p);
+    }
+    if(list_dtor(shooter_list)) printf("COULD NOT DESTRUCT SHOOTER LIST\n");
+
+    while(list_size(bullet_list) > 0){
+        bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
+        bullet_dtor(p);
+    }
+    if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
+
+    host_info_dtor(host_info);
+    remote_info_dtor(remote_info);
+    bullet_info_dtor(bullet_info);
+
+    timer_dtor(in_game_timer); in_game_timer = NULL;
+
+    return 0;
+}
+static int (multiplayer_remote)(void) {
+    int r;
+
+    nctp_dump();
+    nctp_set_processor(multiplayer_process);
+
+    ent_set_scale(DEFAULT_SCALE);
+    text_timer_t *in_game_timer = timer_ctor(font_get_default());
+
+    list_t *shooter_list = list_ctor();
+
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 2); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_set_spawn(shooter1, 75, 75);
+
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
+    gunner_set_spawn(shooter2, 975, 75);
+
+    list_insert(shooter_list, list_end(shooter_list), shooter1);
+    list_insert(shooter_list, list_end(shooter_list), shooter2);
+
+    host_info = host_info_ctor(shooter2, shooter1);
+    remote_info = remote_info_ctor();
+    bullet_info = bullet_info_ctor();
 
     list_t *bullet_list  = list_ctor();
 
@@ -365,29 +444,102 @@ static int (multiplayer_remote)(void) {/*
     /// loop stuff
     uint32_t int_vector = 0;
     int good = true;
-    int state = 0; // -1 for remote win, 0 for draw, 1 for host win
     while (good) {
         if ((r = get_interrupts_vector(&int_vector))) return r;
         for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
-            interrupt_handler(i);
-            switch (i) {
-                case TIMER0_IRQ:
+            if (int_vector & n) {
+                interrupt_handler(i);
+                switch (i) {
+                    case TIMER0_IRQ:
+                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
 
-                break;
+                    double angle = get_mouse_angle(shooter1);
 
-                case KBC_IRQ:
+                    build_remote_structure(remote_info, keys, angle);
 
-                break;
+                    hltp_send_remote_info(remote_info);
 
-                case MOUSE_IRQ:
+                    gunner_set_pos(shooter1, host_info->remote_x, host_info->remote_y);
+                    gunner_set_angle(shooter1, host_info->remote_angle);
+                    gunner_set_health(shooter1, host_info->remote_health);
+                    gunner_set_curr_health(shooter1, host_info->remote_current_health);
 
+                    gunner_set_pos(shooter2, host_info->host_x, host_info->host_y);
+                    gunner_set_angle(shooter2, host_info->host_angle);
+                    gunner_set_health(shooter2, host_info->host_health);
+                    gunner_set_curr_health(shooter2, host_info->host_current_health);
 
-                break;
+                    ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
+                                   gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-                case COM1_IRQ: nctp_ih(); break;
+                    for (size_t i = 0; i < host_info->no_bullets; i++) {
+                        if (host_info->bullets_shooter[i]) { // remote
+                            bullet_t *bullet = bullet_ctor(shooter1, bsp_bullet, host_info->bullets_x[i], host_info->bullets_y[i], host_info->bullets_vx[i], host_info->bullets_vy[i]);
+                            list_insert(bullet_list, list_end(bullet_list), bullet);
+                        } else { // host
+                            bullet_t *bullet = bullet_ctor(shooter2, bsp_bullet, host_info->bullets_x[i], host_info->bullets_y[i], host_info->bullets_vx[i], host_info->bullets_vy[i]);
+                            list_insert(bullet_list, list_end(bullet_list), bullet);
+                        }
+                    }
+
+                    graph_clear_screen();
+                    map_draw   (map1);
+                    bullet_draw_list(bullet_list);
+                    gunner_draw_list(shooter_list);
+
+                    text_draw(in_game_timer->text);
+
+                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+                    sprite_draw(sp_crosshair);
+                    graph_draw();
+
+                    while(list_size(bullet_list) > 0){
+                        bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
+                        bullet_dtor(p);
+                    }
+
+                    break;
+                    case KBC_IRQ:
+                    if ((scancode[0]) == ESC_BREAK_CODE) {
+                        good = false;
+                    }
+                    break;
+                    case MOUSE_IRQ:
+                    if (counter_mouse_ih >= 3) {
+                        mouse_parse_packet(packet_mouse_ih, &pp);
+                        update_mouse(&pp);
+                        if (last_lb ^ keys->lb_pressed && keys->lb_pressed) {
+                            bullet_info->new_bullet = true;
+                            hltp_send_bullet_info(bullet_info);
+                        }
+                        last_lb = keys->lb_pressed;
+                        counter_mouse_ih = 0;
+                    }
+                    break;
+
+                    case COM1_IRQ: nctp_ih(); break;
+                }
             }
         }
-    }*/
+    }
+
+    while(list_size(shooter_list) > 0){
+        gunner_t *p = list_erase(shooter_list, list_begin(shooter_list));
+        gunner_dtor(p);
+    }
+    if(list_dtor(shooter_list)) printf("COULD NOT DESTRUCT SHOOTER LIST\n");
+
+    while(list_size(bullet_list) > 0){
+        bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
+        bullet_dtor(p);
+    }
+    if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
+
+    host_info_dtor(host_info);
+    remote_info_dtor(remote_info);
+    bullet_info_dtor(bullet_info);
+
+    timer_dtor(in_game_timer); in_game_timer = NULL;
 
     return 0;
 }
