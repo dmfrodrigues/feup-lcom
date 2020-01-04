@@ -49,7 +49,6 @@ double get_mouse_angle(gunner_t *p);
 typedef struct timer {
     int time;
     text_t *text;
-    char *array;
 } text_timer_t;
 
 text_timer_t* (timer_ctor)(const font_t *fnt);
