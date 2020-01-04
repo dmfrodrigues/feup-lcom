@@ -349,7 +349,7 @@ static int (multiplayer_host)(void) {
 
                     build_host_structure(host_info, shooter1, shooter2, bullet_list);
 
-                    hltp_send_host_info(host_info);
+                    //hltp_send_host_info(host_info);
 
                     graph_clear_screen();
                     map_draw   (map1);
@@ -458,7 +458,7 @@ static int (multiplayer_remote)(void) {
                     case TIMER0_IRQ:
                     if (timer_get_no_interrupts() % 60 == 0) timer_update(in_game_timer);
 
-                    double angle = get_mouse_angle(shooter1);
+                    double angle = get_mouse_angle(shooter1) - M_PI_2;
 
                     build_remote_structure(remote_info, keys, angle);
 
