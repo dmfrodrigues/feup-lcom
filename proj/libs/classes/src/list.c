@@ -54,7 +54,7 @@ int          (list_dtor)     (list_t *l){
 list_node_t* (list_begin)    (list_t *l){ return l->begin_->n; }
 list_node_t* (list_end)      (list_t *l){ return l->end_; }
 size_t       (list_size)     (const list_t *l){ return l->sz; }
-int          (list_empty)    (const list_t *l){ return (l->sz ? true : false); }
+int          (list_empty)    (const list_t *l){ return (l->sz ? false : true); }
 list_node_t* (list_insert)   (list_t *l, list_node_t *position, void *val){
     list_node_t *node = list_node_ctor(position->p, position, val);
     position->p->n = node;
