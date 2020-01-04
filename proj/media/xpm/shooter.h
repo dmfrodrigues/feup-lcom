@@ -4,8 +4,8 @@
 #include "shooter.xpm"
 #include "graph.h"
 
-basic_sprite_t* get_shooter(void){
-    return basic_sprite_ctor((const char **)shooter_xpm, 34, 34);
+static basic_sprite_t* get_shooter(void){
+    return basic_sprite_ctor((const char *const *)shooter_xpm, 34, 34);
 }
 
 #endif //SHOOTER_H_INCLUDED

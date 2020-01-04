@@ -14,9 +14,15 @@ int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     return SUCCESS;
 }
 
-int done = 1;
-int sz = 1;
-int got_error_keyboard = SUCCESS;
+static uint8_t scancode[2];
+static int done = 1;
+static int sz = 1;
+static int got_error_keyboard = SUCCESS;
+const uint8_t* keyboard_get_scancode(void){ return scancode; }
+int keyboard_get_done(void){ return done; }
+int keyboard_get_size(void){ return sz; }
+int keyboard_get_error(void){return got_error_keyboard; }
+
 
 void (kbc_ih)(void) {
     if(done) { sz = 1; }

@@ -77,7 +77,7 @@ int (subscribe_all)(void) {
     if (subscribe_kbc_interrupt(KBC_IRQ, &kbc_id)) {
         printf("%s: failed to subscribe keyboard interrupts.\n", __func__);
         if (unsubscribe_all())
-            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n");
+            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n", __func__);
         return SBCR_ERROR;
     }
     keyboard_subscribed = 1;
@@ -87,26 +87,26 @@ int (subscribe_all)(void) {
     if (subscribe_mouse_interrupt(MOUSE_IRQ, &mouse_id)) { // subscribes mouse interrupts in exclusive mode
         printf("%s: failed to subscribe mouse interrupts.\n", __func__);
         if (unsubscribe_all())
-            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n");
+            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n", __func__);
         return SBCR_ERROR;
     }
     mouse_subscribed = 1;
     if (sys_irqdisable(&mouse_id)) { // temporarily disables our interrupts notifications
         printf("%s: failed to disable mouse interrupts.\n", __func__);
         if (unsubscribe_all())
-            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n");
+            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n", __func__);
         return SBCR_ERROR;
     }
     if (mouse_set_data_report(true)) { // enables mouse data reporting
         printf("%s: failed to enable mouse data reporting.\n", __func__);
         if (unsubscribe_all())
-            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n");
+            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n", __func__);
         return SBCR_ERROR;
     }
     if (sys_irqenable(&mouse_id)) { // re-enables our interrupts notifications
         printf("%s: failed to enable mouse interrupts.\n", __func__);
         if (unsubscribe_all())
-            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n");
+            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n", __func__);
         return SBCR_ERROR;
     }
 
@@ -134,7 +134,7 @@ int (unsubscribe_all)(void) {
     // Unsubscribe Timer Interrupts
     if (timer_subscribed) {
         if (unsubscribe_interrupt(&timer_id)) {
-            printf("%s: failed to unsubcribe timer interrupts.\n");
+            printf("%s: failed to unsubcribe timer interrupts.\n", __func__);
             r = UNSBCR_ERROR;
         }
         timer_subscribed = 0;
@@ -143,7 +143,7 @@ int (unsubscribe_all)(void) {
     // Unsubscribe Keyboard interrupts
     if (keyboard_subscribed) {
         if (unsubscribe_interrupt(&kbc_id)) {
-            printf("%s: failed to unsubcribe keyboard interrupts.\n");
+            printf("%s: failed to unsubcribe keyboard interrupts.\n", __func__);
             r = UNSBCR_ERROR;
         }
         keyboard_subscribed = 0;
@@ -152,19 +152,19 @@ int (unsubscribe_all)(void) {
     // Unsubscribe Mouse Interrupts
     if (mouse_subscribed) {
         if (sys_irqdisable(&mouse_id)) { // temporarily disables our interrupts notifications
-            printf("%s: failed to disable mouse interrupts.\n");
+            printf("%s: failed to disable mouse interrupts.\n", __func__);
             r = UNSBCR_ERROR;
         }
         if (mouse_set_data_report(false)) { // disables mouse data reporting
-            printf("%s: failed to disable mouse data reporting.\n");
+            printf("%s: failed to disable mouse data reporting.\n", __func__);
             r = UNSBCR_ERROR;
         }
         if (sys_irqenable(&mouse_id)) { // re-enables our interrupts notifications
-            printf("%s: failed to enable mouse interrupts.\n");
+            printf("%s: failed to enable mouse interrupts.\n", __func__);
             r = UNSBCR_ERROR;
         }
         if (unsubscribe_interrupt(&mouse_id)) { // unsubscribes interrupts
-            printf("%s: failed to unsubcribe mouse interrupts.\n");
+            printf("%s: failed to unsubcribe mouse interrupts.\n", __func__);
             r = UNSBCR_ERROR;
         }
         mouse_subscribed = 0;
@@ -173,7 +173,7 @@ int (unsubscribe_all)(void) {
     // Unsubscribe UART interrupts
     if (uart_subscribed) {
         if (unsubscribe_interrupt(&uart_id)) {
-            printf("%s: failed to unsubcribe UART interrupts.\n");
+            printf("%s: failed to unsubcribe UART interrupts.\n", __func__);
             r = UNSBCR_ERROR;
         }
         uart_enable_int_rx(COM1_ADDR);

@@ -33,21 +33,14 @@ void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l);
 
 void update_scale(void);
 
-int32_t* get_mouse_X(void);
+int16_t* get_mouse_X(void);
 
-int32_t* get_mouse_Y(void);
+int16_t* get_mouse_Y(void);
 
 void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list_t *bullet_list);
 
 void build_remote_structure(remote_info_t *p, keys_t *keys, double angle);
 
-/**
- * @brief
- * @param
- * @param
- * @param
- * @return Angle
- */
 double get_mouse_angle(gunner_t *p);
 
 typedef struct timer {

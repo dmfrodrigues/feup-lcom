@@ -287,7 +287,7 @@ struct basic_sprite{
     uint16_t w, h;
     int16_t u0, v0;
 };
-basic_sprite_t* (basic_sprite_ctor)(const char **xpm, int16_t u0, int16_t v0){
+basic_sprite_t* (basic_sprite_ctor)(const char *const *xpm, int16_t u0, int16_t v0){
     basic_sprite_t *ret = malloc(sizeof(basic_sprite_t));
     if(ret == NULL) return NULL;
     enum xpm_image_type type = XPM_8_8_8_8;
@@ -358,8 +358,8 @@ struct sprite{
     const basic_sprite_t *bsp;
     int16_t x, y; //position in screen
     int16_t su0, sv0;
-    float theta, s, c;
-    float scale;
+    double theta, s, c;
+    double scale;
     uint8_t *sbuf;
 };
 sprite_t* (sprite_ctor)(const basic_sprite_t *bsp){
@@ -410,8 +410,8 @@ void (sprite_src2sbuf)(const sprite_t *p, int16_t x, int16_t y, int16_t *u, int1
         *u = x - p->x + p->su0;
         *v = y - p->y + p->sv0;
     }else{
-        float dx = x - p->x;
-        float dy = y - p->y;
+        double dx = x - p->x;
+        double dy = y - p->y;
         int16_t du = dx*p->c - dy*p->s - 0.5f;
         int16_t dv = dx*p->s + dy*p->c - 0.5f;
         *u = du + p->su0;

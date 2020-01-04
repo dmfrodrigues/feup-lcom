@@ -15,7 +15,7 @@ typedef struct keys {
     uint8_t lb_pressed      : 1;
 } keys_t;
 
-typedef struct __attribute__((packed)) {
+typedef struct {
     // host
     double  host_x;
     double  host_y;
@@ -39,12 +39,12 @@ typedef struct __attribute__((packed)) {
     bool   *bullets_shooter; // false for host, true for remote
 } host_info_t;
 
-typedef struct __attribute__((packed)) {
+typedef struct {
     keys_t  remote_keys_pressed;
     double  remote_angle;
 } remote_info_t;
 
-typedef struct __attribute__((packed)) {
+typedef struct {
     bool   new_bullet;
 } bullet_info_t;
 

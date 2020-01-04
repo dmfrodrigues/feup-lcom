@@ -176,7 +176,6 @@ void (text_set_valign)(text_t *p, text_valign valign  ){ p->valign = valign; }
 void (text_set_halign)(text_t *p, text_halign halign  ){ p->halign = halign; }
 int16_t (text_get_x)  (const text_t *p){ return p->x; }
 int16_t (text_get_y)  (const text_t *p){ return p->y; }
-
 int (text_draw)(const text_t *p){
     if(p == NULL) return NULL_PTR;
     int ret = SUCCESS;

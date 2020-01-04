@@ -49,14 +49,14 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-basic_sprite_t       *bsp_crosshair = NULL;
-basic_sprite_t       *bsp_shooter   = NULL;
-basic_sprite_t       *bsp_zombie    = NULL;
-basic_sprite_t       *bsp_pistol    = NULL;
-basic_sprite_t       *bsp_nothing   = NULL;
-basic_sprite_t       *bsp_bullet    = NULL;
-map_t                *map1          = NULL;
-sprite_t             *sp_crosshair  = NULL;
+static basic_sprite_t       *bsp_crosshair = NULL;
+static basic_sprite_t       *bsp_shooter   = NULL;
+static basic_sprite_t       *bsp_zombie    = NULL;
+static basic_sprite_t       *bsp_pistol    = NULL;
+static basic_sprite_t       *bsp_nothing   = NULL;
+static basic_sprite_t       *bsp_bullet    = NULL;
+static map_t                *map1          = NULL;
+static sprite_t             *sp_crosshair  = NULL;
 
 static int (singleplayer)(void);
 static int (multiplayer)(void);
@@ -118,7 +118,8 @@ int(proj_main_loop)(int argc, char *argv[]) {
     while (good) {
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
@@ -142,7 +143,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
                     if (counter_mouse_ih >= 3) {
                         mouse_parse_packet(packet_mouse_ih, &pp);
@@ -182,9 +183,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return 0;
 }
 
-host_info_t     *host_info   = NULL;
-remote_info_t   *remote_info = NULL;
-bullet_info_t   *bullet_info = NULL;
+static host_info_t     *host_info   = NULL;
+static remote_info_t   *remote_info = NULL;
+static bullet_info_t   *bullet_info = NULL;
 
 static void multiplayer_process(const uint8_t *p, const size_t sz) {
     void *dest = NULL;
@@ -202,7 +203,8 @@ static void multiplayer_process(const uint8_t *p, const size_t sz) {
             bullet_info_dtor(bullet_info);
             bullet_info = (bullet_info_t*)dest;
             break;
-        default: break;
+        case hltp_type_invalid: break;
+        case hltp_type_string : break;
     }
 }
 static int (multiplayer_host)(void);
@@ -227,7 +229,8 @@ static int (multiplayer)(void) {
     while (good) {
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
@@ -250,7 +253,7 @@ static int (multiplayer)(void) {
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
                     if (counter_mouse_ih >= 3) {
                         mouse_parse_packet(packet_mouse_ih, &pp);
@@ -279,10 +282,10 @@ static int (multiplayer_host)(void) {
 
     list_t *shooter_list = list_ctor();
 
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, GUNNER_PLAYER, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 75, 75);
 
-    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 2); if(shooter2 == NULL) printf("Failed to get shooter2\n");
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, GUNNER_PLAYER, 2); if(shooter2 == NULL) printf("Failed to get shooter2\n");
     gunner_set_spawn(shooter2, 975, 75);
 
     list_insert(shooter_list, list_end(shooter_list), shooter1);
@@ -314,12 +317,13 @@ static int (multiplayer_host)(void) {
     int state_1, state_2;
     while (good) {
         if ((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
                     case TIMER0_IRQ:
-                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+                    if (timer_get_no_interrupts() % 60 == 0) timer_update(in_game_timer);
 
                     update_movement(map1, shooter1, keys, shooter_list);
                     update_movement(map1, shooter2, &(remote_info->remote_keys_pressed), shooter_list);
@@ -360,7 +364,7 @@ static int (multiplayer_host)(void) {
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) {
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }
                     break;
@@ -418,10 +422,10 @@ static int (multiplayer_remote)(void) {
 
     list_t *shooter_list = list_ctor();
 
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 2); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, GUNNER_PLAYER, 2); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 75, 75);
 
-    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_pistol, GUNNER_PLAYER, 1); if(shooter2 == NULL) printf("Failed to get shooter2\n");
     gunner_set_spawn(shooter2, 975, 75);
 
     list_insert(shooter_list, list_end(shooter_list), shooter1);
@@ -446,12 +450,13 @@ static int (multiplayer_remote)(void) {
     int good = true;
     while (good) {
         if ((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
                     case TIMER0_IRQ:
-                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+                    if (timer_get_no_interrupts() % 60 == 0) timer_update(in_game_timer);
 
                     double angle = get_mouse_angle(shooter1);
 
@@ -472,12 +477,12 @@ static int (multiplayer_remote)(void) {
                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
-                    for (size_t i = 0; i < host_info->no_bullets; i++) {
-                        if (host_info->bullets_shooter[i]) { // remote
-                            bullet_t *bullet = bullet_ctor(shooter1, bsp_bullet, host_info->bullets_x[i], host_info->bullets_y[i], host_info->bullets_vx[i], host_info->bullets_vy[i]);
+                    for (size_t j = 0; j < host_info->no_bullets; j++) {
+                        if (host_info->bullets_shooter[j]) { // remote
+                            bullet_t *bullet = bullet_ctor(shooter1, bsp_bullet, host_info->bullets_x[j], host_info->bullets_y[j], host_info->bullets_vx[j], host_info->bullets_vy[j]);
                             list_insert(bullet_list, list_end(bullet_list), bullet);
                         } else { // host
-                            bullet_t *bullet = bullet_ctor(shooter2, bsp_bullet, host_info->bullets_x[i], host_info->bullets_y[i], host_info->bullets_vx[i], host_info->bullets_vy[i]);
+                            bullet_t *bullet = bullet_ctor(shooter2, bsp_bullet, host_info->bullets_x[j], host_info->bullets_y[j], host_info->bullets_vx[j], host_info->bullets_vy[j]);
                             list_insert(bullet_list, list_end(bullet_list), bullet);
                         }
                     }
@@ -500,7 +505,7 @@ static int (multiplayer_remote)(void) {
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) {
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }
                     break;
@@ -567,7 +572,8 @@ static int (singleplayer)(void) {
     while (good) {
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
@@ -590,7 +596,7 @@ static int (singleplayer)(void) {
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) good = false;
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
                     if (counter_mouse_ih >= 3) {
                         mouse_parse_packet(packet_mouse_ih, &pp);
@@ -618,11 +624,11 @@ static int (campaign)(void){
 
     list_t *shooter_list = list_ctor();
 
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, GUNNER_PLAYER, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 75, 75);
     gunner_set_pos(shooter1, 75, 75);
 
-    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing, gunner_player, 2);
+    gunner_t *shooter2 = gunner_ctor(bsp_shooter, bsp_nothing, GUNNER_PLAYER, 2);
     gunner_set_spawn(shooter2, 975, 75);
     gunner_set_pos(shooter2, 775, 75);
 
@@ -645,14 +651,15 @@ static int (campaign)(void){
     while (good) {
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if(!good) break;
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
                     case TIMER0_IRQ:
 
-                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
+                    if (timer_get_no_interrupts() % 60 == 0) timer_update(in_game_timer);
                     update_movement(map1, shooter1, keys, shooter_list);
 
                     update_game_state(map1, shooter_list, bullet_list);
@@ -677,7 +684,7 @@ static int (campaign)(void){
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) {
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }
                     break;
@@ -726,7 +733,7 @@ static int (zombies)(void){
 
     list_t *shooter_list = list_ctor();
 
-    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, gunner_player, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
+    gunner_t *shooter1 = gunner_ctor(bsp_shooter, bsp_pistol, GUNNER_PLAYER, 1); if(shooter1 == NULL) printf("Failed to get shooter1\n");
     gunner_set_spawn(shooter1, 980, 790);
     gunner_set_pos(shooter1, 980, 790);
 
@@ -749,28 +756,20 @@ static int (zombies)(void){
 
     int health = 50;
 
-    /** #DEV */ /* {
-        gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, gunner_melee | gunner_follow, 3);
-        gunner_set_health(zombie, health);
-        gunner_set_curr_health(zombie, health);
-        health *= ZOMBIE_HEALTH_FACTOR;
-        gunner_set_pos(zombie, 1100, 75);
-        list_push_back(shooter_list, zombie);
-    }*/ //\#DEV
-
     map_make_dijkstra(map1, gunner_get_x(shooter1), gunner_get_y(shooter1));
 
     while (good && !dead) {
         /* Get a request message. */
         if((r = get_interrupts_vector(&int_vector))) return r;
-        for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
             if(!good || dead) break;
             if (int_vector & n) {
                 interrupt_handler(i);
                 switch (i) {
                     case TIMER0_IRQ:
-                    if (no_interrupts % 60 == 0) timer_update(in_game_timer);
-                    if (no_interrupts %  6 == 0){
+                    if (timer_get_no_interrupts() % 60 == 0) timer_update(in_game_timer);
+                    if (timer_get_no_interrupts() %  6 == 0){
                         map_make_dijkstra(map1, gunner_get_x(shooter1), gunner_get_y(shooter1));
                     }
 
@@ -791,7 +790,7 @@ static int (zombies)(void){
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                     while(list_size(shooter_list) < ZOMBIES_NUM+1){
-                        gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, gunner_melee | gunner_follow, 3);
+                        gunner_t *zombie = gunner_ctor(bsp_zombie, bsp_nothing, GUNNER_MELEE | GUNNER_FOLLOW, 3);
                         gunner_set_health(zombie, health);
                         gunner_set_curr_health(zombie, health);
                         health *= ZOMBIE_HEALTH_FACTOR;
@@ -812,7 +811,7 @@ static int (zombies)(void){
 
                     break;
                     case KBC_IRQ:
-                    if ((scancode[0]) == ESC_BREAK_CODE) {
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }
                     break;
@@ -856,8 +855,8 @@ static int (zombies)(void){
 
 #define CHAT_MAX_SIZE   75
 #define CHAT_MAX_NUM    19
-text_t      *t_text[CHAT_MAX_NUM] = {NULL};
-rectangle_t *r_text               =  NULL;
+static text_t      *t_text[CHAT_MAX_NUM] = {NULL};
+static rectangle_t *r_text               =  NULL;
 static void chat_process(const uint8_t *p, const size_t sz){
     char buffer2[CHAT_MAX_NUM+3];
     void *dest = NULL;
@@ -879,7 +878,10 @@ static void chat_process(const uint8_t *p, const size_t sz){
             }
         }
         break;
-        default: break;
+        case hltp_type_invalid: break;
+        case hltp_type_bullet : break;
+        case hltp_type_host   : break;
+        case hltp_type_remote : break;
     }
 }
 static int (chat)(void){
@@ -894,7 +896,7 @@ static int (chat)(void){
     rectangle_t *r_buffer = NULL; {
         r_buffer = rectangle_ctor(0,0,900,70);
         rectangle_set_pos(r_buffer, graph_get_XRes()/2  -rectangle_get_w(r_buffer)/2,
-        graph_get_YRes()*0.87-rectangle_get_h(r_buffer)/2);
+        (int16_t)(graph_get_YRes()*0.87-rectangle_get_h(r_buffer)/2));
         rectangle_set_fill_color   (r_buffer, GRAPH_BLACK);
         rectangle_set_outline_width(r_buffer, 2);
         rectangle_set_outline_color(r_buffer, GRAPH_WHITE);
@@ -924,14 +926,14 @@ static int (chat)(void){
     /** r_text */ {
     r_text = rectangle_ctor(0,0,900,550);
     rectangle_set_pos(r_text, graph_get_XRes()/2  -rectangle_get_w(r_buffer)/2,
-    graph_get_YRes()*0.09);
+    (int16_t)(graph_get_YRes()*0.09));
     rectangle_set_fill_color   (r_text, GRAPH_BLACK);
     rectangle_set_outline_width(r_text, 2);
     rectangle_set_outline_color(r_text, GRAPH_WHITE);
     rectangle_set_fill_trans(r_text, GRAPH_TRANSPARENT);
     }
     /** t_text */ {
-    for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
+    for(uint16_t i = 0; i < CHAT_MAX_NUM; ++i){
         t_text[i] = text_ctor(font_get_default(), " ");
         text_set_pos(t_text[i], rectangle_get_x(r_text)+50,
         rectangle_get_y(r_text)+rectangle_get_h(r_text)-30-25*i);
@@ -947,7 +949,8 @@ int good = true;
 while (good) {
     /* Get a request message. */
     if((r = get_interrupts_vector(&int_vector))) return r;
-    for (uint32_t i = 0, n = 1; i < 32; i++, n <<= 1) {
+    uint32_t n = 1;
+    for (uint8_t i = 0; i < 32; i++, n <<= 1) {
         if (int_vector & n) {
             interrupt_handler(i);
             switch (i) {
@@ -960,34 +963,33 @@ while (good) {
                 text_draw(t_size);
 
                 rectangle_draw(r_text);
-                for(size_t i = 0; i < CHAT_MAX_NUM; ++i) text_draw(t_text[i]);
+                for(size_t j = 0; j < CHAT_MAX_NUM; ++j) text_draw(t_text[j]);
 
                 sprite_draw(sp_crosshair);
                 graph_draw();
                 break;
                 case KBC_IRQ:
-                if      (scancode[0] == ESC_BREAK_CODE) good = false;
-                else if (scancode[0] == ENTER_MAKE_CODE) {
+                if      (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
+                else if (keyboard_get_scancode()[0] == ENTER_MAKE_CODE) {
                     hltp_send_string(buffer);
                     char buffer2[CHAT_MAX_SIZE+3] = "> ";
                     strncat(buffer2, buffer, strlen(buffer));
-                    for(size_t i = CHAT_MAX_NUM-1; i; --i)
-                    text_set_string(t_text[i], text_get_string(t_text[i-1]));
+                    for(size_t j = CHAT_MAX_NUM-1; j; --j) text_set_string(t_text[i], text_get_string(t_text[i-1]));
                     text_set_string(t_text[0], buffer2);
-                    for(size_t i = 0; i < CHAT_MAX_NUM; ++i){
-                        if(text_get_string(t_text[i])[0] == '>'){
-                            text_set_pos(t_text[i], rectangle_get_x(r_text)+50, text_get_y(t_text[i]));
-                            text_set_halign(t_text[i], text_halign_left);
+                    for(size_t j = 0; j < CHAT_MAX_NUM; ++j){
+                        if(text_get_string(t_text[j])[0] == '>'){
+                            text_set_pos(t_text[j], rectangle_get_x(r_text)+50, text_get_y(t_text[j]));
+                            text_set_halign(t_text[j], text_halign_left);
                         }else{
-                            text_set_pos(t_text[i], rectangle_get_x(r_text)+rectangle_get_w(r_text)-50, text_get_y(t_text[i]));
-                            text_set_halign(t_text[i], text_halign_right);
+                            text_set_pos(t_text[j], rectangle_get_x(r_text)+rectangle_get_w(r_text)-50, text_get_y(t_text[j]));
+                            text_set_halign(t_text[j], text_halign_right);
                         }
                     }
                     buffer[0] = '\0';
-                } else if(scancode[0] == BACKSPACE_MAKE_CODE){
+                } else if(keyboard_get_scancode()[0] == BACKSPACE_MAKE_CODE){
                     buffer[strlen(buffer)-1] = '\0';
                 } else {
-                    char c = map_makecode(scancode[0]);
+                    char c = map_makecode(keyboard_get_scancode()[0]);
                     if (c == ERROR_CODE) break;
                     if(strlen(buffer) < CHAT_MAX_SIZE) strncat(buffer, &c, 1);
                     else                               printf("Char limit exceeded\n");
