@@ -19,23 +19,23 @@
 // Byte 2 - Y delta
 
 /* Mouse Commands */
-//#define RESET           0xFF /* @brief Reset mouse */
-//#define RESEND          0xFE /* @brief Resend command */
-//#define DEFAULT         0xF6 /* @brief Set default values */
+#define RESET           0xFF /* @brief Reset mouse */
+#define RESEND          0xFE /* @brief Resend command */
+#define DEFAULT         0xF6 /* @brief Set default values */
 #define DIS_DATA_REP    0xF5 /* @brief Disable Data Reporting */
 #define ENABLE_DATA_REP 0xF4 /* @brief Enable Data Reporting */
-//#define SET_SAMPLE_RT   0xF3 /* @brief Sets state sampling rate */
-//#define SET_REMOTE_MD   0xF0 /* @brief Sets Mouse on Remote Mode, data on request */
+#define SET_SAMPLE_RT   0xF3 /* @brief Sets state sampling rate */
+#define SET_REMOTE_MD   0xF0 /* @brief Sets Mouse on Remote Mode, data on request */
 #define READ_DATA       0xEB /* @brief Sends data packet request */
-//#define SET_STREAM_MD   0xEA /* @brief Sets mouse on Stream Mode, data on events */
-//#define STATUS_REQUEST  0xE9 /* @brief Get mouse configuration */
-//#define SET_RESOLUTION  0xE8 /* @brief Sets resolution for mouse movement */
-//#define SCALING_ACC_MD  0xE7 /* @brief Sets scaling on acceleration mode */
-//#define SCALING_LIN_MD  0xE6 /* @brief Sets scaling on linear mode */
+#define SET_STREAM_MD   0xEA /* @brief Sets mouse on Stream Mode, data on events */
+#define STATUS_REQUEST  0xE9 /* @brief Get mouse configuration */
+#define SET_RESOLUTION  0xE8 /* @brief Sets resolution for mouse movement */
+#define SCALING_ACC_MD  0xE7 /* @brief Sets scaling on acceleration mode */
+#define SCALING_LIN_MD  0xE6 /* @brief Sets scaling on linear mode */
 
 /* Mouse Controller Responses */
 #define ACK_OK      0xFA /* @brief Operation sucessful */
-//#define ACK_INVALID 0xFE /* @brief Invalid Byte, first occurence */
+#define ACK_INVALID 0xFE /* @brief Invalid Byte, first occurence */
 #define ACK_ERROR   0xFC /* @brief Invalid Byte on resend */
 
 int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {

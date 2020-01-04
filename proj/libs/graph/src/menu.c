@@ -8,11 +8,11 @@
 #include "proj_macros.h"
 #include "errors.h"
 
-const int W  = 400;
-const int H  = 60;
-const int W1 = 40;
-const int H1 = 40;
-const int H2 = 20;
+static const int W  = 400;
+static const int H  = 60;
+static const int W1 = 40;
+static const int H1 = 40;
+static const int H2 = 20;
 
 struct menu {
     const font_t *fnt;
@@ -23,10 +23,10 @@ struct menu {
 };
 
 static int menu_recalculate(menu_t *menu){
-    const int Wtotal = 2*W1+W;
-    const int Htotal = 2*H1+menu->sz*H+(menu->sz-1)*H2;
-    int x = graph_get_XRes()/2-Wtotal/2;
-    int y = graph_get_YRes()/2-Htotal/2;
+    const uint16_t Wtotal = 2*W1+W;
+    const uint16_t Htotal = (uint16_t)(2*H1+menu->sz*H+(menu->sz-1)*H2);
+    int16_t x = graph_get_XRes()/2-Wtotal/2;
+    int16_t y = graph_get_YRes()/2-Htotal/2;
     rectangle_set_pos (menu->frame, x, y);
     rectangle_set_size(menu->frame, Wtotal, Htotal);
     x += W1; y += H1;
@@ -86,7 +86,7 @@ int (menu_update_state)(menu_t *menu, int click) {
     if(!click) return -1;
     for(size_t i = 0; i < menu->sz; ++i)
         if(rectangle_collide_point(menu->r[i], *get_mouse_X(), *get_mouse_Y()))
-            return i;
+            return (int)i;
     return -1;
 }
 
