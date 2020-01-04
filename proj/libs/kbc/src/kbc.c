@@ -18,8 +18,8 @@ int (kbc_change_cmd)(uint8_t cmd){
     if((ret = kbc_issue_arg(cmd))) return ret;
     return SUCCESS;
 }
-
-int (kbc_restore_kbd)(){
+/*
+static int (kbc_restore_kbd)(){
     int ret = 0;
     uint8_t cmd = 0;
     if((ret = kbc_read_cmd(&cmd))) return ret;
@@ -27,7 +27,7 @@ int (kbc_restore_kbd)(){
     if((ret = kbc_change_cmd(cmd))) return ret;
     return SUCCESS;
 }
-
+*/
 int (kbc_issue_cmd)(uint8_t cmd){
     int ret = 0;
     uint8_t stat;

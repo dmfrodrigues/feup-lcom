@@ -19,23 +19,23 @@
 // Byte 2 - Y delta
 
 /* Mouse Commands */
-#define RESET           0xFF /* @brief Reset mouse */
-#define RESEND          0xFE /* @brief Resend command */
-#define DEFAULT         0xF6 /* @brief Set default values */
+//#define RESET           0xFF /* @brief Reset mouse */
+//#define RESEND          0xFE /* @brief Resend command */
+//#define DEFAULT         0xF6 /* @brief Set default values */
 #define DIS_DATA_REP    0xF5 /* @brief Disable Data Reporting */
 #define ENABLE_DATA_REP 0xF4 /* @brief Enable Data Reporting */
-#define SET_SAMPLE_RT   0xF3 /* @brief Sets state sampling rate */
-#define SET_REMOTE_MD   0xF0 /* @brief Sets Mouse on Remote Mode, data on request */
+//#define SET_SAMPLE_RT   0xF3 /* @brief Sets state sampling rate */
+//#define SET_REMOTE_MD   0xF0 /* @brief Sets Mouse on Remote Mode, data on request */
 #define READ_DATA       0xEB /* @brief Sends data packet request */
-#define SET_STREAM_MD   0xEA /* @brief Sets mouse on Stream Mode, data on events */
-#define STATUS_REQUEST  0xE9 /* @brief Get mouse configuration */
-#define SET_RESOLUTION  0xE8 /* @brief Sets resolution for mouse movement */
-#define SCALING_ACC_MD  0xE7 /* @brief Sets scaling on acceleration mode */
-#define SCALING_LIN_MD  0xE6 /* @brief Sets scaling on linear mode */
+//#define SET_STREAM_MD   0xEA /* @brief Sets mouse on Stream Mode, data on events */
+//#define STATUS_REQUEST  0xE9 /* @brief Get mouse configuration */
+//#define SET_RESOLUTION  0xE8 /* @brief Sets resolution for mouse movement */
+//#define SCALING_ACC_MD  0xE7 /* @brief Sets scaling on acceleration mode */
+//#define SCALING_LIN_MD  0xE6 /* @brief Sets scaling on linear mode */
 
 /* Mouse Controller Responses */
 #define ACK_OK      0xFA /* @brief Operation sucessful */
-#define ACK_INVALID 0xFE /* @brief Invalid Byte, first occurence */
+//#define ACK_INVALID 0xFE /* @brief Invalid Byte, first occurence */
 #define ACK_ERROR   0xFC /* @brief Invalid Byte on resend */
 
 int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
@@ -45,12 +45,13 @@ int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     return SUCCESS;
 }
 
-int got_error_mouse_ih = 0;
-uint8_t packet_mouse_ih[3];
-int counter_mouse_ih = 0;
+static int got_error_mouse_ih = 0;
+static uint8_t packet_mouse_ih[3];
+static int counter_mouse_ih = 0;
 int (mouse_get_got_error_mouse_ih)(void){return got_error_mouse_ih; }
 const uint8_t* (mouse_get_packet_mouse_ih)(void){return packet_mouse_ih; }
 int (mouse_get_counter_mouse_ih)(void){return counter_mouse_ih; }
+void (mouse_set_counter_mouse_ih)(int n){ counter_mouse_ih = n; }
 
 void (mouse_ih)(void) {
     uint8_t status = 0;
@@ -117,7 +118,7 @@ int (mouse_read_data)(uint8_t *data, uint16_t period) {
     return SUCCESS;
 }
 
-int (mouse_issue_cmd)(uint32_t cmd) {
+int (mouse_issue_cmd)(uint8_t cmd) {
     int ret;
     uint8_t ack = 0;
     for (unsigned int i = 0; i < KBC_NUM_TRIES; i++) {

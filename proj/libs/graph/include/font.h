@@ -95,11 +95,11 @@ void (text_set_string)(text_t *p, const char *txt);
  */
 void (text_set_pos)   (text_t *p, int16_t x, int16_t y);
 /**
- * @brief Set text size (letter size).
+ * @brief Set text size (letter size, in pixels).
  * @param   p       Pointer to text
  * @param   size    Letter size of the text
  */
-void (text_set_size)  (text_t *p, unsigned size);
+void (text_set_size)  (text_t *p, uint16_t size);
 /**
  * @brief Set text color.
  * @param   p       Pointer to text

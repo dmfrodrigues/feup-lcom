@@ -365,7 +365,8 @@ static int nctp_receive(void){
     return SUCCESS;
 }
 
-int nctp_ih_err = SUCCESS;
+static int nctp_ih_err = SUCCESS;
+int (nctp_get_ih_error)(void){ return nctp_ih_err; }
 void nctp_ih(void){
     uint8_t iir;
     if((nctp_ih_err = uart_get_iir(COM1_ADDR, &iir))) return;

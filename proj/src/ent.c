@@ -13,8 +13,8 @@
 #define GREEN_HEALTH_COLOR      0x009900
 
 static double scale = 1.0;
-static int16_t x_origin = 0;
-static int16_t y_origin = 0;
+static double x_origin = 0;
+static double y_origin = 0;
 
 void (ent_set_scale) (double n){ scale = n; }
 void (ent_set_origin)(double x, double y){ x_origin = x; y_origin = y; }
@@ -91,8 +91,8 @@ double  (gunner_get_spawn_y)        (const gunner_t *p){ return p->spawn_y; }
 double  (gunner_get_angle)          (const gunner_t *p){ return sprite_get_angle(p->dude); }
 double  (gunner_get_health)         (const gunner_t *p){ return p->health; }
 double  (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
-int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
-int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (p->y-y_origin)*scale; }
+int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (int16_t)((p->x-x_origin)*scale); }
+int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (int16_t)((p->y-y_origin)*scale); }
 uint16_t (gunner_get_type)          (const gunner_t *p){ return p->type; }
 int     (gunner_get_team)           (const gunner_t *p){ return p->team; }
 void (gunner_draw)(gunner_t *p){
@@ -107,15 +107,15 @@ void (gunner_draw)(gunner_t *p){
     gunner_draw_health(p);
 }
 void (gunner_draw_health)(const gunner_t *p) {
-    int16_t w = sprite_get_w(p->dude);
-    int16_t h = sprite_get_h(p->dude);
-    double x = gunner_get_x_screen(p) - w/2;
-    double y = gunner_get_y_screen(p) - h/2 - 10;
+    const uint16_t w = sprite_get_w(p->dude);
+    const uint16_t h = sprite_get_h(p->dude);
+    int16_t x = gunner_get_x_screen(p) - w/2;
+    int16_t y = gunner_get_y_screen(p) - h/2 - 10;
     double curr_health = gunner_get_curr_health(p);
     double health = gunner_get_health(p);
     double perc = curr_health/health;
-    rectangle_set_pos(p->green_bar, x, y); rectangle_set_size(p->green_bar, (int16_t)(w*perc), 10);
-    rectangle_set_pos(p->red_bar, x+(int16_t)(w*perc), y); rectangle_set_size(p->red_bar, (int16_t)(w*(1-perc)), 10);
+    rectangle_set_pos(p->green_bar, x, y); rectangle_set_size(p->green_bar, (uint16_t)(w*perc), 10);
+    rectangle_set_pos(p->red_bar, x+(int16_t)(w*perc), y); rectangle_set_size(p->red_bar, (uint16_t)(w*(1.0-perc)), 10);
     char buf[20]; sprintf(buf, "%d/%d", (int)p->current_health, (int)p->health);
     text_set_string(p->txt, buf);
     text_set_pos(p->txt, x+w/2, y+10/2);
@@ -165,8 +165,8 @@ double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
 double  (bullet_get_vx)      (const bullet_t *p){ return p->vx; }
 double  (bullet_get_vy)      (const bullet_t *p){ return p->vy; }
-int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }
-int16_t (bullet_get_y_screen)(const bullet_t *p){ return (p->y-y_origin)*scale; }
+int16_t (bullet_get_x_screen)(const bullet_t *p){ return (int16_t)((p->x-x_origin)*scale); }
+int16_t (bullet_get_y_screen)(const bullet_t *p){ return (int16_t)((p->y-y_origin)*scale); }
 double  (bullet_get_damage)  (const bullet_t *p){ return p->damage; }
 void    (bullet_set_damage)  (bullet_t *p, double damage) {
     if (damage < 0) damage = 0;
@@ -262,7 +262,7 @@ map_t* (map_ctor)(const char *const *background, const char *const *collide){
     ret->collide_gunner = malloc(W*H*sizeof(uint8_t));
     if(ret->collide_gunner == NULL){ map_dtor(ret); return NULL; }
     for(size_t i = 0; i < W*H; ++i){
-        int16_t x = i%W, y = i/W;
+        uint16_t x = i%W, y = (uint16_t)(i/W);
         ret->collide_gunner[i] = (map_collides_gunner_pos(ret, x, y, 36) ? 1 : 0);
     }
 
@@ -284,19 +284,20 @@ void (map_dtor)(map_t *p){
     free(p->visited);
     free(p);
 }
-int16_t (map_get_x_screen)(const map_t *p){ return (-x_origin)*scale; }
-int16_t (map_get_y_screen)(const map_t *p){ return (-y_origin)*scale; }
-int16_t (map_get_width)   (const map_t *p){ return sprite_get_w(p->background); }
-int16_t (map_get_height)  (const map_t *p){ return sprite_get_h(p->background); }
+static int16_t (map_get_x_screen)(const map_t *p){ return (int16_t)((-x_origin)*scale); }
+static int16_t (map_get_y_screen)(const map_t *p){ return (int16_t)((-y_origin)*scale); }
+uint16_t (map_get_width)   (const map_t *p){ return sprite_get_w(p->background); }
+uint16_t (map_get_height)  (const map_t *p){ return sprite_get_h(p->background); }
 int (map_collides_point)(const map_t *p, double x, double y){
     const uint16_t w = sprite_get_w(p->background), h = sprite_get_h(p->background);
-    int16_t x_ = x, y_ = y;
+    int16_t x_ = (int16_t)x, y_ = (int16_t)y;
     if(x_ < 0 || w <= x_ || y_ < 0 || h <= y_) return 0;
-    uint32_t pos = x_ + y_*w;
-    return p->collide[pos];
+    int32_t pos = x_ + y_*w;
+    if(0 <= pos && pos < w*h) return p->collide[pos];
+    else return false;
 }
 int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
-    double radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
+    double radius = dmax(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
 }
 int (map_make_dijkstra)(map_t *p, double x_, double y_){
@@ -347,7 +348,7 @@ int (map_where_to_follow)(const map_t *p, double x, double y, double *theta){
 }
 
 int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
-    double radius = max(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
+    double radius = dmax(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
     double bullet_x = bullet_get_x(bull);
     double bullet_y = bullet_get_y(bull);
     for (double x = -radius; x < radius; x += 1){
@@ -361,11 +362,11 @@ int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
     if(bull->shooter == shooter) return false;
 
-    double shooter_radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
+    double shooter_radius = dmax(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     double shooter_x = gunner_get_x(shooter);
     double shooter_y = gunner_get_y(shooter);
 
-    double bullet_radius = max(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
+    double bullet_radius = dmax(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
     double bullet_x = bullet_get_x(bull);
     double bullet_y = bullet_get_y(bull);
 
@@ -389,8 +390,8 @@ double (distance_gunners)(const gunner_t *shooter1, const gunner_t *shooter2) {
 
 int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2) {
     if (shooter1 == shooter2) return false;
-    double shooter1_radius = max(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
-    double shooter2_radius = max(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
+    double shooter1_radius = dmax(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
+    double shooter2_radius = dmax(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
     double distance = distance_gunners(shooter1, shooter2);
     return distance <= shooter1_radius+shooter2_radius;
 }

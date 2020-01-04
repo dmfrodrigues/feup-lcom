@@ -191,15 +191,7 @@ void (interrupt_handler)(uint8_t handler) {
     (*ih[handler])();
 }
 
-void (timer_manager)() {
-
-}
-
-void (mouse_manager)() {
-
-}
-
-int get_interrupts_vector(uint32_t *p){
+int get_interrupts_vector(uint64_t *p){
     int r;
 
     *p = 0;

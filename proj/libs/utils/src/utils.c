@@ -7,7 +7,7 @@
 
 int(util_get_LSB)(uint16_t val, uint8_t *lsb) {
     if (lsb == NULL) return NULL_PTR;
-    *lsb = val;
+    *lsb = (uint8_t)val;
     return SUCCESS;
 }
 
@@ -21,7 +21,7 @@ int (util_sys_inb)(int port, uint8_t *value) {
     if(value == NULL) return NULL_PTR;
     uint32_t n = 0;
     if(sys_inb(port, &n)) return READ_ERROR;
-    *value = n;
+    *value = (uint8_t)n;
     return SUCCESS;
 }
 
@@ -31,9 +31,16 @@ int (unsubscribe_interrupt)(int *interrupt_id) {
     return SUCCESS;
 }
 
-int32_t min(int32_t a, int32_t b){ return (b < a ? b : a); }
-int32_t max(int32_t a, int32_t b){ return (a < b ? b : a); }
+int16_t min16(int16_t a, int16_t b){ return (b < a ? b : a); }
+uint16_t umin16(uint16_t a, uint16_t b){ return (b < a ? b : a); }
+int32_t min32(int32_t a, int32_t b){ return (b < a ? b : a); }
+double  dmin (double  a, double  b){ return (b < a ? b : a); }
 
-double min_d(double a, double b){ return (b < a ? b : a); }
-double max_d(double a, double b){ return (a < b ? b : a); }
-double abs_d(double a)          { return (a < 0 ? -a: a); }
+int16_t max16(int16_t a, int16_t b){ return (a < b ? b : a); }
+uint16_t umax16(uint16_t a, uint16_t b){ return (a < b ? b : a); }
+int32_t max32(int32_t a, int32_t b){ return (a < b ? b : a); }
+double  dmax (double  a, double  b){ return (a < b ? b : a); }
+
+double dabs(double a)          { return (a < 0 ? -a: a); }
+
+int deq(double a, double b){ return (dabs(a-b) < 1e-10 ? true : false); }

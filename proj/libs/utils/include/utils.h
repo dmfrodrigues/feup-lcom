@@ -15,7 +15,7 @@ int(util_get_LSB)(uint16_t val, uint8_t *lsb);
 /**
  * @brief Gets the most significant byte of a 16-bit variable
  * @param val 16-bit variable
- * @param lsb Pointer to a 8-bit variable to store the value of the MSB
+ * @param msb Pointer to a 8-bit variable to store the value of the MSB
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  */
 int(util_get_MSB)(uint16_t val, uint8_t *msb);
@@ -42,7 +42,10 @@ int (unsubscribe_interrupt)(int *interrupt_id);
  * @param b     Second value
  * @return  The minimum of the two values
  */
-int32_t min(int32_t a, int32_t b);
+int16_t min16(int16_t a, int16_t b);
+uint16_t umin16(uint16_t a, uint16_t b);
+int32_t min32(int32_t a, int32_t b);
+double  dmin (double  a, double  b);
 
 /**
  * @brief Gets the maximum value out of two values.
@@ -50,26 +53,13 @@ int32_t min(int32_t a, int32_t b);
  * @param b     Second value
  * @return  The maximum of the two values
  */
-int32_t max(int32_t a, int32_t b);
+int16_t max16(int16_t a, int16_t b);
+uint16_t umax16(uint16_t a, uint16_t b);
+int32_t max32(int32_t a, int32_t b);
+double  dmax (double  a, double  b);
 
-/**
- * @brief Gets the minimum value out of two doubles.
- * @param a     First value
- * @param b     Second value
- * @return  The minimum of the two values
- */
-double min_d(double a, double b);
+double dabs(double a);
 
-/**
- * @brief Gets the maximum value out of two doubles.
- * @param a     First value
- * @param b     Second value
- * @return  The maximum of the two values
- */
-double max_d(double a, double b);
-
-
-double abs_d(double a);
-
+int deq(double a, double b);
 
 #endif //UTILS_H_INCLUDED
