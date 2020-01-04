@@ -113,7 +113,7 @@ static void uart_parse_config(uart_config *config){
     config->receiver_line_stat_int = UART_GET_INT_EN_RECEIVER_LINE_STAT(config->ier);
     config->modem_stat_int         = UART_GET_INT_EN_MODEM_STAT        (config->ier);
     /// DIV LATCH
-    config->divisor_latch          = UART_GET_DIV_LATCH(config->dlm, config->dll);
+    config->divisor_latch          = (uint16_t)UART_GET_DIV_LATCH(config->dlm, config->dll);
 }
 
 static int uart_get_lcr(int base_addr, uint8_t *p){
@@ -176,11 +176,12 @@ void uart_print_config(uart_config config){
     printf("\tLCR = 0x%X: %d bits per char\t %d stop bits\t", config.lcr, config.bits_per_char, config.stop_bits);
     if((config.parity&BIT(0)) == 0) printf("NO parity\n");
     else switch(config.parity){
+        case uart_parity_none: printf("NO parity\n"      ); break;
         case uart_parity_odd : printf("ODD parity\n"     ); break;
         case uart_parity_even: printf("EVEN parity\n"    ); break;
         case uart_parity_par1: printf("parity bit is 1\n"); break;
         case uart_parity_par0: printf("parity bit is 0\n"); break;
-        default              : printf("invalid\n"        ); break;
+        //default              : printf("invalid\n"        ); break;
     }
     printf("\tDLM = 0x%02X DLL=0x%02X: bitrate = %d bps\n", config.dlm, config.dll, UART_BITRATE/config.divisor_latch);
     printf("\tIER = 0x%02X: Rx interrupts: %s\tTx interrupts: %s\n", config.ier,
@@ -200,21 +201,21 @@ int uart_set_stop_bits(int base_addr, uint8_t stop){
     if(stop != 1 && stop != 2) return INVALID_ARG;
     int ret = SUCCESS;
     stop -= 1;
-    stop = (stop&1)<<2;
+    stop = (uint8_t)((stop&1)<<2);
     uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
     conf = (conf & (~UART_STOP_BITS)) | stop;
     return uart_set_lcr(base_addr, conf);
 }
 int uart_set_parity(int base_addr, uart_parity par){
     int ret = SUCCESS;
-    uint8_t parity = par << 3;
+    uint8_t parity = (uint8_t)(par << 3);
     uint8_t conf; if((ret = uart_get_lcr(base_addr, &conf))) return ret;
     conf = (conf & (~UART_PARITY)) | parity;
     return uart_set_lcr(base_addr, conf);
 }
 int uart_set_bit_rate(int base_addr, double bit_rate){
     int ret = SUCCESS;
-    uint16_t latch = UART_BITRATE/bit_rate;
+    uint16_t latch = (uint16_t)(UART_BITRATE/bit_rate);
     uint8_t dll = UART_GET_DLL(latch);
     uint8_t dlm = UART_GET_DLM(latch);
     if((ret = uart_enable_divisor_latch(base_addr))) return ret;
@@ -282,9 +283,9 @@ int uart_disable_int_tx(int base_addr){
 #define NCTP_OK         0xFF
 #define NCTP_NOK        0x00
 
-queue_t *out = NULL;
-queue_t *in  = NULL;
-void (*process)(const uint8_t*, const size_t) = NULL;
+static queue_t *out = NULL;
+static queue_t *in  = NULL;
+static void (*process)(const uint8_t*, const size_t) = NULL;
 
 int nctp_init(void){
     out = queue_ctor(); if(out == NULL) return NULL_PTR;
@@ -374,7 +375,10 @@ void nctp_ih(void){
         switch(UART_GET_INT_PEND(iir)){
             case uart_int_rx: nctp_receive (); break;
             case uart_int_tx: nctp_transmit(); break;
-            default: break;
+            case uart_int_receiver_line_stat: break;
+            case uart_int_modem_stat: break;
+            case uart_int_char_timeout_fifo: break;
+            //default: break;
         }
     }
 }

@@ -65,7 +65,7 @@ void host_info_dtor(host_info_t *p) {
     free(p);
 }
 
-remote_info_t* remote_info_ctor() {
+remote_info_t* remote_info_ctor(void) {
     remote_info_t *ret = (remote_info_t*)malloc(sizeof(remote_info_t));
     if (ret == NULL) return ret;
 
@@ -81,7 +81,7 @@ void remote_info_dtor(remote_info_t *p) {
     free(p);
 }
 
-bullet_info_t* bullet_info_ctor() {
+bullet_info_t* bullet_info_ctor(void) {
     bullet_info_t *ret = (bullet_info_t*)malloc(sizeof(bullet_info_t));
     if (ret == NULL) return ret;
 
@@ -117,69 +117,69 @@ void update_key_presses(void) {
 }
 
 void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list) {
-    int ver_mov = keys->s_pressed - keys->w_pressed;
-    int hor_mov = keys->d_pressed - keys->a_pressed;
-    double x = gunner_get_x(p);
-    double y = gunner_get_y(p);
+    /** Player movement */{
+        int ver_mov = keys->s_pressed - keys->w_pressed;
+        int hor_mov = keys->d_pressed - keys->a_pressed;
+        double x = gunner_get_x(p);
+        double y = gunner_get_y(p);
 
-    gunner_set_pos(p, x + SHOOTER_SPEED * hor_mov, y);
-    if (map_collides_gunner(map, p)) gunner_set_pos(p, x, y);
-    else {
-        list_node_t *it = list_begin(shooter_list);
-        while (it != list_end(shooter_list)) {
-            gunner_t *p2 = *(gunner_t**)list_node_val(it);
-            if (p != p2 && gunner_collides_gunner(p, p2)) {
-                gunner_set_pos(p, x, y);
-                break;
-            }
-            it = list_node_next(it);
-        }
-    }
-    x = gunner_get_x(p);
-    gunner_set_pos(p, x, y + SHOOTER_SPEED * ver_mov);
-    if (map_collides_gunner(map, p)) gunner_set_pos(p, x, y);
-    else {
-        list_node_t *it = list_begin(shooter_list);
-        while (it != list_end(shooter_list)) {
-            gunner_t *p2 = *(gunner_t**)list_node_val(it);
-            if (p != p2 && gunner_collides_gunner(p, p2)) {
-                gunner_set_pos(p, x, y);
-                break;
-            }
-            it = list_node_next(it);
-        }
-    }
-
-    // Update zombie positions
-    list_node_t *it = list_begin(shooter_list);
-    while(it != list_end(shooter_list)){
-        gunner_t *g = *(gunner_t**)list_node_val(it);
-        if(gunner_get_type(g) & GUNNER_FOLLOW){
-            double theta = 0.0;
-            map_where_to_follow(map, gunner_get_x(g), gunner_get_y(g), &theta);
-            double c = fm_cos(theta), s = fm_sin(theta);
-            double dx = ZOMBIE_SPEED*c, dy = -ZOMBIE_SPEED*s;
-            double x = gunner_get_x(g);
-            double y = gunner_get_y(g);
-            gunner_set_pos(g, x+dx, y+dy);
-            if (map_collides_gunner(map, g)){
-                //printf("Zombie colliding with map\n");
-                gunner_set_pos(g, x, y);
-            } else {
-                list_node_t *it = list_begin(shooter_list);
-                while (it != list_end(shooter_list)) {
-                    gunner_t *p2 = *(gunner_t**)list_node_val(it);
-                    if (g != p2 && gunner_collides_gunner(g, p2)) {
-                        //printf("Zombie colliding with zombie\n");
-                        gunner_set_pos(g, x, y);
-                        break;
-                    }
-                    it = list_node_next(it);
+        gunner_set_pos(p, x + SHOOTER_SPEED * hor_mov, y);
+        if (map_collides_gunner(map, p)) gunner_set_pos(p, x, y);
+        else {
+            list_node_t *it = list_begin(shooter_list);
+            while (it != list_end(shooter_list)) {
+                gunner_t *p2 = *(gunner_t**)list_node_val(it);
+                if (p != p2 && gunner_collides_gunner(p, p2)) {
+                    gunner_set_pos(p, x, y);
+                    break;
                 }
+                it = list_node_next(it);
             }
-            gunner_set_angle(g, theta-M_PI_2); /*printf("angle: %d.%d\n", (int)theta, abs((int)(theta*1000)%1000));*/
         }
-        it = list_node_next(it);
+        x = gunner_get_x(p);
+        gunner_set_pos(p, x, y + SHOOTER_SPEED * ver_mov);
+        if (map_collides_gunner(map, p)) gunner_set_pos(p, x, y);
+        else {
+            list_node_t *it = list_begin(shooter_list);
+            while (it != list_end(shooter_list)) {
+                gunner_t *p2 = *(gunner_t**)list_node_val(it);
+                if (p != p2 && gunner_collides_gunner(p, p2)) {
+                    gunner_set_pos(p, x, y);
+                    break;
+                }
+                it = list_node_next(it);
+            }
+        }
+    }
+    /** Followers movement */ {
+        list_node_t *it = list_begin(shooter_list);
+        while(it != list_end(shooter_list)){
+            gunner_t *g = *(gunner_t**)list_node_val(it);
+            if(gunner_get_type(g) & GUNNER_FOLLOW){
+                double theta = 0.0;
+                map_where_to_follow(map, gunner_get_x(g), gunner_get_y(g), &theta);
+                double c = fm_cos(theta), s = fm_sin(theta);
+                double dx = ZOMBIE_SPEED*c, dy = -ZOMBIE_SPEED*s;
+                double x = gunner_get_x(g);
+                double y = gunner_get_y(g);
+                gunner_set_pos(g, x+dx, y+dy);
+                if (map_collides_gunner(map, g)){
+                    gunner_set_pos(g, x, y);
+                } else {
+                    list_node_t *it2 = list_begin(shooter_list);
+                    while (it2 != list_end(shooter_list)) {
+                        gunner_t *p2 = *(gunner_t**)list_node_val(it2);
+                        if (g != p2 && gunner_collides_gunner(g, p2)) {
+                            gunner_set_pos(g, x, y);
+                            break;
+                        }
+                        it2 = list_node_next(it2);
+                    }
+                }
+                gunner_set_angle(g, theta-M_PI_2);
+            }
+            it = list_node_next(it);
+        }
     }
 }
 
@@ -298,10 +298,10 @@ static int16_t mouse_x = 0, mouse_y = 0;
 
 void (update_mouse)(struct packet *p) {
     mouse_x = max16(0, mouse_x + p->delta_x);
-    mouse_x = min16(mouse_x, graph_get_XRes() - 1);
+    mouse_x = min16(mouse_x, (int16_t)graph_get_XRes() - 1);
 
     mouse_y = max16(0, mouse_y - p->delta_y);
-    mouse_y = min16(mouse_y, graph_get_YRes() - 1);
+    mouse_y = min16(mouse_y, (int16_t)graph_get_YRes() - 1);
 
     key_presses.lb_pressed = p->lb;
 }

@@ -8,22 +8,22 @@
 #define VC_BIOS_SERV  0x10 /** @brief Interrupt service of video card */
 #define VBE_CALL      0x4F /** @brief VBE call function specifier */
 
-//#define MBYTE_BASE  0x0         /** @brief Base address (zero address) */
-//#define MBYTE_SIZE  0xFFFFF     /** @brief Size of a mebibyte */
+#define MBYTE_BASE  0x0         /** @brief Base address (zero address) */
+#define MBYTE_SIZE  0xFFFFF     /** @brief Size of a mebibyte */
 
 // Graphics Functions
-//#define VBE_CTRL_INFO       0x00    /** @brief Get VBE Controller Information */
+#define VBE_CTRL_INFO       0x00    /** @brief Get VBE Controller Information */
 #define VBE_MD_INFO         0x01    /** @brief Get VBE Mode Information */
 #define SET_VBE_MD          0x02    /** @brief Set VBE Mode */
 
 // Error codes (AH)
 #define AH_SUCCESS          0x00    /** @brief Success code on BIOS call */
-//#define AH_FUNC_CALL_FAIL   0x01    /** @brief Function call failed */
-//#define AH_FUNC_NOT_SUPP    0x02    /** @brief Function call is not supported in current HW configuration */
-//#define AH_FUNC_INVALID     0x03    /** @brief Invalid function in current video mode */
+#define AH_FUNC_CALL_FAIL   0x01    /** @brief Function call failed */
+#define AH_FUNC_NOT_SUPP    0x02    /** @brief Function call is not supported in current HW configuration */
+#define AH_FUNC_INVALID     0x03    /** @brief Invalid function in current video mode */
 
 /// MACROS
-//#define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
+#define FAR2PHYS(n)         ((((n)>>12) & 0xFFFFFFF0) + ((n) & 0x0000FFFF))
 
 /// STRUCT
 typedef struct __attribute__((packed)) {

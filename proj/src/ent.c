@@ -301,7 +301,7 @@ int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
     return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
 }
 int (map_make_dijkstra)(map_t *p, double x_, double y_){
-    int16_t x = x_, y = y_;
+    int16_t x = (int16_t)x_, y = (int16_t)y_;
 
     const uint16_t W = basic_sprite_get_w(p->bsp_background),
                    H = basic_sprite_get_h(p->bsp_background);
@@ -322,7 +322,7 @@ int (map_make_dijkstra)(map_t *p, double x_, double y_){
 
     while(!queue_empty(q)){
         c = *(int*)queue_top(q); free(queue_top(q)); queue_pop(q);
-        x = c%W, y = c/W;
+        x = (int16_t)(c%W), y = (int16_t)(c/W);
         if(p->visited[c]) continue;
         p->visited[c] = true;
         if(p->collide_gunner[c]) continue;
@@ -338,11 +338,9 @@ int (map_make_dijkstra)(map_t *p, double x_, double y_){
 }
 int (map_where_to_follow)(const map_t *p, double x, double y, double *theta){
     const uint16_t W = basic_sprite_get_w(p->bsp_background);
-    int x_ = x, y_ = y;
-    int pos = y_*W+x_;
-    //printf("Is in %d,%d\n", x_, y_);
-    int newx = p->prev[pos]%W, newy = p->prev[pos]/W;
-    //printf("from %d,%d to %d,%d\n", x_, y_, newx, newy);
+    int16_t x_ = (int16_t)x, y_ = (int16_t)y;
+    int32_t pos = y_*W+x_;
+    int16_t newx = (int16_t)(p->prev[pos]%W), newy = (int16_t)(p->prev[pos]/W);
     *theta = atan2(-(newy-y_), newx-x_);
     return SUCCESS;
 }

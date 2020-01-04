@@ -52,11 +52,11 @@ host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote);
 
 void host_info_dtor(host_info_t *p);
 
-remote_info_t* remote_info_ctor();
+remote_info_t* remote_info_ctor(void);
 
 void remote_info_dtor(remote_info_t *p);
 
-bullet_info_t* bullet_info_ctor();
+bullet_info_t* bullet_info_ctor(void);
 
 void bullet_info_dtor(bullet_info_t *p);
 
