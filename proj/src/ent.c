@@ -30,10 +30,10 @@ struct gunner{
     double health, current_health;
     rectangle_t *green_bar, *red_bar;
     text_t *txt;
-    gunner_type type;
+    uint16_t type;
     int team;
 };
-gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type type, int team){
+gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, uint16_t type, int team){
     gunner_t *ret = malloc(sizeof(gunner_t));
     if(ret == NULL) return NULL;
     ret->spawn_x = 0.0;
@@ -93,7 +93,7 @@ double  (gunner_get_health)         (const gunner_t *p){ return p->health; }
 double  (gunner_get_curr_health)    (const gunner_t *p){ return p->current_health; }
 int16_t (gunner_get_x_screen)       (const gunner_t *p){ return (p->x-x_origin)*scale; }
 int16_t (gunner_get_y_screen)       (const gunner_t *p){ return (p->y-y_origin)*scale; }
-gunner_type (gunner_get_type)       (const gunner_t *p){ return p->type; }
+uint16_t (gunner_get_type)          (const gunner_t *p){ return p->type; }
 int     (gunner_get_team)           (const gunner_t *p){ return p->team; }
 void (gunner_draw)(gunner_t *p){
     const int16_t x_screen = gunner_get_x_screen(p);
@@ -232,7 +232,7 @@ static int (map_collides_gunner_pos)(const map_t *p, double shooter_x, double sh
     }
     return 0;
 }
-map_t* (map_ctor)(const char **background, const char **collide){
+map_t* (map_ctor)(const char *const *background, const char *const *collide){
     map_t *ret = malloc(sizeof(map_t));
     if(ret == NULL) return NULL;
 
@@ -299,7 +299,8 @@ int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
     double radius = max(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
 }
-int (map_make_dijkstra)(map_t *p, int16_t x, int16_t y){
+int (map_make_dijkstra)(map_t *p, double x_, double y_){
+    int16_t x = x_, y = y_;
 
     const uint16_t W = basic_sprite_get_w(p->bsp_background),
                    H = basic_sprite_get_h(p->bsp_background);
@@ -334,7 +335,7 @@ int (map_make_dijkstra)(map_t *p, int16_t x, int16_t y){
 
     return SUCCESS;
 }
-int (map_where_to_follow)(const map_t *p, float x, float y, float *theta){
+int (map_where_to_follow)(const map_t *p, double x, double y, double *theta){
     const uint16_t W = basic_sprite_get_w(p->bsp_background);
     int x_ = x, y_ = y;
     int pos = y_*W+x_;

@@ -11,16 +11,14 @@ double (ent_get_scale)  (void);
 double (ent_get_XLength)(void);
 double (ent_get_YLength)(void);
 
-typedef enum {
-    gunner_melee  = BIT(0),
-    gunner_ranged = BIT(1),
-    gunner_player = BIT(2),
-    gunner_follow = BIT(3)
-} gunner_type;
+#define GUNNER_MELEE    BIT(0)
+#define GUNNER_RANGED   BIT(1)
+#define GUNNER_PLAYER   BIT(2)
+#define GUNNER_FOLLOW   BIT(3)
 
 struct gunner;
 typedef struct gunner gunner_t;
-gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, gunner_type type, int team);
+gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, uint16_t type, int team);
 void      (gunner_dtor)(gunner_t *p);
 void (gunner_set_pos)               (gunner_t *p, double x, double y);
 void (gunner_set_spawn)             (gunner_t *p, double x, double y);
@@ -36,7 +34,7 @@ double  (gunner_get_health)         (const gunner_t *p);
 double  (gunner_get_curr_health)    (const gunner_t *p);
 int16_t (gunner_get_x_screen)       (const gunner_t *p);
 int16_t (gunner_get_y_screen)       (const gunner_t *p);
-gunner_type (gunner_get_type)       (const gunner_t *p);
+uint16_t (gunner_get_type)          (const gunner_t *p);
 int     (gunner_get_team)           (const gunner_t *p);
 void (gunner_draw)(gunner_t *p);
 void (gunner_draw_health)(const gunner_t *p);
@@ -66,15 +64,15 @@ void (gunner_draw_health)(const gunner_t *p);
 
 struct map;
 typedef struct map map_t;
-map_t* (map_ctor)(const char **background, const char **collide);
+map_t* (map_ctor)(const char *const *background, const char *const *collide);
 void   (map_dtor)(map_t *p);
 int    (map_collides_point)(const map_t *p, double x, double y);
 int    (map_collides_gunner)(const map_t *p, const gunner_t *gunner);
 int    (map_collides_bullet)(const map_t *p, const bullet_t *bullet);
 int16_t (map_get_width)   (const map_t *p);
 int16_t (map_get_height)  (const map_t *p);
-int (map_make_dijkstra)(map_t *p, int16_t x, int16_t y);
-int (map_where_to_follow)(const map_t *p, float x, float y, float *theta);
+int (map_make_dijkstra)(map_t *p, double x_, double y_);
+int (map_where_to_follow)(const map_t *p, double x, double y, double *theta);
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull);
 double (distance_gunners)(const gunner_t *shooter1, const gunner_t *shooter2);
 int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2);

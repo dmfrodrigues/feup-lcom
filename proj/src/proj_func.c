@@ -96,8 +96,8 @@ void bullet_info_dtor(bullet_info_t *p) {
 }
 
 void update_key_presses(void) {
-    if (sz == 1) {
-        switch(scancode[0]) {
+    if (keyboard_get_size() == 1) {
+        switch(keyboard_get_scancode()[0]) {
         case W_MAKE_CODE        : key_presses.w_pressed     = 1;        break;
         case W_BREAK_CODE       : key_presses.w_pressed     = 0;        break;
         case A_MAKE_CODE        : key_presses.a_pressed     = 1;        break;
@@ -154,11 +154,11 @@ void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list
     list_node_t *it = list_begin(shooter_list);
     while(it != list_end(shooter_list)){
         gunner_t *g = *(gunner_t**)list_node_val(it);
-        if(gunner_get_type(g) & gunner_follow){
-            float theta = 0.0;
+        if(gunner_get_type(g) & GUNNER_FOLLOW){
+            double theta = 0.0;
             map_where_to_follow(map, gunner_get_x(g), gunner_get_y(g), &theta);
-            float c = fm_cos(theta), s = fm_sin(theta);
-            float dx = ZOMBIE_SPEED*c, dy = -ZOMBIE_SPEED*s;
+            double c = fm_cos(theta), s = fm_sin(theta);
+            double dx = ZOMBIE_SPEED*c, dy = -ZOMBIE_SPEED*s;
             double x = gunner_get_x(g);
             double y = gunner_get_y(g);
             gunner_set_pos(g, x+dx, y+dy);
@@ -234,7 +234,7 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
     list_node_t *it1 = list_begin(shooter_list);
     while(it1 != list_end(shooter_list)){
         gunner_t *s1 = *list_node_val(it1);
-        if(!(gunner_get_type(s1) & gunner_melee)){ it1 = list_node_next(it1); continue; }
+        if(!(gunner_get_type(s1) & GUNNER_MELEE)){ it1 = list_node_next(it1); continue; }
         list_node_t *it2 = list_begin(shooter_list);
         while(it2 != list_end(shooter_list)){
             gunner_t *s2 = *list_node_val(it2);
@@ -294,7 +294,7 @@ void update_scale(void) {
     last_minus = key_presses.minus_pressed;
 }
 
-static int32_t mouse_x = 0, mouse_y = 0;
+static int16_t mouse_x = 0, mouse_y = 0;
 
 void (update_mouse)(struct packet *p) {
     mouse_x = max(0, mouse_x + p->delta_x);
@@ -310,9 +310,9 @@ keys_t* (get_key_presses)(void) {
     return &key_presses;
 }
 
-int32_t* get_mouse_X(void) { return &mouse_x; }
+int16_t* get_mouse_X(void) { return &mouse_x; }
 
-int32_t* get_mouse_Y(void) { return &mouse_y; }
+int16_t* get_mouse_Y(void) { return &mouse_y; }
 
 double get_mouse_angle(gunner_t *p) {
     return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));

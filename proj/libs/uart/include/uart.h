@@ -42,7 +42,7 @@ void uart_print_config(uart_config config);
 int uart_set_bits_per_character(int base_addr, uint8_t     bits_per_char);
 int uart_set_stop_bits         (int base_addr, uint8_t     stop         );
 int uart_set_parity            (int base_addr, uart_parity par          );
-int uart_set_bit_rate          (int base_addr, float       bit_rate     );
+int uart_set_bit_rate          (int base_addr, double      bit_rate     );
 
 int uart_enable_int_rx (int base_addr);
 int uart_disable_int_rx(int base_addr);

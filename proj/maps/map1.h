@@ -7,10 +7,10 @@
 
 #include "xpm_utils.h"
 
-map_t* get_map1(void){
+static map_t* get_map1(void){
     char **map1         = xpm_load_xpm2("maps/map1.xpm2");
     char **map1_collide = xpm_load_xpm2("maps/map1_collide.xpm2");
-    return map_ctor((const char **)map1_xpm, (const char **)map1_collide_xpm);
+    return map_ctor((const char *const *)map1_xpm, (const char *const *)map1_collide_xpm);
     free(map1); free(map1_collide);
 }
 

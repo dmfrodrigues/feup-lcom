@@ -38,10 +38,11 @@
  */
 int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
-uint8_t scancode[2];
-int done;
-int sz;
-int got_error_keyboard;
+
+const uint8_t* keyboard_get_scancode(void);
+int keyboard_get_done(void);
+int keyboard_get_size(void);
+int keyboard_get_error(void);
 
 void (kbc_ih)(void);
 

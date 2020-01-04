@@ -1,5 +1,5 @@
 /* XPM */
-const char * crosshair_xpm[] = {
+static char * crosshair_xpm[] = {
 "32 32 2 1",
 " 	c None",
 ".	c #00FF4D",

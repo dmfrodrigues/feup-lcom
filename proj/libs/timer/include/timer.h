@@ -9,6 +9,6 @@
 
 int (subscribe_timer_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
-uint32_t no_interrupts;
+uint32_t (timer_get_no_interrupts)(void);
 
 #endif //TIMER_H_INCLUDED

@@ -56,7 +56,7 @@ int (graph_draw)(void);
 struct basic_sprite;
 typedef struct basic_sprite basic_sprite_t;
 
-basic_sprite_t* (basic_sprite_ctor)(const char **xpm, int16_t u0, int16_t v0);
+basic_sprite_t* (basic_sprite_ctor)(const char *const *xpm, int16_t u0, int16_t v0);
 void            (basic_sprite_dtor)(basic_sprite_t *p);
 const uint8_t* (basic_sprite_get_map)(const basic_sprite_t *p);
 uint16_t       (basic_sprite_get_w)  (const basic_sprite_t *p);
