@@ -155,6 +155,7 @@ bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double
     sprite_set_angle(ret->b, angle-M_PI_2);
     return ret;
 }
+
 void (bullet_dtor)(bullet_t *p){
     if(p == NULL) return;
     sprite_dtor(p->b);
@@ -162,6 +163,8 @@ void (bullet_dtor)(bullet_t *p){
 }
 double  (bullet_get_x)       (const bullet_t *p){ return p->x; }
 double  (bullet_get_y)       (const bullet_t *p){ return p->y; }
+double  (bullet_get_vx)      (const bullet_t *p){ return p->vx; }
+double  (bullet_get_vy)      (const bullet_t *p){ return p->vy; }
 int16_t (bullet_get_x_screen)(const bullet_t *p){ return (p->x-x_origin)*scale; }
 int16_t (bullet_get_y_screen)(const bullet_t *p){ return (p->y-y_origin)*scale; }
 double  (bullet_get_damage)  (const bullet_t *p){ return p->damage; }
@@ -384,6 +387,7 @@ double (distance_gunners)(const gunner_t *shooter1, const gunner_t *shooter2) {
 }
 
 int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2) {
+    if (shooter1 == shooter2) return false;
     double shooter1_radius = max(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
     double shooter2_radius = max(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
     double distance = distance_gunners(shooter1, shooter2);
