@@ -50,34 +50,24 @@ static host_info_t* hltp_interpret_host_info(const uint8_t *p) {
     return ret;
 }
 int hltp_send_host_info(const host_info_t *p) {
-    // struct size
-    size_t struct_size = sizeof(double) * (8 + 4*p->no_bullets) + p->no_bullets * sizeof(bool) + sizeof(size_t);
-    uint8_t *base = (uint8_t*)malloc(struct_size);
-    uint8_t *aux = base;
-    // players information
-    memcpy(aux, p, sizeof(double) * 8);
-    aux = aux + sizeof(double) * 8;
-    // size of arrays
-    memcpy(aux, &(p->no_bullets), sizeof(size_t));
-    aux = aux + sizeof(size_t);
-    // array containing the X positions of the bullets
-    memcpy(aux, p->bullets_x, sizeof(double) * (p->no_bullets));
-    aux = aux + sizeof(double) * (p->no_bullets);
-    // array containing the Y positions of the bullets
-    memcpy(aux, p->bullets_y, sizeof(double) * (p->no_bullets));
-    aux = aux + sizeof(double) * (p->no_bullets);
-    // array containing the X velocity of the bullets
-    memcpy(aux, p->bullets_vx, sizeof(double) * (p->no_bullets));
-    aux = aux + sizeof(double) * (p->no_bullets);
-    // array containing the Y velocity of the bullets
-    memcpy(aux, p->bullets_vy, sizeof(double) * (p->no_bullets));
-    aux = aux + sizeof(double) * (p->no_bullets);
-    // array containing the shooter id of the bullets
-    memcpy(aux, p->bullets_shooter, sizeof(bool) * (p->no_bullets));
 
     uint8_t type = hltp_type_host;
-    uint8_t* ptr[2]; ptr[0] = &type; ptr[1] = base;
-    size_t    sz[2]; sz [0] =     1; sz [1] = struct_size;
+    uint8_t* ptr[15]; size_t sz[15];
+    ptr[0]  = (uint8_t*)&   type                  ;     sz[0] = 1;
+    ptr[1]  = (uint8_t*)&p->host_x                ;     sz[0] = sizeof(double);
+    ptr[2]  = (uint8_t*)&p->host_y                ;     sz[0] = sizeof(double);
+    ptr[3]  = (uint8_t*)&p->host_health           ;     sz[0] = sizeof(double);
+    ptr[4]  = (uint8_t*)&p->host_current_health   ;     sz[0] = sizeof(double);
+    ptr[5]  = (uint8_t*)&p->remote_x              ;     sz[0] = sizeof(double);
+    ptr[6]  = (uint8_t*)&p->remote_y              ;     sz[0] = sizeof(double);
+    ptr[7]  = (uint8_t*)&p->remote_health         ;     sz[0] = sizeof(double);
+    ptr[8]  = (uint8_t*)&p->remote_current_health ;     sz[0] = sizeof(double);
+    ptr[9]  = (uint8_t*)&p->no_bullets            ;     sz[0] = sizeof(size_t);
+    ptr[10] = (uint8_t*) p->bullets_x             ;     sz[0] = sizeof(double) * p->no_bullets;
+    ptr[11] = (uint8_t*) p->bullets_y             ;     sz[0] = sizeof(double) * p->no_bullets;
+    ptr[12] = (uint8_t*) p->bullets_vx            ;     sz[0] = sizeof(double) * p->no_bullets;
+    ptr[13] = (uint8_t*) p->bullets_vy            ;     sz[0] = sizeof(double) * p->no_bullets;
+    ptr[14] = (uint8_t*) p->bullets_shooter       ;     sz[0] = sizeof(double) * p->no_bullets;
     return nctp_send(2, ptr, sz);
 }
 
@@ -112,25 +102,17 @@ static remote_info_t* hltp_interpret_remote_info(const uint8_t *p) {
     return ret;
 }
 int hltp_send_remote_info(const remote_info_t *p) {
-    // struct size
-    size_t struct_size = sizeof(keys_t) + sizeof(int32_t) * 2 + sizeof(size_t) + sizeof(double) * (3 *p->bullets_shot);
-    uint8_t *base = (uint8_t*)malloc(struct_size);
-    uint8_t *aux = base;
-    memcpy(aux, p, sizeof(keys_t));
-    aux = aux + sizeof(keys_t);
-    memcpy(aux, p, sizeof(int32_t)*2);
-    aux = aux + sizeof(int32_t)*2;
-    memcpy(aux, &(p->bullets_shot), sizeof(size_t));
-    aux = aux + sizeof(size_t);
-    memcpy(aux, p->bullets_x, sizeof(double)*(p->bullets_shot));
-    aux = aux + sizeof(double)*(p->bullets_shot);
-    memcpy(aux, p->bullets_y, sizeof(double)*(p->bullets_shot));
-    aux = aux + sizeof(double)*(p->bullets_shot);
-    memcpy(aux, p->bullets_angle, sizeof(double)*(p->bullets_shot));
 
     uint8_t type = hltp_type_remote;
-    uint8_t* ptr[2]; ptr[0] = &type; ptr[1] = base;
-    size_t    sz[2]; sz [0] =     1; sz [1] = struct_size;
+    uint8_t* ptr[8]; size_t sz[8];
+    ptr[0]  = (uint8_t*)&   type                  ;     sz[0] = 1;
+    ptr[1]  = (uint8_t*)&p->remote_keys_pressed   ;     sz[0] = sizeof(keys_t);
+    ptr[2]  = (uint8_t*)&p->remote_mouse_x        ;     sz[0] = sizeof(int32_t);
+    ptr[3]  = (uint8_t*)&p->remote_mouse_y        ;     sz[0] = sizeof(int32_t);
+    ptr[4]  = (uint8_t*)&p->bullets_shot          ;     sz[0] = sizeof(size_t);
+    ptr[5]  = (uint8_t*) p->bullets_x             ;     sz[0] = sizeof(double) * p->bullets_shot;
+    ptr[6]  = (uint8_t*) p->bullets_y             ;     sz[0] = sizeof(double) * p->bullets_shot;
+    ptr[7]  = (uint8_t*) p->bullets_angle         ;     sz[0] = sizeof(double) * p->bullets_shot;
     return nctp_send(2, ptr, sz);
 }
 
