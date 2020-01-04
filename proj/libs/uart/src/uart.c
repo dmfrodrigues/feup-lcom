@@ -313,13 +313,6 @@ int nctp_free(void){
 }
 
 int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]){
-    {
-        size_t cnt = 0;
-        for(size_t i = 0; i < num; ++i){
-            cnt += sz[i];
-            if(cnt > queue_max_size) return TRANS_REFUSED;
-        }
-    }
     int ret;
     uint8_t *tmp;
     tmp = malloc(sizeof(uint8_t)); *tmp = NCTP_START; queue_push(out, tmp);

@@ -5,8 +5,6 @@
 #include "list.h"
 #include "errors.h"
 
-const size_t queue_max_size = UINT_MAX;
-
 struct queue{
     list_t *l;
 };
