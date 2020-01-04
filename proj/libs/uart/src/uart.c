@@ -313,12 +313,12 @@ int nctp_free(void){
     return SUCCESS;
 }
 
-int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]){
+int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz){
     int ret;
     uint8_t *tmp;
     tmp = malloc(sizeof(uint8_t)); *tmp = NCTP_START; queue_push(out, tmp);
     for(size_t i = 0; i < num; ++i){
-        uint8_t *p = ptr[i]; size_t s = sz[i];
+        const uint8_t *p = ptr[i]; const size_t s = sz[i];
         for(size_t j = 0; j < s; ++j, ++p){
             tmp = malloc(sizeof(uint8_t)); *tmp = *p; queue_push(out, tmp);
         }
