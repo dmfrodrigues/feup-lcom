@@ -165,7 +165,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
     basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
     map_dtor               (map1         ); map1          = NULL;
-    if(font_free()){ printf("Failed to free fonts\n"); return 1; }
+    font_free();
 
     // Unsubscribe interrupts
     if (unsubscribe_all()) {

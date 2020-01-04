@@ -8,11 +8,18 @@
 #include "errors.h"
 #include <assert.h>
 
-/// GLYPH
+/**
+ * @brief Text glyph. Represents a letter that can be drawn.
+ */
 typedef struct {
     uint16_t w, h;
     uint8_t *map;
 } glyph_t;
+/**
+ * @brief Construct glyph.
+ * @param   xpm XPM describing the glyph
+ * @return      Pointer to created glyph
+ */
 static glyph_t* (glyph_ctor)(const char **xpm){
     if(xpm == NULL) return NULL;
     glyph_t *ret = malloc(sizeof(glyph_t));
@@ -37,11 +44,27 @@ static glyph_t* (glyph_ctor)(const char **xpm){
     }
     return ret;
 }
+/**
+ * @brief Destruct glyph.
+ * @param   p   Pointer to glyph to be destroyed
+ */
 static void (glyph_dtor)(glyph_t *p){
     if(p == NULL) return;
     free(p->map);
     free(p);
 }
+/**
+ * @brief Draw glyph to an alpha-buffer.
+ *
+ * An alpha-buffer is an array of uint8_t that represents transparencies.
+ * It proves fit as a tool for drawing text.
+ * @param   p       Pointer to glyph to be drawn
+ * @param   x       X-position to draw the glyph
+ * @param   y       Y-position to draw the glyph
+ * @param   alp_buf Alpha-buffer to which the glyph will be drawn
+ * @param   W       Width of the alpha-buffer
+ * @param   H       Height of the alpha-buffer
+ */
 static int (glyph_draw_to_alpha_buffer)(const glyph_t *p, int16_t x, int16_t y, uint8_t *alp_buf, uint16_t W, uint16_t H){
     if(p == NULL) return NULL_PTR;
     for(int16_t h = 0; h < p->h; ++h){
@@ -84,13 +107,12 @@ font_t* (font_ctor)(const char *s){
         return NULL;
     }
 }
-int (font_dtor)(font_t *p){
-    if(p == NULL) return SUCCESS;
+void (font_dtor)(font_t *p){
+    if(p == NULL) return;
     for(size_t i = 0; i < p->nchars; ++i)
         glyph_dtor(p->glyphs[i]);
     free(p->glyphs);
     free(p);
-    return SUCCESS;
 }
 
 static font_t *consolas     = NULL;
@@ -104,12 +126,10 @@ int (font_init)(void){
 }
 const font_t* font_get_default(void){ return default_font; }
 const font_t* font_get_consolas(void){ return consolas; }
-int (font_free)(void){
-    int r;
-    if((r = font_dtor(consolas))) return r;
+void (font_free)(void){
+    font_dtor(consolas);
     consolas = NULL;
     default_font = NULL;
-    return SUCCESS;
 }
 
 /// TEXT
@@ -148,7 +168,7 @@ void (text_set_string) (text_t *p, const char *txt){
     if(p->txt == NULL) return;
     strcpy(p->txt, txt);
 }
-char* (text_get_string)(const text_t *p){return p->txt; }
+const char* (text_get_string)(const text_t *p){return p->txt; }
 void (text_set_pos)   (text_t *p, int16_t x, int16_t y){ p->x = x; p->y = y; }
 void (text_set_size)  (text_t *p, unsigned size       ){ p->size = size    ; }
 void (text_set_color) (text_t *p, uint32_t color      ){ p->color = color  ; }

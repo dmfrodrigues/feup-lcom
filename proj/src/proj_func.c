@@ -284,7 +284,6 @@ text_timer_t* (timer_ctor)(const font_t *fnt){
     if (ret == NULL) return NULL;
     ret->time = 0;
     ret->text = text_ctor(fnt, "000s");
-    ret->array = text_get_string(ret->text);
     text_set_color(ret->text, TEXT_COLOR);
     return ret;
 }
@@ -292,16 +291,13 @@ text_timer_t* (timer_ctor)(const font_t *fnt){
 void (timer_update)(text_timer_t *p){
     if (p->time >= 999) return;
     p->time++;
-    p->array[2] = p->time % 10 + '0';
-    p->array[1] = (p->time/10) % 10 + '0';
-    p->array[0] = (p->time/100) % 10 + '0';
+    char buffer[100];
+    sprintf(buffer, "%03ds", p->time);
+    text_set_string(p->text, buffer);
 }
 
 void (timer_reset)(text_timer_t *p){
-    p->time = 0;
-    p->array[2] = '0';
-    p->array[1] = '0';
-    p->array[0] = '0';
+    text_set_string(p->text, "000s");
 }
 
 void (timer_dtor)(text_timer_t *p){
