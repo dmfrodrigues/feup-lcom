@@ -11,6 +11,10 @@
 int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
 //These have to do with mouse_ih
+int (mouse_get_got_error_mouse_ih)(void);
+const uint8_t* (mouse_get_packet_mouse_ih)(void);
+int (mouse_get_counter_mouse_ih)(void);
+
 int got_error_mouse_ih;
 uint8_t packet_mouse_ih[3];
 int counter_mouse_ih;

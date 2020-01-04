@@ -46,7 +46,11 @@ int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
 }
 
 int got_error_mouse_ih = 0;
+uint8_t packet_mouse_ih[3];
 int counter_mouse_ih = 0;
+int (mouse_get_got_error_mouse_ih)(void){return got_error_mouse_ih; }
+const uint8_t* (mouse_get_packet_mouse_ih)(void){return packet_mouse_ih; }
+int (mouse_get_counter_mouse_ih)(void){return counter_mouse_ih; }
 
 void (mouse_ih)(void) {
     uint8_t status = 0;
