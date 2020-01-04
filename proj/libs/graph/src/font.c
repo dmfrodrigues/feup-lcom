@@ -9,11 +9,10 @@
 #include <assert.h>
 
 /// GLYPH
-struct glyph{
+typedef struct {
     uint16_t w, h;
     uint8_t *map;
-};
-typedef struct glyph glyph_t;
+} glyph_t;
 static glyph_t* (glyph_ctor)(const char **xpm){
     if(xpm == NULL) return NULL;
     glyph_t *ret = malloc(sizeof(glyph_t));
