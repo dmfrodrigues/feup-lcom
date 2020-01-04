@@ -55,7 +55,7 @@ int nctp_dump(void);
 int nctp_set_processor(void (*proc_func)(const uint8_t*, const size_t));
 int nctp_free(void);
 
-int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]);
+int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz);
 
 int (nctp_get_ih_error)(void);
 void nctp_ih(void);

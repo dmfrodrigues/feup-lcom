@@ -52,7 +52,7 @@ static host_info_t* hltp_interpret_host_info(const uint8_t *p) {
 int hltp_send_host_info(const host_info_t *p) {
 
     uint8_t type = hltp_type_host;
-    uint8_t* ptr[17]; size_t sz[17];
+    const uint8_t* ptr[17]; size_t sz[17];
     ptr[0]  = (uint8_t*)&   type                  ;     sz[0]   = 1;
     ptr[1]  = (uint8_t*)&p->host_x                ;     sz[1]   = sizeof(double);
     ptr[2]  = (uint8_t*)&p->host_y                ;     sz[2]   = sizeof(double);
@@ -87,7 +87,7 @@ static remote_info_t* hltp_interpret_remote_info(const uint8_t *p) {
 int hltp_send_remote_info(const remote_info_t *p) {
 
     uint8_t type = hltp_type_remote;
-    uint8_t* ptr[3]; size_t sz[3];
+    const uint8_t* ptr[3]; size_t sz[3];
     ptr[0]  = (uint8_t*)&   type                  ;     sz[0] = 1;
     ptr[1]  = (uint8_t*)&p->remote_keys_pressed   ;     sz[1] = sizeof(keys_t);
     ptr[2]  = (uint8_t*)&p->remote_angle          ;     sz[2] = sizeof(double);
@@ -103,7 +103,7 @@ static bullet_info_t* hltp_interpret_bullet_info(const uint8_t *p) {
 
 int hltp_send_bullet_info(const bullet_info_t *p) {
     uint8_t type = hltp_type_bullet;
-    uint8_t* ptr[2]; size_t sz[2];
+    const uint8_t* ptr[2]; size_t sz[2];
     ptr[0]  = (uint8_t*)&   type            ;     sz[0] = 1;
     ptr[1]  = (uint8_t*)&p->new_bullet      ;     sz[1] = sizeof(bool);
     return nctp_send(2, ptr, sz);
