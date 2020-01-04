@@ -57,7 +57,7 @@ int nctp_free(void);
 
 int nctp_send(size_t num, uint8_t* ptr[], size_t sz[]);
 
-int nctp_ih_err;
+int (nctp_get_ih_error)(void);
 void nctp_ih(void);
 
 #endif //UART_H_INCLUDED

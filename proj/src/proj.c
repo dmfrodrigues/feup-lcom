@@ -38,9 +38,9 @@ int main(int argc, char* argv[]) {
 
     lcf_set_language("EN-US");
 
-    //lcf_trace_calls("/home/lcom/labs/proj/trace.txt");
+    lcf_trace_calls("/home/lcom/labs/proj/trace.txt");
 
-    //lcf_log_output("/home/lcom/labs/proj/output.txt");
+    lcf_log_output("/home/lcom/labs/proj/output.txt");
 
     if (lcf_start(argc, argv)) return 1;
 
@@ -113,7 +113,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
 
     /// loop stuff
     int click = 0;
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     while (good) {
         /* Get a request message. */
@@ -145,12 +145,12 @@ int(proj_main_loop)(int argc, char *argv[]) {
                     case KBC_IRQ:
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
                     }
                     break;
                     case COM1_IRQ: nctp_ih(); break;
@@ -224,7 +224,7 @@ static int (multiplayer)(void) {
 
     /// loop stuff
     int click = 0;
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     while (good) {
         /* Get a request message. */
@@ -255,12 +255,12 @@ static int (multiplayer)(void) {
                     case KBC_IRQ:
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
                     }
                     break;
                     case COM1_IRQ: nctp_ih(); break;
@@ -310,7 +310,7 @@ static int (multiplayer_host)(void) {
     struct packet pp;
     keys_t *keys = get_key_presses();
     /// loop stuff
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     int state = 0; // -1 for remote win, 0 for draw, 1 for host win
     list_node_t *p1, *p2; // player states
@@ -369,13 +369,13 @@ static int (multiplayer_host)(void) {
                     }
                     break;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (last_lb ^ keys->lb_pressed && keys->lb_pressed)
                         shoot_bullet(shooter1, bullet_list, bsp_bullet);
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
                     }
                     break;
 
@@ -446,7 +446,7 @@ static int (multiplayer_remote)(void) {
     keys_t *keys = get_key_presses();
 
     /// loop stuff
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     while (good) {
         if ((r = get_interrupts_vector(&int_vector))) return r;
@@ -510,15 +510,15 @@ static int (multiplayer_remote)(void) {
                     }
                     break;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (last_lb ^ keys->lb_pressed && keys->lb_pressed) {
                             bullet_info->new_bullet = true;
                             hltp_send_bullet_info(bullet_info);
                         }
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
                     }
                     break;
 
@@ -567,7 +567,7 @@ static int (singleplayer)(void) {
 
     /// loop stuff
     int click = 0;
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     while (good) {
         /* Get a request message. */
@@ -598,12 +598,12 @@ static int (singleplayer)(void) {
                     case KBC_IRQ:
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
                     }
                     break;
                     case COM1_IRQ: nctp_ih(); break;
@@ -646,7 +646,7 @@ static int (campaign)(void){
     keys_t *keys = get_key_presses();
 
     /// loop stuff
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     while (good) {
         /* Get a request message. */
@@ -689,13 +689,13 @@ static int (campaign)(void){
                     }
                     break;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (last_lb ^ keys->lb_pressed && keys->lb_pressed)
                         shoot_bullet(shooter1, bullet_list, bsp_bullet);
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
 
                     }
                     break;
@@ -750,7 +750,7 @@ static int (zombies)(void){
     keys_t *keys = get_key_presses();
 
     /// loop stuff
-    uint32_t int_vector = 0;
+    uint64_t int_vector = 0;
     int good = true;
     int dead = false;
 
@@ -816,13 +816,13 @@ static int (zombies)(void){
                     }
                     break;
                     case MOUSE_IRQ:
-                    if (counter_mouse_ih >= 3) {
-                        mouse_parse_packet(packet_mouse_ih, &pp);
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                         update_mouse(&pp);
                         if (last_lb ^ keys->lb_pressed && keys->lb_pressed)
                         shoot_bullet(shooter1, bullet_list, bsp_bullet);
                         last_lb = keys->lb_pressed;
-                        counter_mouse_ih = 0;
+                        mouse_set_counter_mouse_ih(0);
 
                     }
                     break;
@@ -944,7 +944,7 @@ static int (chat)(void){
 }
 
 /// loop stuff
-uint32_t int_vector = 0;
+uint64_t int_vector = 0;
 int good = true;
 while (good) {
     /* Get a request message. */
@@ -999,10 +999,10 @@ while (good) {
                 sprintf(buffer2, "%d/%d", strlen(buffer), CHAT_MAX_SIZE);
                 text_set_string(t_size, buffer2);
                 case MOUSE_IRQ:
-                if (counter_mouse_ih >= 3) {
-                    mouse_parse_packet(packet_mouse_ih, &pp);
+                if (mouse_get_counter_mouse_ih() >= 3) {
+                    mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
                     update_mouse(&pp);
-                    counter_mouse_ih = 0;
+                    mouse_set_counter_mouse_ih(0);
                 }
                 break;
                 case COM1_IRQ: nctp_ih(); break;

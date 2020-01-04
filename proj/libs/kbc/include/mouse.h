@@ -14,10 +14,7 @@ int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 int (mouse_get_got_error_mouse_ih)(void);
 const uint8_t* (mouse_get_packet_mouse_ih)(void);
 int (mouse_get_counter_mouse_ih)(void);
-
-int got_error_mouse_ih;
-uint8_t packet_mouse_ih[3];
-int counter_mouse_ih;
+void (mouse_set_counter_mouse_ih)(int n);
 
 /**
  * @brief   Parse 3 bytes and returns it as a parsed, struct packet.
@@ -61,7 +58,7 @@ int (mouse_read_data)(uint8_t *data, uint16_t period);
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  * @see {_ERRORS_H_::errors}
  */
-int (mouse_issue_cmd)(uint32_t cmd);
+int (mouse_issue_cmd)(uint8_t cmd);
 
 /**
  * @brief Reads byte from mouse
