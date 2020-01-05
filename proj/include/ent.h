@@ -414,6 +414,4 @@ int    (map_collides_bullet)(const map_t *p, const bullet_t *bullet);
  */
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull);
 
-void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l);
-
 #endif //ENT_H_INCLUDED
