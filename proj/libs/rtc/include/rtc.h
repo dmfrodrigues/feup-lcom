@@ -1,6 +1,13 @@
 #ifndef RTC_H_INCLUDED
 #define RTC_H_INCLUDED
 
+/**
+ * @defgroup    rtc rtc
+ * @brief RTC (Real-Time Clock) module.
+ *
+ * @{
+ */
+
 #include <stdint.h>
 
 /**
@@ -42,5 +49,9 @@ int (rtc_read_time)(uint8_t *time);
  * @return  ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  */
 int (rtc_read_date)(uint8_t *date);
+
+/**
+ * @}
+ */
 
 #endif /* end of include guard: RTC_H_INCLUDED */

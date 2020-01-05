@@ -2,6 +2,14 @@
 #define MOUSE_H_INCLUDED
 
 /**
+ * @defgroup    mouse   mouse
+ * @ingroup kbc
+ * @brief   Mouse module.
+ *
+ * @{
+ */
+
+/**
  * @brief Subscribes Mouse Interrupts and disables Minix Default IH
  * @param interrupt_bit Bit of Interrupt Vector that will be set when Mouse Interrupt is pending
  * @param interrupt_id Mouse Interrupt ID to specify the Mouse Interrupt in other calls
@@ -86,5 +94,9 @@ int (mouse_poll_byte)(uint8_t *byte, uint16_t period);
  * @return Extended 9-bit number
  */
 int16_t (sign_extend_byte)(uint8_t sign_bit, uint8_t byte);
+
+/**
+ * @}
+ */
 
 #endif //MOUSE_H_INCLUDED

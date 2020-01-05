@@ -1,6 +1,13 @@
 #ifndef ERRORS_H_INCLUDED
 #define ERRORS_H_INCLUDED
 
+/**
+ * @defgroup    errors  errors
+ * @brief Error codes.
+ *
+ * @{
+ */
+
 /** @brief Error Codes */
 enum errors {
     SUCCESS = 0,        /** @brief Sucessful */
@@ -23,5 +30,9 @@ enum errors {
     TRANS_FAILED,       /** @brief Transmission failed */
     OTHER_ERROR         /** @brief Unspecified error */
 };
+
+/**
+ * @}
+ */
 
 #endif //ERRORS_H_INCLUDED
