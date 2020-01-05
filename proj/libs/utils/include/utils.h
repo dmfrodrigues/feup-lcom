@@ -1,8 +1,17 @@
 #ifndef UTILS_H_INCLUDED
 #define UTILS_H_INCLUDED
 
-#define BCD_FIRST(n)     (n >> 4)       /** @brief Get first digit (leftmost digit) of 8-bit BCD */
-#define BCD_SECOND(n)    (n & 0x0F)     /** @brief Get second digit (rightmost digit) of 8-bit BCD */
+/**
+ * @defgroup utils utils
+ * @brief Utilities module.
+ *
+ * @{
+ */
+
+/** @brief Get first digit (leftmost digit) of 8-bit BCD */
+#define BCD_FIRST(n)     (n >> 4)
+/** @brief Get second digit (rightmost digit) of 8-bit BCD */
+#define BCD_SECOND(n)    (n & 0x0F)
 
 /**
  * @brief Gets the least significant byte of a 16-bit variable
@@ -58,8 +67,23 @@ uint16_t umax16(uint16_t a, uint16_t b);
 int32_t max32(int32_t a, int32_t b);
 double  dmax (double  a, double  b);
 
+/**
+ * @brief Get the absolute value of a double.
+ * @param   a   Argument
+ * @return      Absolute value of a
+ */
 double dabs(double a);
 
+/**
+ * @brief Compare if two doubles are approximately equal (within 1e-10).
+ * @param   a   First value
+ * @param   b   Second value
+ * @return      true if the two numbers are approximately equal, false otherwise
+ */
 int deq(double a, double b);
+
+/**
+ * @}
+ */
 
 #endif //UTILS_H_INCLUDED
