@@ -2,14 +2,14 @@
 #define SCOREBOARD_H_INCLUDED
 
 /**
- * @defgroup proj_structures proj_structures
- * @brief Project structures.
+ * @defgroup scoreboards scoreboards
+ * @brief Scoreboards module.
  *
  * @{
  */
 
+#include "libs.h"
 #include <stdint.h>
-#include "font.h"
 
 /**
  * @brief Score.
@@ -52,7 +52,9 @@ void (highscores_save)(const highscores_t *p, const char *path);
  */
 void (highscores_dtor)(highscores_t *p);
 
-
+/**
+ * @}
+ */
 
 
 #endif /* end of include guard: SCOREBOARD_H_INCLUDED */
