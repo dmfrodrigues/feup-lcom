@@ -342,12 +342,13 @@ static void nctp_process_received(){
     free(queue_top(in)); queue_pop(in);
     size_t sz = 1024; uint8_t *p = malloc(sz*sizeof(uint8_t));
     size_t i = 0;
+    printf("reach\n");
     while(*(uint8_t*)queue_top(in) != NCTP_END){
         //printf("%c\n", *(uint8_t*)queue_top(in));
         p[i++] = *(uint8_t*)queue_top(in);
         free(queue_top(in)); queue_pop(in);
         if(i >= sz) p = realloc(p, sz=2*sz);
-    }
+    }printf("reach2\n");
     free(queue_top(in)); queue_pop(in);
     if(process != NULL) process(p, i);
     free(p);
