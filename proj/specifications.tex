@@ -1,0 +1,205 @@
+\documentclass{article}
+% Hyperreferences
+\usepackage{hyperref}
+% Margins
+\usepackage[top=35mm,bottom=35mm,left=25mm,right=25mm]{geometry}
+% Graphics and images
+\usepackage{graphicx}
+% Encodings (to render letters with diacritics and special characters)
+\usepackage[utf8]{inputenc}
+% Language
+\usepackage[english]{babel}
+% Section pagebreaks
+\usepackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
+\newcommand{\sectionnobreak}{% for when I want a section that does not break
+  \global\toggletrue{afterpart}%
+  \section
+}
+% Source code
+\usepackage{listings}
+\usepackage{xcolor}
+\renewcommand{\lstlistingname}{File}
+\lstset{
+    frame=tb, % draw frame at top and bottom of the code
+    tabsize=4, % tab space width
+    numbers=left, % display line numbers on the left
+	showstringspaces=false, % don't mark spaces in strings    
+    commentstyle=\color{green}, % comment color
+    keywordstyle=\color{blue}, % keyword color
+    stringstyle=\color{red} % string color
+}
+\lstdefinelanguage{Maxima}{
+	keywords={log,jacobian,determinant,subst},
+	sensitive=true,
+	comment=[n][\itshape]{/*}{*/}
+}
+% Tables with bold rows
+\usepackage{tabularx}
+\newcommand\setrow[1]{\gdef\rowmac{#1}#1\ignorespaces}
+\newcommand\clearrow{\global\let\rowmac\relax}
+\clearrow
+% Math stuff
+\usepackage[mathscr]{euscript}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\newcommand{\expnumber}[2]{{#1}\mathrm{e}{#2}} % scientific notation
+% Definitions, theorems, remarks,...
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\renewcommand\qedsymbol{$\blacksquare$}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+% Contents title
+\addto\captionsenglish{\renewcommand*\contentsname{Table of contents}}
+% Headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{ \fancyplain{}{LabWars (LCOM 2019/20 final project - Specification)}}
+\lfoot{ \fancyplain{}{T5G03}}
+\rfoot{ \fancyplain{}{\thepage} }
+%
+\newcommand{\email}[1]{
+{\texttt{\href{mailto:#1}{#1}} }
+}
+\newcommand{\role}[1]{
+\begin{tabular}{l l}
+	\begin{minipage}[t]{30mm} \textbf{Roles} \end{minipage} &
+	\begin{minipage}[t]{125mm} #1 \end{minipage}
+\end{tabular}\\
+}
+\newcommand{\func}[1]{
+\begin{tabular}{l l}
+	\begin{minipage}[t]{30mm} \textbf{Functionalities} \end{minipage} &
+	\begin{minipage}[t]{125mm} #1 \end{minipage}
+\end{tabular}\\
+}
+% Metadata
+\title{LabWars \\ \vspace*{4pt} \large LCOM 2019/20 final project - Specification}
+\author{
+T5G03\\
+\begin{tabular}{r l}
+	\email{up201806429@fe.up.pt} & Diogo Miguel Ferreira Rodrigues        \\
+	\email{up201806554@fe.up.pt} & Telmo Alexandre Espirito Santo Baptista
+\end{tabular}
+}
+\date{25/11/2019}
+% Document
+\begin{document}
+%\begingroup
+	\maketitle
+%	\let\clearpage\relax
+%	\setcounter{tocdepth}{2}
+	\tableofcontents
+%\endgroup
+\section{Description}
+This project consists of a shooting game in a walled map, where players watch the map from above and have their visibility restricted to their field of view. \par
+The game will have several modes (single player, cooperative, deathmatch, zombie 1player and 2players), where each mode might have different rules and goals. \par
+Bullets have a travel time and deal a certain amount of damage to the entities they hit. All entities have a certain health, corresponding to the total damage they can withstand before perishing.\par
+Entities have a roughly circular \textit{body}, meaning
+\begin{enumerate}
+	\item A bullet is considered to hit an entity if it touches its body.
+	\item Entities take up space in the map, thus making it impossible to have two entities too close to each other.
+\end{enumerate}
+\subsection{Autonomous opponents}
+On some of the modes, players will have to face autonomous opponents, which will abide to one of the following behaviours:
+\begin{itemize}
+	\item Walk around the map in a pre-programmed fashion, shooting at players on sight.
+	\item More sofisticated ways to oppose players, by using some heuristics, the simplest of which is to follow the player after he is detected, and if not on sight trying to guess where the player is.
+\end{itemize}
+\subsection{Single player}
+In single-player mode, the goal is to eliminate all autonomous opponents. Additional prizes are awarded for time limits and health at the end of the match.
+\subsection{Two players}
+In two players mode, there are three possible sub-modes.
+\subsubsection*{Cooperative}
+In cooperative mode, two players have to eliminate all autonomous opponents. There is friendly fire, which results in a penalty for the infringing player.\par
+If one of the players loses all his health, he is \textit{downed}, meaning he may not move or shoot but may be revived by the other player, given the other player performs the proper key presses when close enough to the downed player.
+\subsubsection*{Deathmatch}
+In deathmatch mode, two players face each other, the last to die wins.
+\subsection{Zombie}
+In zombie mode, one or two players have to survive multiple zombie waves of increasing difficulty. In this mode visibility is not limited. Zombies spawn from specific locations on the boundary of the map, and they know exactly where the one or two players are.\par
+Depending on the success of the implementations, zombies will either move randomly or take the shortest path to the closest player. Zombies attack players with short range attacks.
+\section{Modules}
+\subsection{Timer (\texttt{timer})}
+Module to be developed by Telmo Baptista (this module is almost fully-implemented in lab works).\\
+\role{Manage screen refresh rate.}
+\func{Timer periodic interrupts.}
+\subsection{KBC}
+\subsubsection{Keyboard (\texttt{kbd})}
+Module to be developed by Telmo Baptista (this module is partially implemented in lab works).\\
+\role{
+Filling text fields.\\
+In-game pause, other options, character movement.
+}
+\func{Keyboard in interrupt mode.}
+\subsubsection{Mouse (\texttt{mouse})}
+Module to be developed by Telmo Baptista (this module is partially implemented in lab works).\\
+\role{
+Menu items selection.\\
+In-game weapon aiming.
+}
+\func{Mouse buttons and movement in interrupt mode.}
+\subsection{Graphics (\texttt{graph})}
+Module to be developed by Diogo Rodrigues (this module is partially implemented in lab works).\\
+This module will include a generic interface to handle graphics and drawing.\\\\
+\role{Graphics display on menus and in-game.}
+\func{Video Card in graphic mode with direct color encoding, dynamic updating of VRAM/screen.}
+\subsection{Real time clock (\texttt{rtc})}
+Module to be developed by Telmo Baptista.\\
+\role{
+Score dates.\\
+In-game time since the beginning of the match.
+}
+\func{Use of the RTC functionalities needed to implement the requirements stated in the role of the device.}
+\subsection{UART (\texttt{uart})}
+Module to be developed by Diogo Rodrigues.\\
+\role{Two-player matches in distinct physical computers.}
+\func{Point-to-point communication between two computers.}
+\subsection{Menus (\texttt{menu})}
+Module to be developed by Telmo Baptista.\\
+This module will include all menus of the game.
+\subsection{Entities (\texttt{ent})}
+Module to be developed by Diogo Rodrigues.\\
+This module will include all implementations related to the entities, namely health, weapons, damage, movement algorithms, etc.
+\section{Development plan}
+Bottom-up primarily.
+\subsection{1st week}
+Diogo will be working mainly on the graphics, such as:
+\begin{enumerate}
+	\item Design the main map, differentiating walls and ground to then implement collision.
+	\item Design sprites for the characters.
+	\item Work on animation of sprites, simple movement on the xOy plane.
+	\item Work on the rotation of characters.
+\end{enumerate}
+Telmo will be focused on the player input that will command the movement.
+\begin{enumerate}
+	\item Work on the keyboard controls that will be the main movement of character.
+	\item Work on mouse controls which will be used to shoot.
+	\item Work on mouse movement that will be used for rotation of the characters.
+\end{enumerate}
+So each member will be focused on a different set of drivers, thus reducing dependence between each others' parts (modularity) and allowing parallel development.
+\subsection{2nd week}
+Diogo will be working mainly on the creation of entities for the game:
+\begin{enumerate}
+	\item Implement collision boxes.
+	\item Add basic entities to use collision boxes.
+	\item Basic game dynamic (game events), such as being shot and hitting walls preventing movement.
+\end{enumerate}
+Telmo will be focused on the integration of past week work.
+\begin{enumerate}
+	\item Integration of the character movements with the user controls.
+\end{enumerate}
+\subsection{3rd week}
+Diogo will be mainly finishing and improving entity dynamics.\\
+Telmo will be focused on the menus.
+\subsection{After demo}
+Revision of the development plan to fulfill the project needs.\\
+Add in-game time.\\
+Improve entities interaction.\\
+Work on the communication between computers, to implement two-player modes.\\
+\end{document}

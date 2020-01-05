@@ -81,6 +81,13 @@ int(proj_main_loop)(int argc, char *argv[]) {
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
 
+    text_t *title     = text_ctor(font_get_default(), "LabWars");
+    text_set_color(title, TEXT_COLOR);
+    text_set_size(title, 70);
+    text_set_pos(title, graph_get_XRes()/2, graph_get_YRes()*0.17);
+    text_set_valign(title, text_valign_center);
+    text_set_halign(title, text_halign_center);
+
     menu_t *main_menu = menu_ctor(font_get_default());
     menu_add_item(main_menu, "Single player");
     menu_add_item(main_menu, "Multiplayer");
@@ -115,6 +122,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
                         case  3: good = false; break;
                     }
                     menu_draw(main_menu);
+                    text_draw(title);
 
                     click = 0;
 
@@ -139,6 +147,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
             }
         }
     }
+
+    text_dtor(title);
+    menu_dtor(main_menu);
 
     basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
     basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;
