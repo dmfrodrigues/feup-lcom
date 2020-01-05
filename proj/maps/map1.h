@@ -1,9 +1,6 @@
 #ifndef MAP1_H_INCLUDED
 #define MAP1_H_INCLUDED
 
-#include "map1.xpm"
-#include "map1_collide.xpm"
-
 #include "libs.h"
 
 static map_t* get_map1(void){
