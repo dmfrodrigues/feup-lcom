@@ -3,7 +3,7 @@
 
 /**
  * @defgroup    hltp    hltp
- * @ingroup nctp
+ * @ingroup proj
  * @brief HLTP (High-Level Transfer Protocol) module.
  *
  * @{

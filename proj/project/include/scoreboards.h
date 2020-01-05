@@ -3,6 +3,7 @@
 
 /**
  * @defgroup scoreboards scoreboards
+ * @ingroup proj
  * @brief Scoreboards module.
  *
  * @{

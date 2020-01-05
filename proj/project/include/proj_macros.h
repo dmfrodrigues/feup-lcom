@@ -3,6 +3,7 @@
 
 /**
  * @defgroup proj_macros proj_macros
+ * @ingroup proj
  * @brief Project macros.
  *
  * @{
