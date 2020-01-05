@@ -2,7 +2,7 @@
 #define PROJ_FUNC_H_INCLUDED
 
 #include "ent.h"
-#include "font.h"
+#include "text.h"
 #include "proj_structures.h"
 
 #include <stdint.h>

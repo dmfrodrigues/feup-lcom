@@ -17,7 +17,6 @@
 #define DIRECT_1024_768_888     0x118
 #define DIRECT_1280_1024_565    0x11A
 #define DIRECT_1280_1024_888    0x11B
-#define LINEAR_FRAME_BUFFER_MD  BIT(14)
 
 // Colors in RBG (8 bit)
 #define GRAPH_BLACK             0x000000
@@ -27,18 +26,6 @@
 
 // Alpha
 #define ALPHA_THRESHOLD     0x7F
-
-// MACROS
-#define GET_ALP(n)          (0xFF & ((n) >> 24))
-#define GET_RED(n)          (0xFF & ((n) >> 16))
-#define GET_GRE(n)          (0xFF & ((n) >>  8))
-#define GET_BLU(n)          (0xFF & (n      ))
-#define GET_COLOR(n)        (0xFFFFFF & (n))
-#define SET_ALP(n)          (((n)&0xFF) << 24)
-#define SET_RED(n)          (((n)&0xFF) << 16)
-#define SET_GRE(n)          (((n)&0xFF) <<  8)
-#define SET_BLU(n)          (((n)&0xFF)      )
-#define SET_RGB(r,g,b)      (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
 
 /**
  * @brief Initialize graphics.
@@ -88,10 +75,16 @@ void (graph_set_pixel)             (uint16_t x, uint16_t y, uint32_t color);
  */
 void (graph_set_pixel_pos)         (unsigned pos          , uint32_t color);
 
-// SCREEN
+/**
+ * @brief Clear screen, painting it black.
+ * @return  SUCCESS if operation was successful, other value otherwise
+ */
 int (graph_clear_screen)(void);
 
-// DRAW
+/**
+ * @brief Draw everything on the buffer to the screen.
+ * @return  SUCCESS if operation was successful, other value otherwise
+ */
 int (graph_draw)(void);
 
 /**

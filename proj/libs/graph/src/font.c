@@ -133,6 +133,8 @@ void (font_free)(void){
 }
 
 /// TEXT
+#include "text.h"
+
 struct text{
     const font_t *fnt;
     char *txt;

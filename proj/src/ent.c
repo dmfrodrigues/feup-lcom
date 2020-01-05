@@ -6,7 +6,7 @@
 #include "sprite.h"
 #include "utils.h"
 #include "rectangle.h"
-#include "font.h"
+#include "text.h"
 #include "errors.h"
 #include "queue.h"
 #include <math.h>

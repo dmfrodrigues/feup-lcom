@@ -11,6 +11,8 @@
 #define MBYTE_BASE  0x0         /** @brief Base address (zero address) */
 #define MBYTE_SIZE  0xFFFFF     /** @brief Size of a mebibyte */
 
+#define LINEAR_FRAME_BUFFER_MD  BIT(14)
+
 // Graphics Functions
 #define VBE_CTRL_INFO       0x00    /** @brief Get VBE Controller Information */
 #define VBE_MD_INFO         0x01    /** @brief Get VBE Mode Information */
@@ -350,8 +352,6 @@ void (sprite_set_scale) (sprite_t *p, double scale          ){
         }
     }
 }
-int16_t  (sprite_get_x)(const sprite_t *p){ return p->x; }
-int16_t  (sprite_get_y)(const sprite_t *p){ return p->y; }
 double   (sprite_get_angle)(const sprite_t *p){ return p->theta; }
 uint16_t (sprite_get_w)(const sprite_t *p){ return basic_sprite_get_w(p->bsp); }
 uint16_t (sprite_get_h)(const sprite_t *p){ return basic_sprite_get_h(p->bsp); }

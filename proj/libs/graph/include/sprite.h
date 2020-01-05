@@ -13,29 +13,70 @@
 
 #include "basic_sprite.h"
 
-struct sprite;
 typedef struct sprite sprite_t;
 
+/**
+ * @brief Construct sprite.
+ * @param   bsp Basic sprite from which to build the sprite
+ * @return      Pointer to constructed sprite, or NULL if failed
+ */
 sprite_t* (sprite_ctor)(const basic_sprite_t *bsp);
-/*
- * /!\ WARNING: Entity destructor does not destruct the basic_sprite passed as
- * constructor arguments, since it is assumed the same basic_sprite may be used to
- * draw several sprites. It is thus YOUR responsibility to delete basic_sprite's.
+/**
+ * @brief Destruct sprite.
+ *
+ *
+ * @attention Destructor does not destruct the basic sprite passed as
+ * constructor argument, since it is assumed the same basic sprite may be used to
+ * draw several sprites. It is thus YOUR responsibility to delete basic sprites.
  * @param   p   Pointer to sprite_t to be destructed
  */
 void      (sprite_dtor)(sprite_t *p);
-
+/**
+ * @brief Set sprite position.
+ * @param   p   Pointer to sprite
+ * @param   x   X-position in map
+ * @param   y   Y-position in map
+ */
 void (sprite_set_pos)   (sprite_t *p, int16_t x, int16_t y);
-void (sprite_set_center)(sprite_t *p, int16_t u0, int16_t v0);
+/**
+ * @brief Set sprite angle.
+ *
+ * If not provided, will be drawn with angle 0, corresponding to the same
+ * orientation as the original image.
+ * @param   p       Pointer to sprite
+ * @param   angle   Angle in radians, counterclockwise positive and 0 on positive x-axis
+ */
 void (sprite_set_angle) (sprite_t *p, double angle);
+/**
+ * @brief Set sprite scale.
+ *
+ * Default scale is 1, corresponding to original image scale.
+ * @param   p       Pointer to sprite
+ * @param   scale   Scale, greater than 0
+ */
 void (sprite_set_scale) (sprite_t *p, double scale);
-
-int16_t  (sprite_get_x)(const sprite_t *p);
-int16_t  (sprite_get_y)(const sprite_t *p);
+/**
+ * @brief Get sprite angle.
+ * @param   p   Pointer to sprite
+ * @return      Sprite angle
+ */
 double   (sprite_get_angle)(const sprite_t *p);
+/**
+ * @brief   Get sprite width (same as the underlying basic sprite).
+ * @param   p   Pointer to sprite
+ * @return      Sprite width
+ */
 uint16_t (sprite_get_w)(const sprite_t *p);
+/**
+ * @brief   Get sprite height (same as the underlying basic sprite).
+ * @param   p   Pointer to sprite
+ * @return      Sprite height
+ */
 uint16_t (sprite_get_h)(const sprite_t *p);
-
+/**
+ * @brief Draw sprite in buffer.
+ * @param   p   Pointer to sprite
+ */
 void (sprite_draw)(const sprite_t *p);
 
 /**
