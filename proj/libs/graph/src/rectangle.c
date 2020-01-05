@@ -51,13 +51,13 @@ int (rectangle_collide_point)(const rectangle_t *p, int x, int y) {
 
 static void (rectangle_draw_hline)(int16_t x, int16_t y, int16_t l, uint32_t color){
     if(l < 0){ rectangle_draw_hline(x+l, y, -l, color); return; }
-    for(int16_t x_ = max16(0,x); x_ < min16(x+l,(int16_t)graph_get_XRes()); ++x_){
+    for(int16_t x_ = max_16(0,x); x_ < min_16(x+l,(int16_t)graph_get_XRes()); ++x_){
         graph_set_pixel((uint16_t)x_, (uint16_t)y, color);
     }
 }
 static void (rectangle_draw_vline)(int16_t x, int16_t y, int16_t l, uint32_t color){
     if(l < 0){ rectangle_draw_vline(x, y+l, -l, color); return; }
-    for(int16_t y_ = max16(0,y); y_ < min16(y+l,(int16_t)graph_get_YRes()); ++y_){
+    for(int16_t y_ = max_16(0,y); y_ < min_16(y+l,(int16_t)graph_get_YRes()); ++y_){
         graph_set_pixel((uint16_t)x, (uint16_t)y_, color);
     }
 }
@@ -65,7 +65,7 @@ static void (rectangle_draw_vline)(int16_t x, int16_t y, int16_t l, uint32_t col
 void (rectangle_draw)(const rectangle_t *p){
     /// fill
     if(p->fill_alpha > ALPHA_THRESHOLD)
-        for(int16_t y = max16(p->y,0); y < min16(p->y+p->h, (int16_t)graph_get_YRes()); ++y)
+        for(int16_t y = max_16(p->y,0); y < min_16(p->y+p->h, (int16_t)graph_get_YRes()); ++y)
             rectangle_draw_hline(p->x, y, (int16_t)p->w, p->fill_color);
     /// border
     int16_t step = (p->outline_width > 0 ? 1 : -1);

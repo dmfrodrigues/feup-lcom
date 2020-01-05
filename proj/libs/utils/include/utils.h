@@ -51,10 +51,13 @@ int (unsubscribe_interrupt)(int *interrupt_id);
  * @param b     Second value
  * @return  The minimum of the two values
  */
-int16_t min16(int16_t a, int16_t b);
-uint16_t umin16(uint16_t a, uint16_t b);
-int32_t min32(int32_t a, int32_t b);
-double  dmin (double  a, double  b);
+int16_t min_16(int16_t a, int16_t b);
+/// @overload
+uint16_t min_u16(uint16_t a, uint16_t b);
+/// @overload
+int32_t min_32(int32_t a, int32_t b);
+/// @overload
+double  min_d(double  a, double  b);
 
 /**
  * @brief Gets the maximum value out of two values.
@@ -62,17 +65,20 @@ double  dmin (double  a, double  b);
  * @param b     Second value
  * @return  The maximum of the two values
  */
-int16_t max16(int16_t a, int16_t b);
-uint16_t umax16(uint16_t a, uint16_t b);
-int32_t max32(int32_t a, int32_t b);
-double  dmax (double  a, double  b);
+int16_t max_16(int16_t a, int16_t b);
+/// @overload
+uint16_t max_u16(uint16_t a, uint16_t b);
+/// @overload
+int32_t max_32(int32_t a, int32_t b);
+/// @overload
+double  max_d(double  a, double  b);
 
 /**
  * @brief Get the absolute value of a double.
  * @param   a   Argument
  * @return      Absolute value of a
  */
-double dabs(double a);
+double abs_d(double a);
 
 /**
  * @brief Compare if two doubles are approximately equal (within 1e-10).
@@ -80,7 +86,7 @@ double dabs(double a);
  * @param   b   Second value
  * @return      true if the two numbers are approximately equal, false otherwise
  */
-int deq(double a, double b);
+int eq_d(double a, double b);
 
 /**
  * @}

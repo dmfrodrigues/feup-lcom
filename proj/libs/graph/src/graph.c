@@ -333,7 +333,7 @@ void (sprite_dtor)(sprite_t *p){
 void (sprite_set_pos)   (sprite_t *p, int16_t x , int16_t y ){ p->x = x; p->y = y; }
 void (sprite_set_angle) (sprite_t *p, double angle          ){ p->theta = angle; p->c = fm_cos(p->theta); p->s = fm_sin(p->theta); }
 void (sprite_set_scale) (sprite_t *p, double scale          ){
-    if(deq(p->scale, scale)) return;
+    if(eq_d(p->scale, scale)) return;
     p->scale = scale;
 
     p->su0 = (int16_t)(p->bsp->u0*p->scale);
@@ -385,13 +385,13 @@ void (sprite_draw)(const sprite_t *p){
         sprite_sbuf2src(p, 0          , 0          , &x, &y);
         xmin = x; xmax = x; ymin = y; ymax = y;
         sprite_sbuf2src(p, (int16_t)sw, 0          , &x, &y);
-        xmin = min16(x, xmin); xmax = max16(x, xmax); ymin = min16(y, ymin); ymax = max16(y, ymax);
+        xmin = min_16(x, xmin); xmax = max_16(x, xmax); ymin = min_16(y, ymin); ymax = max_16(y, ymax);
         sprite_sbuf2src(p, 0          , (int16_t)sh, &x, &y);
-        xmin = min16(x, xmin); xmax = max16(x, xmax); ymin = min16(y, ymin); ymax = max16(y, ymax);
+        xmin = min_16(x, xmin); xmax = max_16(x, xmax); ymin = min_16(y, ymin); ymax = max_16(y, ymax);
         sprite_sbuf2src(p, (int16_t)sw, (int16_t)sh, &x, &y);
-        xmin = min16(x, xmin); xmax = max16(x, xmax); ymin = min16(y, ymin); ymax = max16(y, ymax);
-        xmin = max16(xmin-2, 0); xmax = min16(xmax+2, (int16_t)graph_get_XRes());
-        ymin = max16(ymin-2, 0); ymax = min16(ymax+2, (int16_t)graph_get_YRes());
+        xmin = min_16(x, xmin); xmax = max_16(x, xmax); ymin = min_16(y, ymin); ymax = max_16(y, ymax);
+        xmin = max_16(xmin-2, 0); xmax = min_16(xmax+2, (int16_t)graph_get_XRes());
+        ymin = max_16(ymin-2, 0); ymax = min_16(ymax+2, (int16_t)graph_get_YRes());
     }
     const uint16_t bytes_pixel = 3/*graph_get_bytes_pixel()*/;
     for(int16_t u, v, y = ymin; y < ymax; ++y){
