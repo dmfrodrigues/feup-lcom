@@ -1,13 +1,18 @@
 #ifndef QUEUE_H_INCLUDED
 #define QUEUE_H_INCLUDED
 
-struct queue;
 /**
- * @brief Queue.
+ * @defgroup    queue_t queue_t
+ * @brief Queue module
  *
  * Can be used like a C++ std::queue.
  * A queue_t is an interface for a list_t that simulates a FIFO.
+ *
+ * @{
  */
+
+
+struct queue;
 typedef struct queue queue_t;
 
 /**
@@ -53,5 +58,9 @@ void*    (queue_top  )(const queue_t *q);
  * @param   q   Pointer to queue
  */
 void     (queue_pop  )(queue_t *q);
+
+/**
+ * @}
+ */
 
 #endif //QUEUE_H_INCLUDED

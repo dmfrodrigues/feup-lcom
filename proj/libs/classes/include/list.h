@@ -1,13 +1,28 @@
 #ifndef LIST_H_INCLUDED
 #define LIST_H_INCLUDED
 
-struct list_node;
 /**
- * @brief List node.
+ * @defgroup    list_t    list_t
+ * @brief List module
+ *
+ * Can be used like a C++ std::list.
+ * A list_t is a sequence of list_node_t nodes, that store void* to allow for more flexibility.
+ *
+ * @{
+ */
+
+/**
+ * @defgroup    list_node_t   list_node_t
+ * @ingroup list
+ * @brief List node module
  *
  * Can be used like a C++ std::list iterator.
  * A list node stores a void* to allow for more flexibility.
+ *
+ * @{
  */
+
+struct list_node;
 typedef struct list_node list_node_t;
 
 /**
@@ -42,13 +57,12 @@ list_node_t* (list_node_prev)(const list_node_t *p);
  */
 void**       (list_node_val )(list_node_t *p);
 
-struct list;
 /**
- * @brief List.
- *
- * Can be used like a C++ std::list.
- * A list_t is a sequence of list_node_t nodes, that store void* to allow for more flexibility.
+ * @}
  */
+
+struct list;
+
 typedef struct list list_t;
 
 /**
@@ -130,5 +144,9 @@ void         (list_pop_front)(list_t *l);
  * @return  Node whose value compares equal to val, or past-the-end node if not found
  */
 list_node_t* (list_find)     (list_t *l, void *val);
+
+/**
+ * @}
+ */
 
 #endif //LIST_H_INCLUDED

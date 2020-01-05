@@ -213,7 +213,7 @@ int uart_set_parity(int base_addr, uart_parity par){
     conf = (conf & (~UART_PARITY)) | parity;
     return uart_set_lcr(base_addr, conf);
 }
-int uart_set_bit_rate(int base_addr, double bit_rate){
+int uart_set_bit_rate(int base_addr, uint32_t bit_rate){
     int ret = SUCCESS;
     uint16_t latch = (uint16_t)(UART_BITRATE/bit_rate);
     uint8_t dll = UART_GET_DLL(latch);

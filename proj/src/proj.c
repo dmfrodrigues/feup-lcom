@@ -62,6 +62,7 @@ static int (singleplayer)(void);
 static int (multiplayer)(void);
 static int (chat)(void);
 int(proj_main_loop)(int argc, char *argv[]) {
+    (void)argc; (void)argv;
 
     int r;
 
