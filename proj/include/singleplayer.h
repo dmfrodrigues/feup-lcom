@@ -1,0 +1,6 @@
+#ifndef SINGLEPLAYER_H_INCLUDED
+#define SINGLEPLAYER_H_INCLUDED
+
+int (singleplayer)(void);
+
+#endif //SINGLEPLAYER_H_INCLUDED
