@@ -21,7 +21,36 @@
  */
 int cleanup(void);
 
+/**
+ * @brief Update key presses.
+ */
 void update_key_presses(void);
+/**
+ * @brief Get key presses.
+ * @return  keys_t containing key presses
+ */
+keys_t* (get_key_presses)(void);
+
+/**
+ * @brief Update mouse.
+ */
+void update_mouse(struct packet *p);
+/**
+ * @brief Get pointer to mouse X-position.
+ * @return  Pointer to mouse X-position.
+ */
+int16_t* get_mouse_X(void);
+/**
+ * @brief Get pointer to mouse Y-position.
+ * @return  Pointer to mouse Y-position.
+ */
+int16_t* get_mouse_Y(void);
+/**
+ * @brief Get cursor angle relative to a gunner in the screen.
+ * @param   p   Pointer to gunner
+ * @return      Angle of the mouse relative to the gunner
+ */
+double get_mouse_angle(gunner_t *p);
 
 /**
  * @brief Updates movement variables.
@@ -39,27 +68,45 @@ void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list
  */
 void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l);
 
-void update_mouse(struct packet *p);
-
-keys_t* (get_key_presses)(void);
-
-void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet);
-
-void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_list);
-
-
-
+/**
+ * @brief Update scale if the keys were pressed to change scale.
+ */
 void update_scale(void);
 
-int16_t* get_mouse_X(void);
+/**
+ * @brief Shoot a bullet.
+ * @param   shooter     Pointer to gunner that shot the bullet
+ * @param   bullet_list List of the bullets in the map
+ * @param   bsp_bullet  Basic sprite that will be used to render the bullet
+ */
+void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet);
+/**
+ * @brief Update game state.
+ *
+ * This includes moving bullets accordingly, processing damages, collisions of
+ * bullets with walls, melee damage for the gunners that have autonomous melee.
+ * @param   map             Pointer to map
+ * @param   shooter_list    List of shooters
+ * @param   bullet_list     List of bullets in the map
+ */
+void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_list);
 
-int16_t* get_mouse_Y(void);
-
+/**
+ * @brief Wrapper to easen filling of the host_info_t.
+ * @param   p       Host info to fill
+ * @param   host    Host gunner
+ * @param   remote  Remote gunner
+ */
 void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote);
-
+/**
+ * @brief Wrapper to easen filling of the remote_info_t.
+ * @param   p       Remote info to fill
+ * @param   keys    Key presses of remote
+ * @param   angle   Mouse angle of remote
+ */
 void build_remote_structure(remote_info_t *p, keys_t *keys, double angle);
 
-double get_mouse_angle(gunner_t *p);
+
 
 /**
  * @}
@@ -82,14 +129,27 @@ typedef struct {
     /// @brief Text.
     text_t *text;
 } text_timer_t;
-
-text_timer_t* (timer_ctor)(const font_t *fnt);
-
-void (timer_dtor)(text_timer_t *p);
-
-void (timer_update)(text_timer_t *p);
-
-void (timer_reset)(text_timer_t *p);
+/**
+ * @brief Construct timer
+ * @param   fnt Font used to render timer text
+ * @return      Pointer to constructed timer, or NULL if failed
+ */
+text_timer_t* (text_timer_ctor)(const font_t *fnt);
+/**
+ * @brief Destruct timer.
+ * @param   p   Pointer to timer to be destructed
+ */
+void (text_timer_dtor)(text_timer_t *p);
+/**
+ * @brief   Update timer, by incrementing the number of seconds.
+ * @param   p   Pointer to timer
+ */
+void (text_timer_update)(text_timer_t *p);
+/**
+ * @brief   Reset timer to 0.
+ * @param   p   Pointer to timer
+ */
+void (text_timer_reset)(text_timer_t *p);
 
 /**
  * @}
