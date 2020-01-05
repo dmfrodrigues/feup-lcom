@@ -18,6 +18,7 @@
 #include "makecode_map.h"
 
 #include "graph.h"
+#include "sprite.h"
 #include "rectangle.h"
 #include "font.h"
 #include "ent.h"

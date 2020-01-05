@@ -3,6 +3,7 @@
 #include "ent.h"
 
 #include "graph.h"
+#include "sprite.h"
 #include "utils.h"
 #include "rectangle.h"
 #include "font.h"
