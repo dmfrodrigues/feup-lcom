@@ -1,11 +1,30 @@
 #ifndef PROJ_STRUCTURES_H_INCLUDED
 #define PROJ_STRUCTURES_H_INCLUDED
 
+/**
+ * @defgroup proj_structures proj_structures
+ * @brief Project structures.
+ *
+ * @{
+ */
+
 #include <stdint.h>
 #include "ent.h"
 
 /**
- * @brief Key presses.
+ * @}
+ */
+
+/**
+ * @defgroup keys_t keys_t
+ * @ingroup proj_structures
+ * @brief Keys pressed module.
+ *
+ * @{
+ */
+
+/**
+ * @brief Keys pressed.
  */
 typedef struct {
     /// @brief W is pressed when 1
@@ -25,6 +44,18 @@ typedef struct {
     /// @brief Mouse left button is pressed when 1
     uint8_t lb_pressed      : 1;
 } keys_t;
+
+/**
+ * @}
+ */
+
+/**
+* @defgroup host_info_t host_info_t
+* @ingroup proj_structures
+* @brief Host info module.
+*
+* @{
+*/
 
 /**
  * @brief Information to transmit from host to remote.
@@ -82,6 +113,18 @@ host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote);
 void host_info_dtor(host_info_t *p);
 
 /**
+ * @}
+ */
+
+/**
+* @defgroup remote_info_t remote_info_t
+* @ingroup proj_structures
+* @brief Remote info module.
+*
+* @{
+*/
+
+/**
  * @brief Information to transmit from remote to host.
  */
 typedef struct {
@@ -102,6 +145,19 @@ remote_info_t* remote_info_ctor(void);
 void remote_info_dtor(remote_info_t *p);
 
 /**
+ * @}
+ */
+
+/**
+* @defgroup bullet_info_t bullet_info_t
+* @ingroup proj_structures
+* @brief Bullet event module.
+*
+* @{
+*/
+
+
+/**
  * @brief Bullet event to transmit from remote to host.
  */
 typedef struct {
@@ -118,5 +174,9 @@ bullet_info_t* bullet_info_ctor(void);
  * @param   p   Pointer to bullet event to be destructed
  */
 void bullet_info_dtor(bullet_info_t *p);
+
+/**
+ * @}
+ */
 
 #endif /* end of include guard: PROJ_STRUCTURES_H_INCLUDED */

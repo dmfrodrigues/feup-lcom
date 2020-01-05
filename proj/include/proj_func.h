@@ -1,6 +1,13 @@
 #ifndef PROJ_FUNC_H_INCLUDED
 #define PROJ_FUNC_H_INCLUDED
 
+/**
+ * @defgroup proj_func proj_func
+ * @brief Project helper functions.
+ *
+ * @{
+ */
+
 #include "ent.h"
 #include "text.h"
 #include "proj_structures.h"
@@ -29,7 +36,7 @@ void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sp
 
 void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_list);
 
-void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l);
+
 
 void update_scale(void);
 
@@ -43,17 +50,38 @@ void build_remote_structure(remote_info_t *p, keys_t *keys, double angle);
 
 double get_mouse_angle(gunner_t *p);
 
+/**
+ * @}
+ */
+
+/**
+ * @defgroup text_timer_t text_timer_t
+ * @ingroup proj_func
+ * @brief Text timer.
+ *
+ * @{
+ */
+
+/**
+ * @brief Text timer.
+ */
 typedef struct {
+    /// @brief Time since construction.
     int time;
+    /// @brief Text.
     text_t *text;
 } text_timer_t;
 
 text_timer_t* (timer_ctor)(const font_t *fnt);
 
+void (timer_dtor)(text_timer_t *p);
+
 void (timer_update)(text_timer_t *p);
 
 void (timer_reset)(text_timer_t *p);
 
-void (timer_dtor)(text_timer_t *p);
+/**
+ * @}
+ */
 
 #endif /* end of include guard: PROJ_FUNC_H_INCLUDED */
