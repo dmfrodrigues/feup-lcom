@@ -3,6 +3,7 @@
 
 /**
  * @defgroup ent ent
+ * @ingroup proj
  * @brief Entities module
  *
  * @{

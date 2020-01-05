@@ -3,6 +3,7 @@
 
 /**
  * @defgroup interrupts_func interrupts_func
+ * @ingroup proj
  * @brief Interrupts functions.
  *
  * @{

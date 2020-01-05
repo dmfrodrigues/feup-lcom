@@ -3,6 +3,7 @@
 
 /**
  * @defgroup proj_func proj_func
+ * @ingroup proj
  * @brief Project helper functions.
  *
  * @{

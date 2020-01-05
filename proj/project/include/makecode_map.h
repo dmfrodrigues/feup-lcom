@@ -3,6 +3,7 @@
 
 /**
  * @defgroup makecode_map makecode_map
+ * @ingroup proj
  * @brief Makecode map.
  *
  * @{

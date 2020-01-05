@@ -3,6 +3,7 @@
 
 /**
  * @defgroup proj_structures proj_structures
+ * @ingroup proj
  * @brief Project structures.
  *
  * @{
