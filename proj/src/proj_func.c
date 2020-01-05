@@ -31,18 +31,18 @@ host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote) {
     host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
     if (ret == NULL) return ret;
 
-    ret->host_x               = gunner_get_x          (host);
-    ret->host_y               = gunner_get_y          (host);
-    ret->host_angle           = gunner_get_angle      (host);
-    ret->host_health          = gunner_get_health     (host);
-    ret->host_current_health  = gunner_get_curr_health(host);
+    ret->host_x               = (int16_t)gunner_get_x          (host);
+    ret->host_y               = (int16_t)gunner_get_y          (host);
+    ret->host_angle           = (int16_t)gunner_get_angle      (host);
+    ret->host_health          = (int16_t)gunner_get_health     (host);
+    ret->host_current_health  = (int16_t)gunner_get_curr_health(host);
 
     // remote
-    ret->remote_x               = gunner_get_x          (remote);
-    ret->remote_y               = gunner_get_y          (remote);
-    ret->remote_angle           = gunner_get_angle      (remote);
-    ret->remote_health          = gunner_get_health     (remote);
-    ret->remote_current_health  = gunner_get_curr_health(remote);
+    ret->remote_x               = (int16_t)gunner_get_x          (remote);
+    ret->remote_y               = (int16_t)gunner_get_y          (remote);
+    ret->remote_angle           = (int16_t)gunner_get_angle      (remote);
+    ret->remote_health          = (int16_t)gunner_get_health     (remote);
+    ret->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
 
     ret->no_bullets = 0;
 
@@ -320,36 +320,36 @@ double get_mouse_angle(gunner_t *p) {
 
 void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list_t *bullet_list) {
     // host
-    p->host_x               = gunner_get_x          (host);
-    p->host_y               = gunner_get_y          (host);
-    p->host_angle           = gunner_get_angle      (host);
-    p->host_health          = gunner_get_health     (host);
-    p->host_current_health  = gunner_get_curr_health(host);
+    p->host_x               = (int16_t)gunner_get_x          (host);
+    p->host_y               = (int16_t)gunner_get_y          (host);
+    p->host_angle           = (int16_t)gunner_get_angle      (host);
+    p->host_health          = (int16_t)gunner_get_health     (host);
+    p->host_current_health  = (int16_t)gunner_get_curr_health(host);
 
     // remote
-    p->remote_x               = gunner_get_x          (remote);
-    p->remote_y               = gunner_get_y          (remote);
-    p->remote_angle           = gunner_get_angle      (remote);
-    p->remote_health          = gunner_get_health     (remote);
-    p->remote_current_health  = gunner_get_curr_health(remote);
+    p->remote_x               = (int16_t)gunner_get_x          (remote);
+    p->remote_y               = (int16_t)gunner_get_y          (remote);
+    p->remote_angle           = (int16_t)gunner_get_angle      (remote);
+    p->remote_health          = (int16_t)gunner_get_health     (remote);
+    p->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
 
     // bullets
     size_t sz = list_size(bullet_list);
     p->no_bullets = sz;
-    p->bullets_x        = (float*)realloc(p->bullets_x         , sz * sizeof(float));
-    p->bullets_y        = (float*)realloc(p->bullets_y         , sz * sizeof(float));
-    p->bullets_vx       = (float*)realloc(p->bullets_vx        , sz * sizeof(float));
-    p->bullets_vy       = (float*)realloc(p->bullets_vy        , sz * sizeof(float));
-    p->bullets_shooter  = (bool*) realloc(p->bullets_shooter   , sz * sizeof(bool ));
+    p->bullets_x        = (int16_t*)realloc(p->bullets_x         , sz * sizeof(int16_t));
+    p->bullets_y        = (int16_t*)realloc(p->bullets_y         , sz * sizeof(int16_t));
+    p->bullets_vx       = (int16_t*)realloc(p->bullets_vx        , sz * sizeof(int16_t));
+    p->bullets_vy       = (int16_t*)realloc(p->bullets_vy        , sz * sizeof(int16_t));
+    p->bullets_shooter  = (bool*)   realloc(p->bullets_shooter   , sz * sizeof(bool ));
 
     list_node_t *it = list_begin(bullet_list);
     size_t i = 0;
     while (it != list_end(bullet_list)) {
         bullet_t *bullet = *list_node_val(it);
-        p->bullets_x        [i] = bullet_get_x                      (bullet);
-        p->bullets_y        [i] = bullet_get_y                      (bullet);
-        p->bullets_vx       [i] = bullet_get_vx                     (bullet);
-        p->bullets_vy       [i] = bullet_get_vy                     (bullet);
+        p->bullets_x        [i] = (int16_t)bullet_get_x                      (bullet);
+        p->bullets_y        [i] = (int16_t)bullet_get_y                      (bullet);
+        p->bullets_vx       [i] = (int16_t)bullet_get_vx                     (bullet);
+        p->bullets_vy       [i] = (int16_t)bullet_get_vy                     (bullet);
         p->bullets_shooter  [i] = gunner_get_team(bullet_get_shooter(bullet)) != gunner_get_team(host);
         it = list_node_next(it);
         i++;
