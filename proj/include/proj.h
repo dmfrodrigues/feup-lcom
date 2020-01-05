@@ -1,7 +1,8 @@
 #ifndef PROJ_H_INCLUDED
 #define PROJ_H_INCLUDED
 
-#include "sprite.h"
+#include "libs.h"
+
 #include "ent.h"
 
 basic_sprite_t       *bsp_crosshair;

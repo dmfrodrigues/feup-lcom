@@ -1,22 +1,16 @@
 #include <lcom/lcf.h>
 #include <lcom/proj.h>
 #include <lcom/liblm.h>
+
+#include "proj.h"
+
 #include <math.h>
 
 #include "proj_macros.h"
 #include "proj_func.h"
 
-#include "graph.h"
-#include "menu.h"
-#include "rtc.h"
-#include "hltp.h"
 #include "interrupts_func.h"
 #include "makecode_map.h"
-
-#include "graph.h"
-
-#include "rectangle.h"
-#include "font.h"
 
 #include "crosshair.h"
 #include "shooter.h"
@@ -26,11 +20,8 @@
 #include "bullet.h"
 #include "map1.h"
 
-#include "errors.h"
+#include "hltp.h"
 
-#include "list.h"
-
-#include "proj.h"
 
 int main(int argc, char* argv[]) {
 
@@ -46,8 +37,6 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-
 
 #include "singleplayer.h"
 static int (multiplayer)(void);

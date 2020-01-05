@@ -3,6 +3,7 @@
 
 /**
  * @defgroup uart uart
+ * @ingroup libs
  * @brief UART module.
  *
  * @{

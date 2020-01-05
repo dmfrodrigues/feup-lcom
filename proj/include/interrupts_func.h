@@ -8,10 +8,7 @@
  * @{
  */
 
-#include "timer.h"
-#include "kbc.h"
-#include "keyboard.h"
-#include "mouse.h"
+#include "libs.h"
 
 /**
  * @brief Subscribes all drivers used (timer->keyboard->mouse)

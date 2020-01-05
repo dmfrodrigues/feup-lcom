@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    rtc rtc
+ * @ingroup libs
  * @brief RTC (Real-Time Clock) module.
  *
  * @{

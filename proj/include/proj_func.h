@@ -8,11 +8,10 @@
  * @{
  */
 
-#include "ent.h"
-#include "text.h"
+#include "libs.h"
 #include "proj_structures.h"
 
-#include <stdint.h>
+//#include <stdint.h>
 
 /**
  * @brief Cleans up all memory, unsubscribes interrupts.

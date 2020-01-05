@@ -3,15 +3,9 @@
 #include "proj_func.h"
 
 #include "interrupts_func.h"
-#include "graph.h"
-#include "keyboard.h"
-#include "errors.h"
+#include "libs.h"
 #include "proj_macros.h"
-#include "utils.h"
 #include "ent.h"
-#include "fast_math.h"
-#include "rectangle.h"
-#include "font.h"
 
 #include <math.h>
 

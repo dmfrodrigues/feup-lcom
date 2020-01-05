@@ -8,12 +8,11 @@
 #include "proj_func.h"
 #include "ent.h"
 #include "interrupts_func.h"
-#include "graph.h"
-#include "rectangle.h"
-#include "hltp.h"
+#include "libs.h"
 #include "makecode_map.h"
-#include "errors.h"
 #include <math.h>
+
+#include "hltp.h"
 
 #define CHAT_MAX_SIZE   75
 #define CHAT_MAX_NUM    19

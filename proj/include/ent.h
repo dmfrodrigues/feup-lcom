@@ -8,8 +8,7 @@
  * @{
  */
 
-#include "basic_sprite.h"
-#include "list.h"
+#include "libs.h"
 
 /**
  * @brief Set scale.

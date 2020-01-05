@@ -8,9 +8,9 @@
 #include "proj_func.h"
 #include "ent.h"
 #include "interrupts_func.h"
-#include "graph.h"
-#include "hltp.h"
-#include "errors.h"
+
+#include "libs.h"
+
 #include <math.h>
 
 int (campaign)(void){
