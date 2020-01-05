@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    list_t    list_t
+ * @ingroup classes
  * @brief List module
  *
  * Can be used like a C++ std::list.
