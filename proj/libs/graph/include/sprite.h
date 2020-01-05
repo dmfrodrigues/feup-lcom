@@ -11,6 +11,8 @@
  * @{
  */
 
+#include "basic_sprite.h"
+
 struct sprite;
 typedef struct sprite sprite_t;
 

@@ -40,19 +40,52 @@
 #define SET_BLU(n)          (((n)&0xFF)      )
 #define SET_RGB(r,g,b)      (SET_RED(r) | SET_GRE(g) | SET_BLU(b))
 
-// PUBLIC GET
-uint16_t   (graph_get_XRes)         (void);
-uint16_t   (graph_get_YRes)         (void);
-uint16_t   (graph_get_bytes_pixel)  (void);
-
-// INIT
+/**
+ * @brief Initialize graphics.
+ * @param   mode    Graphics mode to use
+ * @return  SUCCESS if operation was successful, other value otherwise
+ */
 int (graph_init)(uint16_t mode);
 
-// CLEANUP
+/**
+ * @brief Cleanup graphics.
+ * @return  SUCCESS if operation was successful, other value otherwise
+ */
 int (graph_cleanup)(void);
 
-// PIXEL DRAWING
-int (graph_set_pixel)             (uint16_t x, uint16_t y, uint32_t color);
+/**
+ * @brief Get screen X-resolution.
+ * @return Screen X-resolution
+ */
+uint16_t   (graph_get_XRes)         (void);
+/**
+ * @brief Get screen Y-resolution.
+ * @return Screen Y-resolution
+ */
+uint16_t   (graph_get_YRes)         (void);
+/**
+ * @brief Get number of bytes per pixel.
+ *
+ * That is, the number of bytes needed to encode the color of a pixel.
+ * @return Number of bytes per pixel
+ */
+uint16_t   (graph_get_bytes_pixel)  (void);
+
+/**
+ * @brief Draw pixel with color.
+ * @param   x       X-position of pixel to draw
+ * @param   y       Y-position of pixel to draw
+ * @param   color   Color that will be used to draw the pixel
+ * @return  SUCCESS if operation was successful, other value otherwise
+ */
+void (graph_set_pixel)             (uint16_t x, uint16_t y, uint32_t color);
+/**
+ * @brief Draw pixel with color using position.
+ *
+ * Position is calculated from y*WIDTH+x.
+ * @param   pos     Position
+ * @param   color   Color that will be used to draw the pixel
+ */
 void (graph_set_pixel_pos)         (unsigned pos          , uint32_t color);
 
 // SCREEN

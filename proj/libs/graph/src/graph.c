@@ -256,15 +256,8 @@ int (graph_cleanup)(void){
 }
 
 /// PIXEL DRAWING
-int (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
-    //pixels are certain to be inside can reduce lag
-    /*if (x < 0 || vbe_mem_info.XResolution <= x || y < 0 || vbe_mem_info.YResolution <= y) {
-        //printf("%s: invalid pixel.\n", __func__);
-        return OUT_OF_RANGE;
-    }*/
-    unsigned int pos = (x + y * vbe_mem_info.XResolution) * 3/*graph_get_bytes_pixel()*/;
-    memcpy(video_buf + pos, &color, 3/*graph_get_bytes_pixel()*/);
-    return SUCCESS;
+void (graph_set_pixel)(uint16_t x, uint16_t y, uint32_t color) {
+    memcpy(video_buf + (x+y*graph_get_XRes())*graph_get_bytes_pixel(), &color, graph_get_bytes_pixel());
 }
 void (graph_set_pixel_pos)(unsigned pos, uint32_t color){
     memcpy(video_buf + pos, &color, graph_get_bytes_pixel());
@@ -273,6 +266,8 @@ int (graph_clear_screen)(void){ memset(video_buf, 0, graph_get_vram_size()); ret
 int (graph_draw)(void){ memcpy(video_mem, video_buf, graph_get_vram_size()); return SUCCESS; }
 
 ///SPRITE
+#include "sprite.h"
+
 #include "utils.h"
 #include "fast_math.h"
 #include <math.h>

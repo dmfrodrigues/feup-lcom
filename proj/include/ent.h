@@ -1,7 +1,7 @@
 #ifndef ENT_H_INCLUDED
 #define ENT_H_INCLUDED
 
-#include "graph.h"
+#include "basic_sprite.h"
 #include "list.h"
 
 void (ent_set_scale) (double n);
