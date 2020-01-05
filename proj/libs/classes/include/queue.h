@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    queue_t queue_t
+ * @ingroup classes
  * @brief Queue module
  *
  * Can be used like a C++ std::queue.
@@ -10,7 +11,6 @@
  *
  * @{
  */
-
 
 struct queue;
 typedef struct queue queue_t;
