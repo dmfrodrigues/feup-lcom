@@ -284,8 +284,8 @@ void (map_dtor)(map_t *p){
     free(p->visited);
     free(p);
 }
-static int16_t (map_get_x_screen)(const map_t *p){ return (int16_t)((-x_origin)*scale); }
-static int16_t (map_get_y_screen)(const map_t *p){ return (int16_t)((-y_origin)*scale); }
+static int16_t (map_get_x_screen)(const map_t *p){ (void)p; return (int16_t)((-x_origin)*scale); }
+static int16_t (map_get_y_screen)(const map_t *p){ (void)p; return (int16_t)((-y_origin)*scale); }
 uint16_t (map_get_width)   (const map_t *p){ return sprite_get_w(p->background); }
 uint16_t (map_get_height)  (const map_t *p){ return sprite_get_h(p->background); }
 int (map_collides_point)(const map_t *p, double x, double y){
