@@ -381,24 +381,3 @@ int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
     double distance = sqrt(dx*dx + dy*dy);
     return distance <= shooter_radius+bullet_radius;
 }
-void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l) {
-    uint16_t w = map_get_width(map), h = map_get_height(map);
-    double x, y;
-
-    while(true){
-        x = rand() % w;
-        y = rand() % h;
-        gunner_set_pos(p, x, y);
-        if(map_collides_gunner(map, p)) continue;
-        int collides = false;
-        list_node_t *it = list_begin(l);
-        while(it != list_end(l)){
-            if(gunner_collides_gunner(p, *list_node_val(it))){
-                collides = true;
-                break;
-            }
-            it = list_node_next(it);
-        }
-        if(!collides) return;
-    }
-}

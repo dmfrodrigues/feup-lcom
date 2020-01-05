@@ -28,6 +28,17 @@ void update_key_presses(void);
  */
 void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list);
 
+/**
+ * @brief Get random spawn (actually, position) for new gunner.
+ *
+ * The new position cannot collide with the map, nor with any of the gunners
+ * already in the list.
+ * @param   map     Pointer to map
+ * @param   p       Pointer to new gunner
+ * @param   l       List of gunners that already exist
+ */
+void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l);
+
 void update_mouse(struct packet *p);
 
 keys_t* (get_key_presses)(void);
