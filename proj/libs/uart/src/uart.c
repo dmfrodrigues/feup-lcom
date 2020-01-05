@@ -278,8 +278,8 @@ int uart_disable_int_tx(int base_addr){
 
 /// NCTP
 
-#define NCTP_START      0x80
-#define NCTP_END        0xFF
+//#define NCTP_START      0x80
+//#define NCTP_END        0xFF
 #define NCTP_OK         0xFF
 #define NCTP_NOK        0x00
 
@@ -315,15 +315,20 @@ int nctp_free(void){
 
 int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz){
     int ret;
+    uint16_t sz_total = 0;{
+        for(size_t i = 0; i < num; ++i)
+            sz_total += sz[i];
+    }
     uint8_t *tmp;
-    tmp = malloc(sizeof(uint8_t)); *tmp = NCTP_START; queue_push(out, tmp);
+    tmp = malloc(sizeof(uint8_t)); *tmp = *((uint8_t*)(&sz_total)+0); queue_push(out, tmp);
+    tmp = malloc(sizeof(uint8_t)); *tmp = *((uint8_t*)(&sz_total)+1); queue_push(out, tmp);
     for(size_t i = 0; i < num; ++i){
         const uint8_t *p = ptr[i]; const size_t s = sz[i];
         for(size_t j = 0; j < s; ++j, ++p){
             tmp = malloc(sizeof(uint8_t)); *tmp = *p; queue_push(out, tmp);
         }
     }
-    tmp = malloc(sizeof(uint8_t)); *tmp = NCTP_END; queue_push(out, tmp);
+
     if(uart_transmitter_empty(COM1_ADDR)){
         if((ret = uart_send_char(COM1_ADDR, *(uint8_t*)queue_top(out)))) return ret;
         queue_pop(out);
@@ -339,31 +344,52 @@ static int nctp_transmit(void){
 }
 
 static void nctp_process_received(){
-    free(queue_top(in)); queue_pop(in);
-    size_t sz = 1024; uint8_t *p = malloc(sz*sizeof(uint8_t));
-    size_t i = 0;
-    printf("reach\n");
-    while(*(uint8_t*)queue_top(in) != NCTP_END){
-        //printf("%c\n", *(uint8_t*)queue_top(in));
-        p[i++] = *(uint8_t*)queue_top(in);
+    uint16_t sz = 0;{
+        uint8_t sz0 = *(uint8_t*)queue_top(in); free(queue_top(in)); queue_pop(in);
+        uint8_t sz1 = *(uint8_t*)queue_top(in); free(queue_top(in)); queue_pop(in);
+        *((uint8_t*)(&sz)+0) = sz0;
+        *((uint8_t*)(&sz)+1) = sz1;
+    }
+    uint8_t *p = malloc(sz*sizeof(uint8_t));
+    for(uint16_t i = 0; i < sz; ++i){
+        p[i] = *(uint8_t*)queue_top(in);
         free(queue_top(in)); queue_pop(in);
-        if(i >= sz) p = realloc(p, sz=2*sz);
-    }printf("reach2\n");
-    free(queue_top(in)); queue_pop(in);
-    if(process != NULL) process(p, i);
+    }
+    if(process != NULL) process(p, sz);
     free(p);
 }
+
+static int num_bytes_to_receive = 0;
+static uint16_t szbytes_to_receive = 0;
+static uint8_t size0 = 0;
 static int nctp_receive(void){
     int ret;
     uint8_t c;
-    int num_ends = 0;
+    int counter_to_process = 0;
+
     while(uart_receiver_ready(COM1_ADDR)){
         if((ret = uart_get_char(COM1_ADDR, &c))) return ret;
         uint8_t *tmp = malloc(sizeof(uint8_t)); *tmp = c;
+
         queue_push(in, tmp);
-        if(c == NCTP_END) ++num_ends;
+
+        if       (szbytes_to_receive){ // gotta receive 2nd size byte and update num_bytes
+            *((uint8_t*)(&num_bytes_to_receive)+0) = size0;
+            *((uint8_t*)(&num_bytes_to_receive)+1) = c;
+            szbytes_to_receive = 0;
+        } else if(num_bytes_to_receive > 0){
+            /* Now I know there are no more size bytes to receive.
+             * If there are normal bytes to receive*/
+             --num_bytes_to_receive;
+             if(num_bytes_to_receive == 0) ++counter_to_process;
+        } else {
+            /* Now I know I am not expecting anything.
+             * The fact I received something means it is the 1st size byte */
+             size0 = c;
+             szbytes_to_receive = 1;
+        }
     }
-    while(num_ends-- > 0) nctp_process_received();
+    while(counter_to_process-- > 0) nctp_process_received();
     return SUCCESS;
 }
 
