@@ -336,11 +336,11 @@ void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list
     // bullets
     size_t sz = list_size(bullet_list);
     p->no_bullets = sz;
-    p->bullets_x        = (double*)realloc(p->bullets_x         , sz * sizeof(double));
-    p->bullets_y        = (double*)realloc(p->bullets_y         , sz * sizeof(double));
-    p->bullets_vx       = (double*)realloc(p->bullets_vx        , sz * sizeof(double));
-    p->bullets_vy       = (double*)realloc(p->bullets_vy        , sz * sizeof(double));
-    p->bullets_shooter  = (bool*)  realloc(p->bullets_shooter   , sz * sizeof(bool  ));
+    p->bullets_x        = (float*)realloc(p->bullets_x         , sz * sizeof(float));
+    p->bullets_y        = (float*)realloc(p->bullets_y         , sz * sizeof(float));
+    p->bullets_vx       = (float*)realloc(p->bullets_vx        , sz * sizeof(float));
+    p->bullets_vy       = (float*)realloc(p->bullets_vy        , sz * sizeof(float));
+    p->bullets_shooter  = (bool*) realloc(p->bullets_shooter   , sz * sizeof(bool ));
 
     list_node_t *it = list_begin(bullet_list);
     size_t i = 0;

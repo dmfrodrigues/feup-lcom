@@ -17,26 +17,26 @@ typedef struct keys {
 
 typedef struct {
     // host
-    double  host_x;
-    double  host_y;
-    double  host_angle;
-    double  host_health;
-    double  host_current_health;
+    float    host_x;
+    float    host_y;
+    float    host_angle;
+    float    host_health;
+    float    host_current_health;
 
     // remote
-    double  remote_x;
-    double  remote_y;
-    double  remote_angle;
-    double  remote_health;
-    double  remote_current_health;
+    float    remote_x;
+    float    remote_y;
+    float    remote_angle;
+    float    remote_health;
+    float    remote_current_health;
 
     // bullets
-    size_t  no_bullets;
-    double *bullets_x;
-    double *bullets_y;
-    double *bullets_vx;
-    double *bullets_vy;
-    bool   *bullets_shooter; // false for host, true for remote
+    uint8_t  no_bullets;
+    float   *bullets_x;
+    float   *bullets_y;
+    float   *bullets_vx;
+    float   *bullets_vy;
+    bool    *bullets_shooter; // false for host, true for remote
 } host_info_t;
 
 typedef struct {
