@@ -5,29 +5,47 @@
 #include "ent.h"
 
 typedef struct keys {
+    /// @brief W is pressed when 1
     uint8_t w_pressed       : 1;
+    /// @brief A is pressed when 1
     uint8_t a_pressed       : 1;
+    /// @brief S is pressed when 1
     uint8_t s_pressed       : 1;
+    /// @brief D is pressed when 1
     uint8_t d_pressed       : 1;
+    /// @brief Ctrl is pressed when 1
     uint8_t ctrl_pressed    : 1;
+    /// @brief Plus (+) is pressed when 1
     uint8_t plus_pressed    : 1;
+    /// @brief Minus (-) is pressed when 1
     uint8_t minus_pressed   : 1;
+    /// @brief Mouse left button is pressed when 1
     uint8_t lb_pressed      : 1;
 } keys_t;
 
 typedef struct {
     // host
+    /// @brief Host player X-position
     int16_t    host_x;
+    /// @brief Host player Y-postition
     int16_t    host_y;
+    /// @brief Host player angle
     int16_t    host_angle;
+    /// @brief Host player health
     int16_t    host_health;
+    /// @brief Host player current health
     int16_t    host_current_health;
 
     // remote
+    /// @brief Remote player X-position
     int16_t    remote_x;
+    /// @brief Remote player Y-postition
     int16_t    remote_y;
+    /// @brief Remote player angle
     int16_t    remote_angle;
+    /// @brief Remote player health
     int16_t    remote_health;
+    /// @brief Remote player current health
     int16_t    remote_current_health;
 
     // bullets
@@ -40,11 +58,14 @@ typedef struct {
 } host_info_t;
 
 typedef struct {
+    /// @brief Remote keys that are pressed
     keys_t  remote_keys_pressed;
+    /// @brief Remote player angle
     double  remote_angle;
 } remote_info_t;
 
 typedef struct {
+    /// @brief New bullet signal from remote
     bool   new_bullet;
 } bullet_info_t;
 

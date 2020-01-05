@@ -23,7 +23,9 @@
  * @{
  */
 
-struct list_node;
+/**
+ * @brief List node.
+ */
 typedef struct list_node list_node_t;
 
 /**
@@ -62,8 +64,9 @@ void**       (list_node_val )(list_node_t *p);
  * @}
  */
 
-struct list;
-
+/**
+ * @brief List.
+ */
 typedef struct list list_t;
 
 /**

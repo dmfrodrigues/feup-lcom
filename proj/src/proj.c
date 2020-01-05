@@ -12,6 +12,7 @@
 #include "mouse.h"
 #include "graph.h"
 #include "menu.h"
+#include "text_timer.h"
 #include "rtc.h"
 #include "hltp.h"
 #include "interrupts_func.h"

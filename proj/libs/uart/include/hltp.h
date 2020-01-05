@@ -12,6 +12,9 @@
 #include "uart.h"
 #include "proj_structures.h"
 
+/**
+ * @brief Data types that HLTP is familiar with (i.e., can send and intepret).
+ */
 typedef enum{
     hltp_type_invalid = 0x00,
     hltp_type_string  = 0x53,
