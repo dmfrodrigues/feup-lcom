@@ -137,7 +137,9 @@ while (good) {
                     hltp_send_string(buffer);
                     char buffer2[CHAT_MAX_SIZE+3] = "> ";
                     strncat(buffer2, buffer, strlen(buffer));
-                    for(size_t j = CHAT_MAX_NUM-1; j; --j) text_set_string(t_text[i], text_get_string(t_text[i-1]));
+                    for(size_t j = CHAT_MAX_NUM-1; j; --j){
+                        text_set_string(t_text[j], text_get_string(t_text[j-1]));
+                    }
                     text_set_string(t_text[0], buffer2);
                     for(size_t j = 0; j < CHAT_MAX_NUM; ++j){
                         if(text_get_string(t_text[j])[0] == '>'){
