@@ -44,7 +44,8 @@ void (score_dtor)(score_info_t *p);
 highscores_t* (highscores_ctor)(const font_t *fnt, const char *path);
 /**
  * @brief Save highscore into file.
- * @param f     Path to file to be written
+ * @param   p       Pointer to highscores
+ * @param   path    Path to file to be written
  */
 void (highscores_save)(const highscores_t *p, const char *path);
 /**

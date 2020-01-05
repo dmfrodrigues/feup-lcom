@@ -10,6 +10,10 @@
  * @{
  */
 
+/**
+* @brief Zombies.
+* @return  SUCCESS if operation was successful, other value otherwise
+*/
 int (zombies)(void);
 
 /**
