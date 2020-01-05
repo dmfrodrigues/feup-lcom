@@ -275,14 +275,14 @@ host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote) {
 
     ret->host_x               = (int16_t)gunner_get_x          (host);
     ret->host_y               = (int16_t)gunner_get_y          (host);
-    ret->host_angle           = (int16_t)gunner_get_angle      (host);
+    ret->host_angle           = (float)  gunner_get_angle      (host);
     ret->host_health          = (int16_t)gunner_get_health     (host);
     ret->host_current_health  = (int16_t)gunner_get_curr_health(host);
 
     // remote
     ret->remote_x               = (int16_t)gunner_get_x          (remote);
     ret->remote_y               = (int16_t)gunner_get_y          (remote);
-    ret->remote_angle           = (int16_t)gunner_get_angle      (remote);
+    ret->remote_angle           = (float)  gunner_get_angle      (remote);
     ret->remote_health          = (int16_t)gunner_get_health     (remote);
     ret->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
 
@@ -338,14 +338,14 @@ void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote) {
     // host
     p->host_x               = (int16_t)gunner_get_x          (host);
     p->host_y               = (int16_t)gunner_get_y          (host);
-    p->host_angle           = (int16_t)gunner_get_angle      (host);
+    p->host_angle           = (float)  gunner_get_angle      (host);
     p->host_health          = (int16_t)gunner_get_health     (host);
     p->host_current_health  = (int16_t)gunner_get_curr_health(host);
 
     // remote
     p->remote_x               = (int16_t)gunner_get_x          (remote);
     p->remote_y               = (int16_t)gunner_get_y          (remote);
-    p->remote_angle           = (int16_t)gunner_get_angle      (remote);
+    p->remote_angle           = (float)  gunner_get_angle      (remote);
     p->remote_health          = (int16_t)gunner_get_health     (remote);
     p->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
     /*

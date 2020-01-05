@@ -67,7 +67,7 @@ typedef struct {
     /// @brief Host player Y-postition
     int16_t    host_y;
     /// @brief Host player angle
-    int16_t    host_angle;
+    float      host_angle;
     /// @brief Host player health
     int16_t    host_health;
     /// @brief Host player current health
@@ -79,7 +79,7 @@ typedef struct {
     /// @brief Remote player Y-postition
     int16_t    remote_y;
     /// @brief Remote player angle
-    int16_t    remote_angle;
+    float      remote_angle;
     /// @brief Remote player health
     int16_t    remote_health;
     /// @brief Remote player current health
