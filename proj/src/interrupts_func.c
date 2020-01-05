@@ -187,7 +187,7 @@ int (unsubscribe_all)(void) {
 
 void (interrupt_handler)(uint8_t handler) {
     if (handler >= 32)              return;
-    if ((*ih[handler]) == NULL)     return;
+    if ((ih[handler]) == NULL)      return;
     (*ih[handler])();
 }
 

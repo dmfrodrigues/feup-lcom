@@ -55,7 +55,7 @@ int16_t* get_mouse_X(void);
 
 int16_t* get_mouse_Y(void);
 
-void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list_t *bullet_list);
+void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote);
 
 void build_remote_structure(remote_info_t *p, keys_t *keys, double angle);
 

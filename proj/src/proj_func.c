@@ -44,14 +44,14 @@ host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote) {
     ret->remote_health          = (int16_t)gunner_get_health     (remote);
     ret->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
 
-    ret->no_bullets = 0;
+    //ret->no_bullets = 0;
 
     return ret;
 }
 
 void host_info_dtor(host_info_t *p) {
     if (p==NULL) return;
-
+    /*
     if ((p->bullets_x) != NULL){ free(p->bullets_x); p->bullets_x = NULL; }
 
     if ((p->bullets_y) != NULL){ free(p->bullets_y); p->bullets_y = NULL; }
@@ -61,7 +61,7 @@ void host_info_dtor(host_info_t *p) {
     if ((p->bullets_vy) != NULL){ free(p->bullets_vy); p->bullets_vy = NULL; }
 
     if ((p->bullets_shooter) != NULL){ free(p->bullets_shooter); p->bullets_shooter = NULL; }
-
+    */
     free(p);
 }
 
@@ -318,7 +318,7 @@ double get_mouse_angle(gunner_t *p) {
     return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
 }
 
-void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list_t *bullet_list) {
+void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote) {
     // host
     p->host_x               = (int16_t)gunner_get_x          (host);
     p->host_y               = (int16_t)gunner_get_y          (host);
@@ -332,7 +332,7 @@ void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list
     p->remote_angle           = (int16_t)gunner_get_angle      (remote);
     p->remote_health          = (int16_t)gunner_get_health     (remote);
     p->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
-
+    /*
     // bullets
     size_t sz = list_size(bullet_list);
     p->no_bullets = sz;
@@ -354,6 +354,7 @@ void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote, list
         it = list_node_next(it);
         i++;
     }
+    */
 }
 
 void build_remote_structure(remote_info_t *p, keys_t *keys, double angle) {

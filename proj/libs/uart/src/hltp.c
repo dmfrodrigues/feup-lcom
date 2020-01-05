@@ -17,11 +17,13 @@ int hltp_send_string(const char *p){
     return nctp_send(2, ptr, sz);
 }
 
-static host_info_t* hltp_interpret_host_info(const uint8_t *p) {
+static host_info_t* hltp_interpret_host_info(const uint8_t *p, const size_t sz) {
+    if (sz != sizeof(host_info_t)) { printf("%d should equal %d\n", sz, sizeof(host_info_t)); return NULL;}
     host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
-    size_t pos = 0;
+    //size_t pos = 0;
     // players information
-    memcpy(ret, p + pos, sizeof(int16_t)*10);
+    memcpy(ret, p, sz);
+    /*
     pos += sizeof(int16_t)*10;
     // size of arrays
     memcpy(&(ret->no_bullets), p + pos, sizeof(uint8_t));
@@ -46,13 +48,13 @@ static host_info_t* hltp_interpret_host_info(const uint8_t *p) {
     // array containing the shooter id of the bullets
     (ret->bullets_shooter) = (bool*)malloc(sizeof(bool)*(ret->no_bullets));
     memcpy((ret->bullets_shooter), p + pos, sizeof(bool)*sz);
-
+    */
     return ret;
 }
 int hltp_send_host_info(const host_info_t *p) {
 
     uint8_t type = hltp_type_host;
-    const uint8_t* ptr[17]; size_t sz[17];
+    const uint8_t* ptr[11]; size_t sz[11];
     ptr[0]  = (uint8_t*)&   type                  ;     sz[0]   = 1;
     ptr[1]  = (uint8_t*)&p->host_x                ;     sz[1]   = sizeof(int16_t);
     ptr[2]  = (uint8_t*)&p->host_y                ;     sz[2]   = sizeof(int16_t);
@@ -64,13 +66,15 @@ int hltp_send_host_info(const host_info_t *p) {
     ptr[8]  = (uint8_t*)&p->remote_angle          ;     sz[8]   = sizeof(int16_t);
     ptr[9]  = (uint8_t*)&p->remote_health         ;     sz[9]   = sizeof(int16_t);
     ptr[10] = (uint8_t*)&p->remote_current_health ;     sz[10]  = sizeof(int16_t);
+    /*
     ptr[11] = (uint8_t*)&p->no_bullets            ;     sz[11]  = sizeof(uint8_t);
     ptr[12] = (uint8_t*) p->bullets_x             ;     sz[12]  = sizeof(int16_t) * p->no_bullets;
     ptr[13] = (uint8_t*) p->bullets_y             ;     sz[13]  = sizeof(int16_t) * p->no_bullets;
     ptr[14] = (uint8_t*) p->bullets_vx            ;     sz[14]  = sizeof(int16_t) * p->no_bullets;
     ptr[15] = (uint8_t*) p->bullets_vy            ;     sz[15]  = sizeof(int16_t) * p->no_bullets;
     ptr[16] = (uint8_t*) p->bullets_shooter       ;     sz[16]  = sizeof(bool) * p->no_bullets;
-    return nctp_send(17, ptr, sz);
+    */
+    return nctp_send(11, ptr, sz);
 }
 
 static remote_info_t* hltp_interpret_remote_info(const uint8_t *p) {
@@ -113,9 +117,9 @@ hltp_type hltp_interpret(const uint8_t *p, const size_t sz, void **dest){
     uint8_t ret = p[0];
     switch(ret){
         case hltp_type_string: *dest = hltp_interpret_string     (p+1, sz-1);   break;
-        case hltp_type_host  : *dest = hltp_interpret_host_info  (p+1);         break;
-        case hltp_type_remote: *dest = hltp_interpret_remote_info(p+1);         break;
-        case hltp_type_bullet: *dest = hltp_interpret_bullet_info(p+1);         break;
+        case hltp_type_host  : *dest = hltp_interpret_host_info  (p+1, sz-1);   break;
+        case hltp_type_remote: *dest = hltp_interpret_remote_info(p+1);   break;
+        case hltp_type_bullet: *dest = hltp_interpret_bullet_info(p+1);   break;
         default: *dest = NULL; break;
     }
     return ret;
