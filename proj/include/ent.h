@@ -16,7 +16,6 @@ double (ent_get_YLength)(void);
 #define GUNNER_PLAYER   BIT(2)
 #define GUNNER_FOLLOW   BIT(3)
 
-struct gunner;
 typedef struct gunner gunner_t;
 gunner_t* (gunner_ctor)(basic_sprite_t *dude, basic_sprite_t *weapon, uint16_t type, int team);
 void      (gunner_dtor)(gunner_t *p);
@@ -41,7 +40,6 @@ void (gunner_draw_health)(const gunner_t *p);
 
 double (gunner_distance)(const gunner_t *p1, const gunner_t *p2);
 
-struct bullet;
 typedef struct bullet bullet_t;
 bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double x, double y, double vx, double vy);
 void      (bullet_dtor)(bullet_t *p);
@@ -62,7 +60,6 @@ void (gunner_draw_list)(list_t *shooter_list);
 void (bullet_draw_list)(list_t *bullet_list);
 void (gunner_draw_health)(const gunner_t *p);
 
-struct map;
 typedef struct map map_t;
 map_t* (map_ctor)(const char *const *background, const char *const *collide);
 void   (map_dtor)(map_t *p);

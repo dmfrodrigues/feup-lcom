@@ -39,13 +39,18 @@
 #define MINUS_MAKE_CODE         0x35
 /** @brief Minus (-) Break Code */
 #define MINUS_BREAK_CODE        0xB5
+/** @brief Enter Make Code */
 #define ENTER_MAKE_CODE         0x1C
+/** @brief Enter Break Code */
 #define ENTER_BREAK_CODE        0x9C
+/** @brief Backspace Make Code */
 #define BACKSPACE_MAKE_CODE     0x0E
+/** @brief Backspace Break Code */
 #define BACKSPACE_BREAK_CODE    0x8E
-
-#define ESC_MAKE_CODE           0x01    /** @brief ESC Make Code */
-#define ESC_BREAK_CODE          0x81    /** @brief ESC Break Code */
+/** @brief ESC Make Code */
+#define ESC_MAKE_CODE           0x01
+/** @brief ESC Break Code */
+#define ESC_BREAK_CODE          0x81
 
 /**
  * @brief Subscribes Keyboard Interrupts and disables Minix Default IH.
@@ -56,13 +61,36 @@
  */
 int (subscribe_kbc_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
+/**
+ * @brief Get scancode read from keyboard.
+ * @return  Pointer to begin of scancode array (array with size 2)
+ */
 const uint8_t* keyboard_get_scancode(void);
+/**
+ * @brief Get state of reading (done).
+ * @return  1 if done, 0 otherwise
+ */
 int keyboard_get_done(void);
+/**
+ * @brief Get size of read scancode (1 or 2).
+ * @return Size of scancode
+ */
 int keyboard_get_size(void);
+/**
+ * @brief Get error code of previous run of kbc_ih, if an error occured.
+ * @return  Error code, or 0 if successful
+ */
 int keyboard_get_error(void);
-
+/**
+ * @brief KBC interrupt handler. Reads scancodes.
+ */
 void (kbc_ih)(void);
-
+/**
+ * @brief Poll keyboard for scancodes.
+ * @param   bytes   Array to put read bytes (up to 2)
+ * @param   size    Number of ready bytes (1 or 2)
+ * @return  SUCCESS if operation was successful, other value otherwise
+ */
 int (keyboard_poll)(uint8_t bytes[], uint8_t *size);
 
 /**

@@ -11,20 +11,30 @@
  */
 
 // Graphics modes
+/// @brief Indexed graphic mode, 1024x768 px
 #define INDEXED_1024_768        0x105
+/// @brief Direct graphic mode, 640x480 px, RGB = 888 bits
 #define DIRECT_640_480_888      0x110
+/// @brief Direct graphic mode, 800x600 px, RGB = 888 bits
 #define DIRECT_800_600_888      0x115
+/// @brief Direct graphic mode, 1024x768 px, RGB = 888 bits
 #define DIRECT_1024_768_888     0x118
+/// @brief Direct graphic mode, 1280x1024 px, RGB = 565 bits
 #define DIRECT_1280_1024_565    0x11A
+/// @brief Direct graphic mode, 1280x1024 px, RGB = 888 bits
 #define DIRECT_1280_1024_888    0x11B
 
 // Colors in RBG (8 bit)
+/// @brief Black color
 #define GRAPH_BLACK             0x000000
+/// @brief White color
 #define GRAPH_WHITE             0xFFFFFF
+/// @brief Transparent
 #define GRAPH_TRANSPARENT       0x00
+/// @brief Red color
 #define GRAPH_RED               0xFF0000
 
-// Alpha
+/// @brief Alpha threshold, from which it is either considered transparent or opaque
 #define ALPHA_THRESHOLD     0x7F
 
 /**

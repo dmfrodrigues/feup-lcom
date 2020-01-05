@@ -12,7 +12,6 @@
  * @{
  */
 
-struct queue;
 typedef struct queue queue_t;
 
 /**
