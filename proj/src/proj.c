@@ -349,7 +349,9 @@ static int (multiplayer_host)(void) {
 
                     build_host_structure(host_info, shooter1, shooter2, bullet_list);
 
-                    //hltp_send_host_info(host_info);
+
+
+                    hltp_send_host_info(host_info);
 
                     graph_clear_screen();
                     map_draw   (map1);
@@ -462,7 +464,7 @@ static int (multiplayer_remote)(void) {
 
                     build_remote_structure(remote_info, keys, angle);
 
-                    hltp_send_remote_info(remote_info);
+                    //hltp_send_remote_info(remote_info);
 
                     gunner_set_pos(shooter1, host_info->remote_x, host_info->remote_y);
                     gunner_set_angle(shooter1, host_info->remote_angle);
@@ -515,7 +517,7 @@ static int (multiplayer_remote)(void) {
                         update_mouse(&pp);
                         if (last_lb ^ keys->lb_pressed && keys->lb_pressed) {
                             bullet_info->new_bullet = true;
-                            hltp_send_bullet_info(bullet_info);
+                            //hltp_send_bullet_info(bullet_info);
                         }
                         last_lb = keys->lb_pressed;
                         mouse_set_counter_mouse_ih(0);
