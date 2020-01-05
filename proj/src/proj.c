@@ -410,6 +410,8 @@ static int (multiplayer_host)(void) {
     remote_info_dtor(remote_info);
     bullet_info_dtor(bullet_info);
 
+    nctp_set_processor(NULL);
+
     timer_dtor(in_game_timer); in_game_timer = NULL;
 
     return 0;
@@ -467,25 +469,25 @@ static int (multiplayer_remote)(void) {
 
                     //hltp_send_remote_info(remote_info);
 
-                    gunner_set_pos(shooter1, host_info->remote_x, host_info->remote_y);
-                    gunner_set_angle(shooter1, host_info->remote_angle);
-                    gunner_set_health(shooter1, host_info->remote_health);
-                    gunner_set_curr_health(shooter1, host_info->remote_current_health);
+                    gunner_set_pos(shooter1, (double)host_info->remote_x, (double)host_info->remote_y);
+                    gunner_set_angle(shooter1, (double)host_info->remote_angle);
+                    gunner_set_health(shooter1, (double)host_info->remote_health);
+                    gunner_set_curr_health(shooter1, (double)host_info->remote_current_health);
 
-                    gunner_set_pos(shooter2, host_info->host_x, host_info->host_y);
-                    gunner_set_angle(shooter2, host_info->host_angle);
-                    gunner_set_health(shooter2, host_info->host_health);
-                    gunner_set_curr_health(shooter2, host_info->host_current_health);
+                    gunner_set_pos(shooter2, (double)host_info->host_x, (double)host_info->host_y);
+                    gunner_set_angle(shooter2, (double)host_info->host_angle);
+                    gunner_set_health(shooter2, (double)host_info->host_health);
+                    gunner_set_curr_health(shooter2, (double)host_info->host_current_health);
 
                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                     for (size_t j = 0; j < host_info->no_bullets; j++) {
                         if (host_info->bullets_shooter[j]) { // remote
-                            bullet_t *bullet = bullet_ctor(shooter1, bsp_bullet, host_info->bullets_x[j], host_info->bullets_y[j], host_info->bullets_vx[j], host_info->bullets_vy[j]);
+                            bullet_t *bullet = bullet_ctor(shooter1, bsp_bullet, (double)host_info->bullets_x[j], (double)host_info->bullets_y[j], (double)host_info->bullets_vx[j], (double)host_info->bullets_vy[j]);
                             list_insert(bullet_list, list_end(bullet_list), bullet);
                         } else { // host
-                            bullet_t *bullet = bullet_ctor(shooter2, bsp_bullet, host_info->bullets_x[j], host_info->bullets_y[j], host_info->bullets_vx[j], host_info->bullets_vy[j]);
+                            bullet_t *bullet = bullet_ctor(shooter2, bsp_bullet, (double)host_info->bullets_x[j], (double)host_info->bullets_y[j], (double)host_info->bullets_vx[j], (double)host_info->bullets_vy[j]);
                             list_insert(bullet_list, list_end(bullet_list), bullet);
                         }
                     }
@@ -546,6 +548,8 @@ static int (multiplayer_remote)(void) {
     host_info_dtor(host_info);
     remote_info_dtor(remote_info);
     bullet_info_dtor(bullet_info);
+
+    nctp_set_processor(NULL);
 
     timer_dtor(in_game_timer); in_game_timer = NULL;
 
