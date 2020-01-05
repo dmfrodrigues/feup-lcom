@@ -335,11 +335,9 @@ static int (multiplayer_host)(void) {
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                     gunner_set_angle(shooter2, remote_info->remote_angle);
-                    if (timer_get_no_interrupts() % 6 == 0) {
-                        build_host_structure(host_info, shooter1, shooter2);
+                    build_host_structure(host_info, shooter1, shooter2);
 
-                        hltp_send_host_info(host_info);
-                    }
+                    hltp_send_host_info(host_info);
 
                     graph_clear_screen();
                     map_draw   (map1);
