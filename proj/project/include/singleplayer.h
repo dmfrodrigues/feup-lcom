@@ -9,6 +9,10 @@
  * @{
  */
 
+/**
+* @brief Single player.
+* @return  SUCCESS if operation was successful, other value otherwise
+*/
 int (singleplayer)(void);
 
 /**

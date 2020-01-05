@@ -9,6 +9,10 @@
  * @{
  */
 
+/**
+* @brief Chat.
+* @return  SUCCESS if operation was successful, other value otherwise
+*/
 int (chat)(void);
 
 /**
