@@ -10,6 +10,10 @@
  *
  * @{
  */
+
+/**
+ * @brief Basic sprite.
+ */
 typedef struct basic_sprite basic_sprite_t;
 
 /**

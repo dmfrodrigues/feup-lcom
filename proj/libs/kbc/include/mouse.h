@@ -19,9 +19,27 @@
 int (subscribe_mouse_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
 //These have to do with mouse_ih
+/**
+ * @brief Get previous mouse interrupt handler call exit code.
+ * @return  Exit code of previous mouse IH call
+ */
 int (mouse_get_got_error_mouse_ih)(void);
+/**
+ * @brief Get mouse packet.
+ * @return  Pointer to mouse packet
+ */
 const uint8_t* (mouse_get_packet_mouse_ih)(void);
+/**
+ * @brief Number of mouse bytes received (0 to 3).
+ * @return  Number of bytes
+ */
 int (mouse_get_counter_mouse_ih)(void);
+/**
+ * @brief Set number of received mouse bytes.
+ *
+ * Usually this function is used to reset counter_mouse_ih.
+ * @param   n   New value of the counter
+ */
 void (mouse_set_counter_mouse_ih)(int n);
 
 /**
