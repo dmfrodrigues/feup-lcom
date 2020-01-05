@@ -21,28 +21,28 @@ static host_info_t* hltp_interpret_host_info(const uint8_t *p) {
     host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
     size_t pos = 0;
     // players information
-    memcpy(ret, p + pos, sizeof(float)*10);
-    pos += sizeof(float)*10;
+    memcpy(ret, p + pos, sizeof(int16_t)*10);
+    pos += sizeof(int16_t)*10;
     // size of arrays
     memcpy(&(ret->no_bullets), p + pos, sizeof(uint8_t));
     pos += sizeof(uint8_t);
     size_t sz = ret->no_bullets;
     // array containing the X positions of the bullets
-    (ret->bullets_x) = (float*)malloc(sizeof(float)*sz);
-    memcpy((ret->bullets_x), p + pos, sizeof(float)*sz);
-    pos += sizeof(float)*sz;
+    (ret->bullets_x) = (int16_t*)malloc(sizeof(int16_t)*sz);
+    memcpy((ret->bullets_x), p + pos, sizeof(int16_t)*sz);
+    pos += sizeof(int16_t)*sz;
     // array containing the Y positions of the bullets
-    (ret->bullets_y) = (float*)malloc(sizeof(float)*(ret->no_bullets));
-    memcpy((ret->bullets_y), p + pos, sizeof(float)*sz);
-    pos += sizeof(float)*sz;
+    (ret->bullets_y) = (int16_t*)malloc(sizeof(int16_t)*(ret->no_bullets));
+    memcpy((ret->bullets_y), p + pos, sizeof(int16_t)*sz);
+    pos += sizeof(int16_t)*sz;
     // array containing the X velocity of the bullets
-    (ret->bullets_vx) = (float*)malloc(sizeof(float)*(ret->no_bullets));
-    memcpy((ret->bullets_vx), p + pos, sizeof(float)*sz);
-    pos += sizeof(float)*sz;
+    (ret->bullets_vx) = (int16_t*)malloc(sizeof(int16_t)*(ret->no_bullets));
+    memcpy((ret->bullets_vx), p + pos, sizeof(int16_t)*sz);
+    pos += sizeof(int16_t)*sz;
     // array containing the Y velocity of the bullets
-    (ret->bullets_vy) = (float*)malloc(sizeof(float)*(ret->no_bullets));
-    memcpy((ret->bullets_vy), p + pos, sizeof(float)*sz);
-    pos += sizeof(float)*sz;
+    (ret->bullets_vy) = (int16_t*)malloc(sizeof(int16_t)*(ret->no_bullets));
+    memcpy((ret->bullets_vy), p + pos, sizeof(int16_t)*sz);
+    pos += sizeof(int16_t)*sz;
     // array containing the shooter id of the bullets
     (ret->bullets_shooter) = (bool*)malloc(sizeof(bool)*(ret->no_bullets));
     memcpy((ret->bullets_shooter), p + pos, sizeof(bool)*sz);
@@ -54,22 +54,22 @@ int hltp_send_host_info(const host_info_t *p) {
     uint8_t type = hltp_type_host;
     const uint8_t* ptr[17]; size_t sz[17];
     ptr[0]  = (uint8_t*)&   type                  ;     sz[0]   = 1;
-    ptr[1]  = (uint8_t*)&p->host_x                ;     sz[1]   = sizeof(float);
-    ptr[2]  = (uint8_t*)&p->host_y                ;     sz[2]   = sizeof(float);
-    ptr[3]  = (uint8_t*)&p->host_angle            ;     sz[3]   = sizeof(float);
-    ptr[4]  = (uint8_t*)&p->host_health           ;     sz[4]   = sizeof(float);
-    ptr[5]  = (uint8_t*)&p->host_current_health   ;     sz[5]   = sizeof(float);
-    ptr[6]  = (uint8_t*)&p->remote_x              ;     sz[6]   = sizeof(float);
-    ptr[7]  = (uint8_t*)&p->remote_y              ;     sz[7]   = sizeof(float);
-    ptr[8]  = (uint8_t*)&p->remote_angle          ;     sz[8]   = sizeof(float);
-    ptr[9]  = (uint8_t*)&p->remote_health         ;     sz[9]   = sizeof(float);
-    ptr[10] = (uint8_t*)&p->remote_current_health ;     sz[10]  = sizeof(float);
+    ptr[1]  = (uint8_t*)&p->host_x                ;     sz[1]   = sizeof(int16_t);
+    ptr[2]  = (uint8_t*)&p->host_y                ;     sz[2]   = sizeof(int16_t);
+    ptr[3]  = (uint8_t*)&p->host_angle            ;     sz[3]   = sizeof(int16_t);
+    ptr[4]  = (uint8_t*)&p->host_health           ;     sz[4]   = sizeof(int16_t);
+    ptr[5]  = (uint8_t*)&p->host_current_health   ;     sz[5]   = sizeof(int16_t);
+    ptr[6]  = (uint8_t*)&p->remote_x              ;     sz[6]   = sizeof(int16_t);
+    ptr[7]  = (uint8_t*)&p->remote_y              ;     sz[7]   = sizeof(int16_t);
+    ptr[8]  = (uint8_t*)&p->remote_angle          ;     sz[8]   = sizeof(int16_t);
+    ptr[9]  = (uint8_t*)&p->remote_health         ;     sz[9]   = sizeof(int16_t);
+    ptr[10] = (uint8_t*)&p->remote_current_health ;     sz[10]  = sizeof(int16_t);
     ptr[11] = (uint8_t*)&p->no_bullets            ;     sz[11]  = sizeof(uint8_t);
-    ptr[12] = (uint8_t*) p->bullets_x             ;     sz[12]  = sizeof(float) * p->no_bullets;
-    ptr[13] = (uint8_t*) p->bullets_y             ;     sz[13]  = sizeof(float) * p->no_bullets;
-    ptr[14] = (uint8_t*) p->bullets_vx            ;     sz[14]  = sizeof(float) * p->no_bullets;
-    ptr[15] = (uint8_t*) p->bullets_vy            ;     sz[15]  = sizeof(float) * p->no_bullets;
-    ptr[16] = (uint8_t*) p->bullets_shooter       ;     sz[16]  = sizeof(float) * p->no_bullets;
+    ptr[12] = (uint8_t*) p->bullets_x             ;     sz[12]  = sizeof(int16_t) * p->no_bullets;
+    ptr[13] = (uint8_t*) p->bullets_y             ;     sz[13]  = sizeof(int16_t) * p->no_bullets;
+    ptr[14] = (uint8_t*) p->bullets_vx            ;     sz[14]  = sizeof(int16_t) * p->no_bullets;
+    ptr[15] = (uint8_t*) p->bullets_vy            ;     sz[15]  = sizeof(int16_t) * p->no_bullets;
+    ptr[16] = (uint8_t*) p->bullets_shooter       ;     sz[16]  = sizeof(bool) * p->no_bullets;
     return nctp_send(17, ptr, sz);
 }
 
