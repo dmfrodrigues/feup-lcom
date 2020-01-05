@@ -43,7 +43,7 @@ void build_remote_structure(remote_info_t *p, keys_t *keys, double angle);
 
 double get_mouse_angle(gunner_t *p);
 
-typedef struct timer {
+typedef struct {
     int time;
     text_t *text;
 } text_timer_t;

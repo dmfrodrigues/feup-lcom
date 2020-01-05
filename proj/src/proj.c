@@ -296,7 +296,7 @@ static int (multiplayer_host)(void) {
     do {
         get_random_spawn(map1, shooter1, shooter_list);
         get_random_spawn(map1, shooter2, shooter_list);
-    } while (distance_gunners(shooter1, shooter2) < 500);
+    } while (gunner_distance(shooter1, shooter2) < 500);
 
     host_info = host_info_ctor(shooter1, shooter2);
     remote_info = remote_info_ctor();

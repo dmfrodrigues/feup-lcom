@@ -1,6 +1,13 @@
 #ifndef ENT_H_INCLUDED
 #define ENT_H_INCLUDED
 
+/**
+ * @defgroup ent ent
+ * @brief Entities module
+ *
+ * @{
+ */
+
 #include "basic_sprite.h"
 #include "list.h"
 
@@ -10,6 +17,18 @@ void (ent_set_origin)(double x, double y);
 double (ent_get_scale)  (void);
 double (ent_get_XLength)(void);
 double (ent_get_YLength)(void);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup gunner_t gunner_t
+ * @ingroup ent
+ * @brief Gunner module.
+ *
+ * @{
+ */
 
 #define GUNNER_MELEE    BIT(0)
 #define GUNNER_RANGED   BIT(1)
@@ -37,8 +56,21 @@ uint16_t (gunner_get_type)          (const gunner_t *p);
 int     (gunner_get_team)           (const gunner_t *p);
 void (gunner_draw)(gunner_t *p);
 void (gunner_draw_health)(const gunner_t *p);
-
+void (gunner_draw_list)(list_t *shooter_list);
 double (gunner_distance)(const gunner_t *p1, const gunner_t *p2);
+int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup bullet_t bullet_t
+ * @ingroup ent
+ * @brief Bullet module.
+ *
+ * @{
+ */
 
 typedef struct bullet bullet_t;
 bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double x, double y, double vx, double vy);
@@ -55,24 +87,36 @@ const gunner_t* (bullet_get_shooter)(const bullet_t *p);
 void (bullet_update_movement)(bullet_t *p);
 void (bullet_update_movement_list)(list_t *bullet_list);
 void (bullet_draw)(bullet_t *p);
-
-void (gunner_draw_list)(list_t *shooter_list);
 void (bullet_draw_list)(list_t *bullet_list);
-void (gunner_draw_health)(const gunner_t *p);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup map_t map_t
+ * @ingroup ent
+ * @brief Bullet module.
+ *
+ * @{
+ */
 
 typedef struct map map_t;
 map_t* (map_ctor)(const char *const *background, const char *const *collide);
 void   (map_dtor)(map_t *p);
-int    (map_collides_point)(const map_t *p, double x, double y);
-int    (map_collides_gunner)(const map_t *p, const gunner_t *gunner);
-int    (map_collides_bullet)(const map_t *p, const bullet_t *bullet);
 uint16_t (map_get_width)   (const map_t *p);
 uint16_t (map_get_height)  (const map_t *p);
 int (map_make_dijkstra)(map_t *p, double x_, double y_);
 int (map_where_to_follow)(const map_t *p, double x, double y, double *theta);
-int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull);
-double (distance_gunners)(const gunner_t *shooter1, const gunner_t *shooter2);
-int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2);
 void   (map_draw)(map_t *p);
+int    (map_collides_point)(const map_t *p, double x, double y);
+
+/**
+ * @}
+ */
+
+int    (map_collides_gunner)(const map_t *p, const gunner_t *gunner);
+int    (map_collides_bullet)(const map_t *p, const bullet_t *bullet);
+int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull);
 
 #endif //ENT_H_INCLUDED

@@ -4,7 +4,10 @@
 #include <stdint.h>
 #include "ent.h"
 
-typedef struct keys {
+/**
+ * @brief Key presses.
+ */
+typedef struct {
     /// @brief W is pressed when 1
     uint8_t w_pressed       : 1;
     /// @brief A is pressed when 1
@@ -23,6 +26,9 @@ typedef struct keys {
     uint8_t lb_pressed      : 1;
 } keys_t;
 
+/**
+ * @brief Information to transmit from host to remote.
+ */
 typedef struct {
     // host
     /// @brief Host player X-position
@@ -49,36 +55,68 @@ typedef struct {
     int16_t    remote_current_health;
 
     // bullets
+    /// @brief Number of bullets
     uint8_t    no_bullets;
+    /// @brief X-position of the bullets
     int16_t   *bullets_x;
+    /// @brief Y-position of the bullets
     int16_t   *bullets_y;
+    /// @brief X-speed of the bullets
     int16_t   *bullets_vx;
+    /// @brief Y-speed of the bullets
     int16_t   *bullets_vy;
+    /// @brief Who shot each bullet
     bool      *bullets_shooter; // false for host, true for remote
 } host_info_t;
+/**
+ * @brief Construct host information.
+ * @param   host    Pointer to host gunner
+ * @param   remote  Pointer to remote gunner
+ * @return  Pointer to constructed host information, or NULL if failed
+ */
+host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote);
+/**
+ * @brief Destruct host information.
+ * @param   p   Pointer to host information to be destructed
+ */
+void host_info_dtor(host_info_t *p);
 
+/**
+ * @brief Information to transmit from remote to host.
+ */
 typedef struct {
     /// @brief Remote keys that are pressed
     keys_t  remote_keys_pressed;
     /// @brief Remote player angle
     double  remote_angle;
 } remote_info_t;
+/**
+ * @brief Construct remote information.
+ * @return  Pointer to constructed remote information, or NULL if failed
+ */
+remote_info_t* remote_info_ctor(void);
+/**
+ * @brief Destruct remote information.
+ * @param   p   Pointer to remote information to be destructed
+ */
+void remote_info_dtor(remote_info_t *p);
 
+/**
+ * @brief Bullet event to transmit from remote to host.
+ */
 typedef struct {
     /// @brief New bullet signal from remote
     bool   new_bullet;
 } bullet_info_t;
-
-host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote);
-
-void host_info_dtor(host_info_t *p);
-
-remote_info_t* remote_info_ctor(void);
-
-void remote_info_dtor(remote_info_t *p);
-
+/**
+ * @brief Construct bullet event.
+ * @return  Pointer to constructed bullet event, or NULL if failed
+ */
 bullet_info_t* bullet_info_ctor(void);
-
+/**
+ * @brief Destruct bullet event.
+ * @param   p   Pointer to bullet event to be destructed
+ */
 void bullet_info_dtor(bullet_info_t *p);
 
 #endif /* end of include guard: PROJ_STRUCTURES_H_INCLUDED */
