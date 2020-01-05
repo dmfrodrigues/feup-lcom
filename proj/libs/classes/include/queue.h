@@ -12,6 +12,9 @@
  * @{
  */
 
+/**
+ * @brief Queue.
+ */
 typedef struct queue queue_t;
 
 /**
