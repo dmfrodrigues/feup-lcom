@@ -10,13 +10,13 @@
 
 #include <stdint.h>
 
-#define BASE_CODE    0x02
+/// @brief Error code
 #define ERROR_CODE      0
 
 /**
  * @brief Maps make code into char
  * @param code      Make code to map.
- * @return 0 if the char isn't valid, otherwise the character.
+ * @return ERROR_CODE if code char isn't valid, otherwise the character.
  */
 char (map_makecode)(uint8_t code);
 

@@ -8,6 +8,11 @@
  * @{
  */
 
+#include "timer.h"
+#include "kbc.h"
+#include "keyboard.h"
+#include "mouse.h"
+
 /**
  * @brief Subscribes all drivers used (timer->keyboard->mouse)
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
@@ -28,6 +33,15 @@ int (unsubscribe_all)(void);
  */
 void interrupt_handler(uint8_t handler);
 
+/**
+ * @brief Blocking function that waits for an interrupt to occur.
+ *
+ * Rewrites the provided argument with the interrupt vector it gets.
+ *
+ * This function decisively reduces the complexity of an interrupt cycle, allowing
+ * for each menu to have its own, simplified interrupt cycle.
+ * @param   p   Pointer where interrupt vector will be saved
+ */
 int get_interrupts_vector(uint64_t *p);
 
 /**

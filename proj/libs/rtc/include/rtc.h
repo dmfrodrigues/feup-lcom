@@ -19,8 +19,21 @@
  */
 int (subscribe_rtc_interrupt)(uint8_t interrupt_bit, int *interrupt_id);
 
+/**
+ * @brief Read RTC register.
+ * @param   reg     Register to read from
+ * @param   data    Pointer to save read data
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ * @see {_ERRORS_H_::errors}
+ */
 int (rtc_read_register)(uint32_t reg, uint8_t *data);
-
+/**
+ * @brief Write RTC register.
+ * @param   reg     Register to write to
+ * @param   data    Data to write in register
+ * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
+ * @see {_ERRORS_H_::errors}
+ */
 int (rtc_write_register)(uint32_t reg, uint8_t data);
 
 /**

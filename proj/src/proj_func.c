@@ -26,75 +26,6 @@ int cleanup(void) {
 }
 
 static keys_t key_presses;
-
-host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote) {
-    host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
-    if (ret == NULL) return ret;
-
-    ret->host_x               = (int16_t)gunner_get_x          (host);
-    ret->host_y               = (int16_t)gunner_get_y          (host);
-    ret->host_angle           = (int16_t)gunner_get_angle      (host);
-    ret->host_health          = (int16_t)gunner_get_health     (host);
-    ret->host_current_health  = (int16_t)gunner_get_curr_health(host);
-
-    // remote
-    ret->remote_x               = (int16_t)gunner_get_x          (remote);
-    ret->remote_y               = (int16_t)gunner_get_y          (remote);
-    ret->remote_angle           = (int16_t)gunner_get_angle      (remote);
-    ret->remote_health          = (int16_t)gunner_get_health     (remote);
-    ret->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
-
-    //ret->no_bullets = 0;
-
-    return ret;
-}
-
-void host_info_dtor(host_info_t *p) {
-    if (p==NULL) return;
-    /*
-    if ((p->bullets_x) != NULL){ free(p->bullets_x); p->bullets_x = NULL; }
-
-    if ((p->bullets_y) != NULL){ free(p->bullets_y); p->bullets_y = NULL; }
-
-    if ((p->bullets_vx) != NULL){ free(p->bullets_vx); p->bullets_vx = NULL; }
-
-    if ((p->bullets_vy) != NULL){ free(p->bullets_vy); p->bullets_vy = NULL; }
-
-    if ((p->bullets_shooter) != NULL){ free(p->bullets_shooter); p->bullets_shooter = NULL; }
-    */
-    free(p);
-}
-
-remote_info_t* remote_info_ctor(void) {
-    remote_info_t *ret = (remote_info_t*)malloc(sizeof(remote_info_t));
-    if (ret == NULL) return ret;
-
-    memset(&(ret->remote_keys_pressed), 0, sizeof(keys_t));
-
-    ret->remote_angle = 0;
-
-    return ret;
-}
-
-void remote_info_dtor(remote_info_t *p) {
-    if (p==NULL) return;
-    free(p);
-}
-
-bullet_info_t* bullet_info_ctor(void) {
-    bullet_info_t *ret = (bullet_info_t*)malloc(sizeof(bullet_info_t));
-    if (ret == NULL) return ret;
-
-    ret->new_bullet = false;
-
-    return ret;
-}
-
-void bullet_info_dtor(bullet_info_t *p) {
-    if (p == NULL) return;
-    free(p);
-}
-
 void update_key_presses(void) {
     if (keyboard_get_size() == 1) {
         switch(keyboard_get_scancode()[0]) {
@@ -114,6 +45,25 @@ void update_key_presses(void) {
         case MINUS_BREAK_CODE   : key_presses.minus_pressed = 0;    update_scale();        break;
         }
     }
+}
+keys_t* (get_key_presses)(void) {
+    return &key_presses;
+}
+
+static int16_t mouse_x = 0, mouse_y = 0;
+void (update_mouse)(struct packet *p) {
+    mouse_x = max_16(0, mouse_x + p->delta_x);
+    mouse_x = min_16(mouse_x, (int16_t)graph_get_XRes() - 1);
+
+    mouse_y = max_16(0, mouse_y - p->delta_y);
+    mouse_y = min_16(mouse_y, (int16_t)graph_get_YRes() - 1);
+
+    key_presses.lb_pressed = p->lb;
+}
+int16_t* get_mouse_X(void) { return &mouse_x; }
+int16_t* get_mouse_Y(void) { return &mouse_y; }
+double get_mouse_angle(gunner_t *p) {
+    return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
 }
 
 void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list) {
@@ -181,6 +131,49 @@ void update_movement(map_t *map, gunner_t *p, keys_t *keys, list_t *shooter_list
             it = list_node_next(it);
         }
     }
+}
+
+void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l) {
+    uint16_t w = map_get_width(map), h = map_get_height(map);
+    double x, y;
+
+    while(true){
+        x = rand() % w;
+        y = rand() % h;
+        gunner_set_pos(p, x, y);
+        if(map_collides_gunner(map, p)) continue;
+        int collides = false;
+        list_node_t *it = list_begin(l);
+        while(it != list_end(l)){
+            if(gunner_collides_gunner(p, *list_node_val(it))){
+                collides = true;
+                break;
+            }
+            it = list_node_next(it);
+        }
+        if(!collides) return;
+    }
+}
+
+void update_scale(void) {
+    static uint8_t last_plus = 0, last_minus = 0;
+    if (key_presses.ctrl_pressed) {
+        if (key_presses.plus_pressed && !last_plus) {
+            double scale = ent_get_scale();
+            scale *= 1.1;
+            if (scale <= MAX_SCALE) ent_set_scale(scale);
+        }
+        else if (key_presses.minus_pressed && !last_minus) {
+            double scale = ent_get_scale();
+            scale /= 1.1;
+            if (scale >= MIN_SCALE) ent_set_scale(scale);
+        }
+
+        //printf("SCALE: %d\n", (int)(ent_get_scale()*1000));
+    }
+
+    last_plus = key_presses.plus_pressed;
+    last_minus = key_presses.minus_pressed;
 }
 
 void (shoot_bullet)(const gunner_t *shooter, list_t *bullet_list, const basic_sprite_t *bsp_bullet) {
@@ -251,71 +244,94 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
     }
 }
 
-void update_scale(void) {
-    static uint8_t last_plus = 0, last_minus = 0;
-    if (key_presses.ctrl_pressed) {
-        if (key_presses.plus_pressed && !last_plus) {
-            double scale = ent_get_scale();
-            scale *= 1.1;
-            if (scale <= MAX_SCALE) ent_set_scale(scale);
-        }
-        else if (key_presses.minus_pressed && !last_minus) {
-            double scale = ent_get_scale();
-            scale /= 1.1;
-            if (scale >= MIN_SCALE) ent_set_scale(scale);
-        }
-
-        //printf("SCALE: %d\n", (int)(ent_get_scale()*1000));
-    }
-
-    last_plus = key_presses.plus_pressed;
-    last_minus = key_presses.minus_pressed;
+text_timer_t* (text_timer_ctor)(const font_t *fnt){
+    if(fnt == NULL) return NULL;
+    text_timer_t *ret = malloc(sizeof(timer_t));
+    if (ret == NULL) return NULL;
+    ret->time = 0;
+    ret->text = text_ctor(fnt, "000s");
+    text_set_color(ret->text, TEXT_COLOR);
+    return ret;
+}
+void (text_timer_update)(text_timer_t *p){
+    if (p->time >= 999) return;
+    p->time++;
+    char buffer[100];
+    sprintf(buffer, "%03ds", p->time);
+    text_set_string(p->text, buffer);
+}
+void (text_timer_reset)(text_timer_t *p){
+    text_set_string(p->text, "000s");
+}
+void (text_timer_dtor)(text_timer_t *p){
+    if (p == NULL) return;
+    text_dtor(p->text);
+    free(p);
 }
 
-void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l) {
-    uint16_t w = map_get_width(map), h = map_get_height(map);
-    double x, y;
+host_info_t* host_info_ctor(gunner_t *host, gunner_t *remote) {
+    host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
+    if (ret == NULL) return ret;
 
-    while(true){
-        x = rand() % w;
-        y = rand() % h;
-        gunner_set_pos(p, x, y);
-        if(map_collides_gunner(map, p)) continue;
-        int collides = false;
-        list_node_t *it = list_begin(l);
-        while(it != list_end(l)){
-            if(gunner_collides_gunner(p, *list_node_val(it))){
-                collides = true;
-                break;
-            }
-            it = list_node_next(it);
-        }
-        if(!collides) return;
-    }
+    ret->host_x               = (int16_t)gunner_get_x          (host);
+    ret->host_y               = (int16_t)gunner_get_y          (host);
+    ret->host_angle           = (int16_t)gunner_get_angle      (host);
+    ret->host_health          = (int16_t)gunner_get_health     (host);
+    ret->host_current_health  = (int16_t)gunner_get_curr_health(host);
+
+    // remote
+    ret->remote_x               = (int16_t)gunner_get_x          (remote);
+    ret->remote_y               = (int16_t)gunner_get_y          (remote);
+    ret->remote_angle           = (int16_t)gunner_get_angle      (remote);
+    ret->remote_health          = (int16_t)gunner_get_health     (remote);
+    ret->remote_current_health  = (int16_t)gunner_get_curr_health(remote);
+
+    //ret->no_bullets = 0;
+
+    return ret;
+}
+void host_info_dtor(host_info_t *p) {
+    if (p==NULL) return;
+    /*
+    if ((p->bullets_x) != NULL){ free(p->bullets_x); p->bullets_x = NULL; }
+
+    if ((p->bullets_y) != NULL){ free(p->bullets_y); p->bullets_y = NULL; }
+
+    if ((p->bullets_vx) != NULL){ free(p->bullets_vx); p->bullets_vx = NULL; }
+
+    if ((p->bullets_vy) != NULL){ free(p->bullets_vy); p->bullets_vy = NULL; }
+
+    if ((p->bullets_shooter) != NULL){ free(p->bullets_shooter); p->bullets_shooter = NULL; }
+    */
+    free(p);
 }
 
-static int16_t mouse_x = 0, mouse_y = 0;
+remote_info_t* remote_info_ctor(void) {
+    remote_info_t *ret = (remote_info_t*)malloc(sizeof(remote_info_t));
+    if (ret == NULL) return ret;
 
-void (update_mouse)(struct packet *p) {
-    mouse_x = max_16(0, mouse_x + p->delta_x);
-    mouse_x = min_16(mouse_x, (int16_t)graph_get_XRes() - 1);
+    memset(&(ret->remote_keys_pressed), 0, sizeof(keys_t));
 
-    mouse_y = max_16(0, mouse_y - p->delta_y);
-    mouse_y = min_16(mouse_y, (int16_t)graph_get_YRes() - 1);
+    ret->remote_angle = 0;
 
-    key_presses.lb_pressed = p->lb;
+    return ret;
+}
+void remote_info_dtor(remote_info_t *p) {
+    if (p==NULL) return;
+    free(p);
 }
 
-keys_t* (get_key_presses)(void) {
-    return &key_presses;
+bullet_info_t* bullet_info_ctor(void) {
+    bullet_info_t *ret = (bullet_info_t*)malloc(sizeof(bullet_info_t));
+    if (ret == NULL) return ret;
+
+    ret->new_bullet = false;
+
+    return ret;
 }
-
-int16_t* get_mouse_X(void) { return &mouse_x; }
-
-int16_t* get_mouse_Y(void) { return &mouse_y; }
-
-double get_mouse_angle(gunner_t *p) {
-    return atan2(gunner_get_y_screen(p) - mouse_y, mouse_x - gunner_get_x_screen(p));
+void bullet_info_dtor(bullet_info_t *p) {
+    if (p == NULL) return;
+    free(p);
 }
 
 void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote) {
@@ -356,36 +372,7 @@ void build_host_structure(host_info_t *p, gunner_t *host, gunner_t *remote) {
     }
     */
 }
-
 void build_remote_structure(remote_info_t *p, keys_t *keys, double angle) {
     memcpy(&(p->remote_keys_pressed), keys, sizeof(keys_t));
     p->remote_angle = angle;
-}
-
-text_timer_t* (timer_ctor)(const font_t *fnt){
-    if(fnt == NULL) return NULL;
-    text_timer_t *ret = malloc(sizeof(timer_t));
-    if (ret == NULL) return NULL;
-    ret->time = 0;
-    ret->text = text_ctor(fnt, "000s");
-    text_set_color(ret->text, TEXT_COLOR);
-    return ret;
-}
-
-void (timer_update)(text_timer_t *p){
-    if (p->time >= 999) return;
-    p->time++;
-    char buffer[100];
-    sprintf(buffer, "%03ds", p->time);
-    text_set_string(p->text, buffer);
-}
-
-void (timer_reset)(text_timer_t *p){
-    text_set_string(p->text, "000s");
-}
-
-void (timer_dtor)(text_timer_t *p){
-    if (p == NULL) return;
-    text_dtor(p->text);
-    free(p);
 }

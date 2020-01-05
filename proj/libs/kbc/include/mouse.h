@@ -70,6 +70,7 @@ int (mouse_set_data_report)(int on);
  * Polls the mouse till data is available for reading
  * </summary>
  * @param data Pointer to variable where byte read from mouse will be stored
+ * @param   period  Time that the process should wait before polling again, in microseconds
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  * @see {_ERRORS_H_::errors}
  */

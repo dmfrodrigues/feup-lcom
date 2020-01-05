@@ -329,7 +329,7 @@ void (bullet_draw_list)(list_t *bullet_list);
 typedef struct map map_t;
 /**
  * @brief Construct map.
- * @param   backgroup   XPM describing map as it should be rendered
+ * @param   background  XPM describing map as it should be rendered
  * @param   collide     XPM with transparency describing what parts of the map will cause collision
  * @return  Pointer to constructed map, or NULL if failed
  */
@@ -382,6 +382,7 @@ int (map_where_to_follow)(const map_t *p, double x, double y, double *theta);
 void   (map_draw)(map_t *p);
 /**
  * @brief Evaluate if point collides with map.
+ * @param   p   Pointer to map
  * @param   x   X-position of the point
  * @param   y   Y-position of the point
  * @return true if the point collides with the map, false otherwise

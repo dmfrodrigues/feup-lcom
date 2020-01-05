@@ -13,8 +13,10 @@
 
 #include "basic_sprite.h"
 
+/**
+ * @brief Basic sprite.
+ */
 typedef struct sprite sprite_t;
-
 /**
  * @brief Construct sprite.
  * @param   bsp Basic sprite from which to build the sprite
