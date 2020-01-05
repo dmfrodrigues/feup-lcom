@@ -297,11 +297,11 @@ void update_scale(void) {
 static int16_t mouse_x = 0, mouse_y = 0;
 
 void (update_mouse)(struct packet *p) {
-    mouse_x = max16(0, mouse_x + p->delta_x);
-    mouse_x = min16(mouse_x, (int16_t)graph_get_XRes() - 1);
+    mouse_x = max_16(0, mouse_x + p->delta_x);
+    mouse_x = min_16(mouse_x, (int16_t)graph_get_XRes() - 1);
 
-    mouse_y = max16(0, mouse_y - p->delta_y);
-    mouse_y = min16(mouse_y, (int16_t)graph_get_YRes() - 1);
+    mouse_y = max_16(0, mouse_y - p->delta_y);
+    mouse_y = min_16(mouse_y, (int16_t)graph_get_YRes() - 1);
 
     key_presses.lb_pressed = p->lb;
 }

@@ -298,7 +298,7 @@ int (map_collides_point)(const map_t *p, double x, double y){
     else return false;
 }
 int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
-    double radius = dmax(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
+    double radius = max_d(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
 }
 int (map_make_dijkstra)(map_t *p, double x_, double y_){
@@ -347,7 +347,7 @@ int (map_where_to_follow)(const map_t *p, double x, double y, double *theta){
 }
 
 int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
-    double radius = dmax(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
+    double radius = max_d(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
     double bullet_x = bullet_get_x(bull);
     double bullet_y = bullet_get_y(bull);
     for (double x = -radius; x < radius; x += 1){
@@ -361,11 +361,11 @@ int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
     if(bull->shooter == shooter) return false;
 
-    double shooter_radius = dmax(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
+    double shooter_radius = max_d(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
     double shooter_x = gunner_get_x(shooter);
     double shooter_y = gunner_get_y(shooter);
 
-    double bullet_radius = dmax(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
+    double bullet_radius = max_d(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
     double bullet_x = bullet_get_x(bull);
     double bullet_y = bullet_get_y(bull);
 
@@ -389,8 +389,8 @@ double (distance_gunners)(const gunner_t *shooter1, const gunner_t *shooter2) {
 
 int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2) {
     if (shooter1 == shooter2) return false;
-    double shooter1_radius = dmax(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
-    double shooter2_radius = dmax(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
+    double shooter1_radius = max_d(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
+    double shooter2_radius = max_d(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
     double distance = distance_gunners(shooter1, shooter2);
     return distance <= shooter1_radius+shooter2_radius;
 }

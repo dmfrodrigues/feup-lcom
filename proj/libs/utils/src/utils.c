@@ -31,16 +31,16 @@ int (unsubscribe_interrupt)(int *interrupt_id) {
     return SUCCESS;
 }
 
-int16_t min16(int16_t a, int16_t b){ return (b < a ? b : a); }
-uint16_t umin16(uint16_t a, uint16_t b){ return (b < a ? b : a); }
+int16_t min_16(int16_t a, int16_t b){ return (b < a ? b : a); }
+uint16_t umin_16(uint16_t a, uint16_t b){ return (b < a ? b : a); }
 int32_t min32(int32_t a, int32_t b){ return (b < a ? b : a); }
 double  dmin (double  a, double  b){ return (b < a ? b : a); }
 
-int16_t max16(int16_t a, int16_t b){ return (a < b ? b : a); }
-uint16_t umax16(uint16_t a, uint16_t b){ return (a < b ? b : a); }
+int16_t max_16(int16_t a, int16_t b){ return (a < b ? b : a); }
+uint16_t max_u16(uint16_t a, uint16_t b){ return (a < b ? b : a); }
 int32_t max32(int32_t a, int32_t b){ return (a < b ? b : a); }
-double  dmax (double  a, double  b){ return (a < b ? b : a); }
+double  max_d (double  a, double  b){ return (a < b ? b : a); }
 
-double dabs(double a)          { return (a < 0 ? -a: a); }
+double abs_d(double a)          { return (a < 0 ? -a: a); }
 
-int deq(double a, double b){ return (dabs(a-b) < 1e-10 ? true : false); }
+int eq_d(double a, double b){ return (abs_d(a-b) < 1e-10 ? true : false); }

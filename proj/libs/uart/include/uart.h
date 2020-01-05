@@ -8,13 +8,22 @@
  * @{
  */
 
+/// @brief COM1 base address
 #define COM1_ADDR           0x3F8
+/// @brief COM2 base address
 #define COM2_ADDR           0x2F8
+/// @brief COM1 IRQ line
 #define COM1_IRQ            4
+/// @brief COM2 IRQ line
 #define COM2_IRQ            3
+/// @brief COM1 Vector (???)
 #define COM1_VECTOR         0x0C
+/// @brief COM2 Vector (???)
 #define COM2_VECTOR         0x0B
 
+/**
+ * @brief Possible parity schemes for UART.
+ */
 typedef enum {
     uart_parity_none = 0x0,
     uart_parity_odd  = 0x1,
@@ -23,21 +32,39 @@ typedef enum {
     uart_parity_par0 = 0x7
 } uart_parity;
 
+/**
+ * @brief UART configuration
+ */
 typedef struct {
+    /// @brief  Base address of the serial port this configuration was read from
     int     base_addr               ;
+    /// @brief  LCR (Line Control Register)
     uint8_t lcr                     ;
+    /// @brief DLL (Divisor Latch Least significant byte)
     uint8_t dll                     ;
+    /// @brief DLL (Divisor Latch Most significant byte)
     uint8_t dlm                     ;
+    /// @brief Number of bits per char
     uint8_t bits_per_char           ;
+    /// @brief Number of stop bits
     uint8_t stop_bits               ;
+    /// @brief Parity scheme
     uart_parity parity              ;
+    /// @brief Break control (???)
     uint8_t break_control         :1;
+    /// @brief Divisor Latch Access Bit (1 if DLL, DLM can be accessed)
     uint8_t dlab                  :1;
+    ///  @brief Divisor latch
     uint16_t divisor_latch          ;
+    /// @brief IER (Interrupt Enable Register)
     uint8_t ier                     ;
+    /// @brief  Receiver data interrupt enabled if 1
     uint8_t received_data_int     :1;
+    /// @brief  Transmitter empty interrupt enabled if 1
     uint8_t transmitter_empty_int :1;
+    /// @brief  Receiver line status register (LSR) change interrupt enabled if 1
     uint8_t receiver_line_stat_int:1;
+    /// @brief  Modem status interrupt enabled if 1
     uint8_t modem_stat_int        :1;
 } uart_config;
 

@@ -188,7 +188,7 @@ int (text_draw)(const text_t *p){
         uint16_t W = 0, H = 0; {
             for(size_t i = 0; i < len; ++i){
                 const glyph_t *g = p->fnt->glyphs[(size_t)p->txt[i]];
-                if(g != NULL){ W += g->w; H = umax16(H, g->h); }
+                if(g != NULL){ W += g->w; H = max_u16(H, g->h); }
             }
         }
         uint8_t *alp_buf = malloc(W*H);
