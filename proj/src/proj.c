@@ -192,17 +192,15 @@ static bullet_info_t   *bullet_info = NULL;
 static void multiplayer_process(const uint8_t *p, const size_t sz) {
     void *dest = NULL;
     hltp_type tp = hltp_interpret(p, sz, &dest);
+    if (dest == NULL) return;
     switch(tp){
         case hltp_type_host:
-            host_info_dtor(host_info);
             host_info = (host_info_t*)dest;
             break;
         case hltp_type_remote:
-            remote_info_dtor(remote_info);
             remote_info = (remote_info_t*)dest;
             break;
         case hltp_type_bullet:
-            bullet_info_dtor(bullet_info);
             bullet_info = (bullet_info_t*)dest;
             break;
         case hltp_type_invalid: break;
@@ -326,7 +324,6 @@ static int (multiplayer_host)(void) {
                 switch (i) {
                     case TIMER0_IRQ:
                     if (timer_get_no_interrupts() % 60 == 0) timer_update(in_game_timer);
-
                     update_movement(map1, shooter1, keys, shooter_list);
                     update_movement(map1, shooter2, &(remote_info->remote_keys_pressed), shooter_list);
 
@@ -348,12 +345,11 @@ static int (multiplayer_host)(void) {
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
                     gunner_set_angle(shooter2, remote_info->remote_angle);
+                    if (timer_get_no_interrupts() % 6 == 0) {
+                        build_host_structure(host_info, shooter1, shooter2);
 
-                    build_host_structure(host_info, shooter1, shooter2, bullet_list);
-
-
-
-                    hltp_send_host_info(host_info);
+                        hltp_send_host_info(host_info);
+                    }
 
                     graph_clear_screen();
                     map_draw   (map1);
@@ -468,8 +464,8 @@ static int (multiplayer_remote)(void) {
 
                     build_remote_structure(remote_info, keys, angle);
 
-                    //hltp_send_remote_info(remote_info);
 
+                    //hltp_send_remote_info(remote_info);
                     gunner_set_pos(shooter1, (double)host_info->remote_x, (double)host_info->remote_y);
                     gunner_set_angle(shooter1, (double)host_info->remote_angle);
                     gunner_set_health(shooter1, (double)host_info->remote_health);
@@ -483,6 +479,7 @@ static int (multiplayer_remote)(void) {
                     ent_set_origin(gunner_get_x(shooter1)-ent_get_XLength()/2.0,
                                    gunner_get_y(shooter1)-ent_get_YLength()/2.0);
 
+                    /*
                     for (size_t j = 0; j < host_info->no_bullets; j++) {
                         if (host_info->bullets_shooter[j]) { // remote
                             bullet_t *bullet = bullet_ctor(shooter1, bsp_bullet, (double)host_info->bullets_x[j], (double)host_info->bullets_y[j], (double)host_info->bullets_vx[j], (double)host_info->bullets_vy[j]);
@@ -491,7 +488,7 @@ static int (multiplayer_remote)(void) {
                             bullet_t *bullet = bullet_ctor(shooter2, bsp_bullet, (double)host_info->bullets_x[j], (double)host_info->bullets_y[j], (double)host_info->bullets_vx[j], (double)host_info->bullets_vy[j]);
                             list_insert(bullet_list, list_end(bullet_list), bullet);
                         }
-                    }
+                    }*/
 
                     graph_clear_screen();
                     map_draw   (map1);
@@ -503,11 +500,12 @@ static int (multiplayer_remote)(void) {
                     sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
                     sprite_draw(sp_crosshair);
                     graph_draw();
-
+                    /*
                     while(list_size(bullet_list) > 0){
                         bullet_t *p = (bullet_t*)list_erase(bullet_list, list_begin(bullet_list));
                         bullet_dtor(p);
                     }
+                    */
 
                     break;
                     case KBC_IRQ:
@@ -528,7 +526,9 @@ static int (multiplayer_remote)(void) {
                     }
                     break;
 
-                    case COM1_IRQ: nctp_ih(); break;
+                    case COM1_IRQ:
+                        nctp_ih();
+                        break;
                 }
             }
         }

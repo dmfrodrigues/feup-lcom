@@ -84,7 +84,7 @@ typedef struct {
     int16_t    remote_health;
     /// @brief Remote player current health
     int16_t    remote_current_health;
-
+    /*
     // bullets
     /// @brief Number of bullets
     uint8_t    no_bullets;
@@ -98,6 +98,7 @@ typedef struct {
     int16_t   *bullets_vy;
     /// @brief Who shot each bullet
     bool      *bullets_shooter; // false for host, true for remote
+    */
 } host_info_t;
 /**
  * @brief Construct host information.
