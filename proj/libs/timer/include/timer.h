@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    timer   timer
+ * @ingroup libs
  * @brief   Timer module.
  *
  * @{

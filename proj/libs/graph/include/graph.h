@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    graph   graph
+ * @ingroup libs
  * @brief Graph module.
  *
  * Provides functions, classes and methods for graphic drawing.

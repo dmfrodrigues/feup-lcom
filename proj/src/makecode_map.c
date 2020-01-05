@@ -1,3 +1,5 @@
+#include <lcom/lcf.h>
+
 #include "makecode_map.h"
 
 static const char makecode_map[] = {ERROR_CODE, ERROR_CODE, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '\'', ERROR_CODE /*«*/, ERROR_CODE /*escape*/,

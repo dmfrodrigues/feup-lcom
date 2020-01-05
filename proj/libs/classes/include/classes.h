@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    classes classes
+ * @ingroup libs
  * @brief Classes module
  *
  * Provides useful and general classes.

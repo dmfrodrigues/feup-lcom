@@ -4,13 +4,12 @@
 
 #include "proj.h"
 
+#include "libs.h"
+
 #include "proj_macros.h"
 #include "proj_func.h"
 #include "ent.h"
 #include "interrupts_func.h"
-#include "graph.h"
-#include "hltp.h"
-#include "errors.h"
 #include <math.h>
 
 #define ZOMBIES_NUM             5

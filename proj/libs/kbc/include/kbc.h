@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    kbc kbc
+ * @ingroup libs
  * @brief   KBC module.
  *
  * @{

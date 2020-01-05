@@ -2,13 +2,7 @@
 
 #include "ent.h"
 
-#include "graph.h"
-#include "sprite.h"
-#include "utils.h"
-#include "rectangle.h"
-#include "text.h"
-#include "errors.h"
-#include "queue.h"
+#include "libs.h"
 #include <math.h>
 
 #define GREEN_HEALTH_COLOR      0x009900

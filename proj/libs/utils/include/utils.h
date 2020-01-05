@@ -3,6 +3,7 @@
 
 /**
  * @defgroup utils utils
+ * @ingroup libs
  * @brief Utilities module.
  *
  * @{
