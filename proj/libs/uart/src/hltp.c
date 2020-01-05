@@ -55,19 +55,19 @@ static host_info_t* hltp_interpret_host_info(const uint8_t *p, const size_t sz) 
 }
 int hltp_send_host_info(const host_info_t *p) { printf("%s, %d\n",__func__, rand());
 
-    printf("    sending angle: 0x%04X\n", p->host_angle);
+    //printf("    sending angle: 0x%04X\n", p->host_angle);
 
     uint8_t type = hltp_type_host;
     const uint8_t* ptr[11]; size_t sz[11];
     ptr[0]  = (uint8_t*)&   type                  ;     sz[0]   = 1;
     ptr[1]  = (uint8_t*)&p->host_x                ;     sz[1]   = sizeof(int16_t);
     ptr[2]  = (uint8_t*)&p->host_y                ;     sz[2]   = sizeof(int16_t);
-    ptr[3]  = (uint8_t*)&p->host_angle            ;     sz[3]   = sizeof(int16_t);
+    ptr[3]  = (uint8_t*)&p->host_angle            ;     sz[3]   = sizeof(float);
     ptr[4]  = (uint8_t*)&p->host_health           ;     sz[4]   = sizeof(int16_t);
     ptr[5]  = (uint8_t*)&p->host_current_health   ;     sz[5]   = sizeof(int16_t);
     ptr[6]  = (uint8_t*)&p->remote_x              ;     sz[6]   = sizeof(int16_t);
     ptr[7]  = (uint8_t*)&p->remote_y              ;     sz[7]   = sizeof(int16_t);
-    ptr[8]  = (uint8_t*)&p->remote_angle          ;     sz[8]   = sizeof(int16_t);
+    ptr[8]  = (uint8_t*)&p->remote_angle          ;     sz[8]   = sizeof(float);
     ptr[9]  = (uint8_t*)&p->remote_health         ;     sz[9]   = sizeof(int16_t);
     ptr[10] = (uint8_t*)&p->remote_current_health ;     sz[10]  = sizeof(int16_t);
     /*
