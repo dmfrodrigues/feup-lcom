@@ -251,28 +251,6 @@ void (update_game_state)(const map_t *map, list_t *shooter_list, list_t *bullet_
     }
 }
 
-void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l) {
-    uint16_t w = map_get_width(map), h = map_get_height(map);
-    double x, y;
-
-    while(true){
-        x = rand() % w;
-        y = rand() % h;
-        gunner_set_pos(p, x, y);
-        if(map_collides_gunner(map, p)) continue;
-        int collides = false;
-        list_node_t *it = list_begin(l);
-        while(it != list_end(l)){
-            if(gunner_collides_gunner(p, *list_node_val(it))){
-                collides = true;
-                break;
-            }
-            it = list_node_next(it);
-        }
-        if(!collides) return;
-    }
-}
-
 void update_scale(void) {
     static uint8_t last_plus = 0, last_minus = 0;
     if (key_presses.ctrl_pressed) {

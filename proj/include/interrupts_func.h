@@ -2,6 +2,13 @@
 #define INTERRUPTS_FUNC_H_INCLUDED
 
 /**
+ * @defgroup interrupts_func interrupts_func
+ * @brief Interrupts functions.
+ *
+ * @{
+ */
+
+/**
  * @brief Subscribes all drivers used (timer->keyboard->mouse)
  * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
  * @see {_ERRORS_H_::errors}
@@ -22,5 +29,9 @@ int (unsubscribe_all)(void);
 void interrupt_handler(uint8_t handler);
 
 int get_interrupts_vector(uint64_t *p);
+
+/**
+ * @}
+ */
 
 #endif /* end of include guard: INTERRUPTS_FUNC_H_INCLUDED */

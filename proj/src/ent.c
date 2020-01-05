@@ -124,11 +124,26 @@ void (gunner_draw_health)(const gunner_t *p) {
     rectangle_draw(p->red_bar);
     text_draw(p->txt);
 }
+void (gunner_draw_list)(list_t *shooter_list) {
+    if (list_size(shooter_list) == 0) return;
 
+    list_node_t *it = list_begin(shooter_list);
+    while (it != list_end(shooter_list)) {
+        gunner_draw(*(gunner_t**)list_node_val(it));
+        it = list_node_next(it);
+    }
+}
 double (gunner_distance)(const gunner_t *p1, const gunner_t *p2){
     double dx = gunner_get_x(p1) - gunner_get_x(p2);
     double dy = gunner_get_y(p1) - gunner_get_y(p2);
     return sqrt(dx*dx+dy*dy);
+}
+int (gunner_collides_gunner)(const gunner_t *p1, const gunner_t *p2) {
+    if (p1 == p2) return false;
+    double p1_radius = max_d(sprite_get_w(p1->dude), sprite_get_h(p1->dude))/2.0;
+    double p2_radius = max_d(sprite_get_w(p2->dude), sprite_get_h(p2->dude))/2.0;
+    double distance = gunner_distance(p1, p2);
+    return distance <= p1_radius+p2_radius;
 }
 
 struct bullet{
@@ -156,7 +171,6 @@ bullet_t* (bullet_ctor)(const gunner_t *shooter, const basic_sprite_t *b, double
     sprite_set_angle(ret->b, angle-M_PI_2);
     return ret;
 }
-
 void (bullet_dtor)(bullet_t *p){
     if(p == NULL) return;
     sprite_dtor(p->b);
@@ -178,7 +192,6 @@ void (bullet_update_movement)(bullet_t *p){
     p->x += p->vx;
     p->y += p->vy;
 }
-
 void (bullet_update_movement_list)(list_t *bullet_list){
     if (list_size(bullet_list) == 0) return;
 
@@ -188,7 +201,6 @@ void (bullet_update_movement_list)(list_t *bullet_list){
         it = list_node_next(it);
     }
 }
-
 void (bullet_draw)(bullet_t *p){
     const int16_t x_screen = bullet_get_x_screen(p);
     const int16_t y_screen = bullet_get_y_screen(p);
@@ -196,17 +208,6 @@ void (bullet_draw)(bullet_t *p){
     sprite_set_scale(p->b, scale);
     sprite_draw     (p->b);
 }
-
-void (gunner_draw_list)(list_t *shooter_list) {
-    if (list_size(shooter_list) == 0) return;
-
-    list_node_t *it = list_begin(shooter_list);
-    while (it != list_end(shooter_list)) {
-        gunner_draw(*(gunner_t**)list_node_val(it));
-        it = list_node_next(it);
-    }
-}
-
 void (bullet_draw_list)(list_t *bullet_list) {
     if (list_size(bullet_list) == 0) return;
 
@@ -233,6 +234,8 @@ static int (map_collides_gunner_pos)(const map_t *p, double shooter_x, double sh
     }
     return 0;
 }
+static int16_t (map_get_x_screen)(const map_t *p){ (void)p; return (int16_t)((-x_origin)*scale); }
+static int16_t (map_get_y_screen)(const map_t *p){ (void)p; return (int16_t)((-y_origin)*scale); }
 map_t* (map_ctor)(const char *const *background, const char *const *collide){
     map_t *ret = malloc(sizeof(map_t));
     if(ret == NULL) return NULL;
@@ -285,22 +288,8 @@ void (map_dtor)(map_t *p){
     free(p->visited);
     free(p);
 }
-static int16_t (map_get_x_screen)(const map_t *p){ (void)p; return (int16_t)((-x_origin)*scale); }
-static int16_t (map_get_y_screen)(const map_t *p){ (void)p; return (int16_t)((-y_origin)*scale); }
 uint16_t (map_get_width)   (const map_t *p){ return sprite_get_w(p->background); }
 uint16_t (map_get_height)  (const map_t *p){ return sprite_get_h(p->background); }
-int (map_collides_point)(const map_t *p, double x, double y){
-    const uint16_t w = sprite_get_w(p->background), h = sprite_get_h(p->background);
-    int16_t x_ = (int16_t)x, y_ = (int16_t)y;
-    if(x_ < 0 || w <= x_ || y_ < 0 || h <= y_) return 0;
-    int32_t pos = x_ + y_*w;
-    if(0 <= pos && pos < w*h) return p->collide[pos];
-    else return false;
-}
-int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
-    double radius = max_d(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
-    return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
-}
 int (map_make_dijkstra)(map_t *p, double x_, double y_){
     int16_t x = (int16_t)x_, y = (int16_t)y_;
 
@@ -345,7 +334,26 @@ int (map_where_to_follow)(const map_t *p, double x, double y, double *theta){
     *theta = atan2(-(newy-y_), newx-x_);
     return SUCCESS;
 }
+void   (map_draw)(map_t *p){
+    const int16_t x_screen = map_get_x_screen(p);
+    const int16_t y_screen = map_get_y_screen(p);
+    sprite_set_pos  (p->background, x_screen, y_screen);
+    sprite_set_scale(p->background, scale);
+    sprite_draw     (p->background);
+}
+int (map_collides_point)(const map_t *p, double x, double y){
+    const uint16_t w = sprite_get_w(p->background), h = sprite_get_h(p->background);
+    int16_t x_ = (int16_t)x, y_ = (int16_t)y;
+    if(x_ < 0 || w <= x_ || y_ < 0 || h <= y_) return 0;
+    int32_t pos = x_ + y_*w;
+    if(0 <= pos && pos < w*h) return p->collide[pos];
+    else return false;
+}
 
+int (map_collides_gunner)(const map_t *p, const gunner_t *shooter) {
+    double radius = max_d(sprite_get_w(shooter->dude), sprite_get_h(shooter->dude))/2.0;
+    return map_collides_gunner_pos(p, gunner_get_x(shooter), gunner_get_y(shooter), radius);
+}
 int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
     double radius = max_d(sprite_get_w(bull->b), sprite_get_h(bull->b))/2.0;
     double bullet_x = bullet_get_x(bull);
@@ -357,7 +365,6 @@ int (map_collides_bullet)(const map_t *p, const bullet_t *bull){
     }
     return 0;
 }
-
 int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
     if(bull->shooter == shooter) return false;
 
@@ -374,19 +381,24 @@ int (gunner_collides_bullet)(const gunner_t *shooter, const bullet_t *bull){
     double distance = sqrt(dx*dx + dy*dy);
     return distance <= shooter_radius+bullet_radius;
 }
+void (get_random_spawn)(const map_t *map, gunner_t *p, list_t *l) {
+    uint16_t w = map_get_width(map), h = map_get_height(map);
+    double x, y;
 
-int (gunner_collides_gunner)(const gunner_t *shooter1, const gunner_t *shooter2) {
-    if (shooter1 == shooter2) return false;
-    double shooter1_radius = max_d(sprite_get_w(shooter1->dude), sprite_get_h(shooter1->dude))/2.0;
-    double shooter2_radius = max_d(sprite_get_w(shooter2->dude), sprite_get_h(shooter2->dude))/2.0;
-    double distance = gunner_distance(shooter1, shooter2);
-    return distance <= shooter1_radius+shooter2_radius;
-}
-
-void   (map_draw)(map_t *p){
-    const int16_t x_screen = map_get_x_screen(p);
-    const int16_t y_screen = map_get_y_screen(p);
-    sprite_set_pos  (p->background, x_screen, y_screen);
-    sprite_set_scale(p->background, scale);
-    sprite_draw     (p->background);
+    while(true){
+        x = rand() % w;
+        y = rand() % h;
+        gunner_set_pos(p, x, y);
+        if(map_collides_gunner(map, p)) continue;
+        int collides = false;
+        list_node_t *it = list_begin(l);
+        while(it != list_end(l)){
+            if(gunner_collides_gunner(p, *list_node_val(it))){
+                collides = true;
+                break;
+            }
+            it = list_node_next(it);
+        }
+        if(!collides) return;
+    }
 }
