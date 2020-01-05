@@ -11,7 +11,7 @@ for f in xpm/*.xpm; do
 done
 echo "    return 0;" >> convert.c
 echo "}" >> convert.c
-gcc -I/media/DATA/VirtualBox_VMs/MINIX-LCOM/shared/proj/include /media/DATA/VirtualBox_VMs/MINIX-LCOM/shared/proj/src/xpm_utils.c convert.c -o convert.app
+gcc -I/media/DATA/VirtualBox_VMs/MINIX-LCOM/shared/proj/libs/utils/include /media/DATA/VirtualBox_VMs/MINIX-LCOM/shared/proj/libs/utils/src/xpm_utils.c convert.c -o convert.app
 rm -rf xpm2
 mkdir xpm2
 ./convert.app
