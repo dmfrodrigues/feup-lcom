@@ -75,17 +75,17 @@ int(proj_main_loop)(int argc, char *argv[]) {
         bsp_zombie    = get_zombie   (); if(bsp_zombie    == NULL) printf("Failed to get zombie\n");
         bsp_pistol    = get_pistol   (); if(bsp_pistol    == NULL) printf("Failed to get pistol\n");
         bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
-        bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n"); printf("%s, L78\n", __func__);
-        map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n"); printf("%s, L79\n", __func__);
+        bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n");
+        map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n");
 
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
-    }printf("L82\n");
+    }
 
     menu_t *main_menu = menu_ctor(font_get_default());
     menu_add_item(main_menu, "Single player");
     menu_add_item(main_menu, "Multiplayer");
     menu_add_item(main_menu, "Chat");
-    menu_add_item(main_menu, "Exit");printf("L88\n");
+    menu_add_item(main_menu, "Exit");
 
     //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
     uint8_t last_lb = 0;
