@@ -21,7 +21,10 @@ int (singleplayer)(void) {
     menu_t *main_menu = menu_ctor(font_get_default());
     menu_add_item(main_menu, "Campaign");
     menu_add_item(main_menu, "Zombies");
+    menu_add_item(main_menu, "Zombies Ranking");
     menu_add_item(main_menu, "Back");
+
+    highscores_t *zombies_highscore = highscores_ctor(font_get_default(), "/home/lcom/labs/proj/src/data/scoreboard.txt");
 
     //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
     uint8_t last_lb = 0;
@@ -46,8 +49,9 @@ int (singleplayer)(void) {
                     switch(menu_update_state(main_menu, click)){
                         case -1: break;
                         case  0: campaign(); break;
-                        case  1: zombies(); break;
-                        case  2: good = false; break;
+                        case  1: zombies(zombies_highscore); break;
+                        case  2: zombies_ranking(zombies_highscore); break;
+                        case  3: good = false; break;
                     }
                     menu_draw(main_menu);
 
@@ -74,6 +78,11 @@ int (singleplayer)(void) {
             }
         }
     }
+
+    highscores_save(zombies_highscore, "/home/lcom/labs/proj/src/data/scoreboard.txt");
+    highscores_dtor(zombies_highscore);
+
+    menu_dtor(main_menu);
 
     return 0;
 }

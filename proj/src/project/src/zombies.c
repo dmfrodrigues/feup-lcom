@@ -14,7 +14,7 @@
 
 #define ZOMBIES_NUM             5
 #define ZOMBIE_HEALTH_FACTOR    1.1
-int (zombies)(void){
+int (zombies)(highscores_t *zombies_highscore){
 
     int r;
 
@@ -43,6 +43,11 @@ int (zombies)(void){
     uint64_t int_vector = 0;
     int good = true;
     int dead = false;
+    /// Kills
+    int kills = -ZOMBIES_NUM;
+    text_t *text_kills = text_ctor(font_get_default(), "Kills: 0");
+    text_set_color(text_kills, TEXT_COLOR);
+    text_set_pos(text_kills, 200, 0);
 
     int health = 50;
 
@@ -86,14 +91,18 @@ int (zombies)(void){
                         health *= ZOMBIE_HEALTH_FACTOR;
                         get_random_spawn(map1, zombie, shooter_list);
                         list_push_back(shooter_list, zombie);
+                        kills++;
+                        char buffer[20];
+                        sprintf(buffer, "Kills: %d", kills);
+                        text_set_string(text_kills, buffer);
                     }
 
                     graph_clear_screen();
                     map_draw   (map1);
                     bullet_draw_list(bullet_list);
                     gunner_draw_list(shooter_list);
-
                     text_draw(in_game_timer->text);
+                    text_draw(text_kills);
 
                     sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
                     sprite_draw(sp_crosshair);
@@ -135,11 +144,15 @@ int (zombies)(void){
     }
     if(list_dtor(bullet_list)) printf("COULD NOT DESTRUCT BULLET LIST\n");
 
-    if(dead){
-        printf("YOU DIED\n");
-    }
+    check_new_score(zombies_highscore, kills, in_game_timer->time);
+
+    text_dtor(text_kills);
 
     text_timer_dtor(in_game_timer); in_game_timer = NULL;
 
     return SUCCESS;
+}
+
+void (zombies_ranking)(highscores_t *zombies_highscore) {
+
 }
