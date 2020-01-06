@@ -18,9 +18,7 @@ int hltp_send_string(const char *p){
 }
 
 static host_info_t* hltp_interpret_host_info(const uint8_t *p, const size_t sz) {
-    printf("%s\n", __func__);
-    printf("sizeof(host_info_t)=%d, sz=%d\n", sizeof(host_info_t), sz);
-    if (sz != sizeof(host_info_t)) { printf("%d should equal %d\n", sz, sizeof(host_info_t)); return NULL;}
+    if (sz != sizeof(host_info_t)) return NULL;
     host_info_t *ret = (host_info_t*)malloc(sizeof(host_info_t));
     //size_t pos = 0;
     // players information
@@ -53,7 +51,7 @@ static host_info_t* hltp_interpret_host_info(const uint8_t *p, const size_t sz) 
     */
     return ret;
 }
-int hltp_send_host_info(const host_info_t *p) { printf("%s, %d\n",__func__, rand());
+int hltp_send_host_info(const host_info_t *p) { //printf("%s, %d\n",__func__, rand());
 
     //printf("    sending angle: 0x%04X\n", p->host_angle);
 
@@ -96,9 +94,9 @@ int hltp_send_remote_info(const remote_info_t *p) {
 
     uint8_t type = hltp_type_remote;
     const uint8_t* ptr[3]; size_t sz[3];
-    ptr[0]  = (uint8_t*)&   type                  ;     sz[0] = 1;
-    ptr[1]  = (uint8_t*)&p->remote_keys_pressed   ;     sz[1] = sizeof(keys_t);
-    ptr[2]  = (uint8_t*)&p->remote_angle          ;     sz[2] = sizeof(double);
+    ptr[0]  = (uint8_t*)&   type                    ;     sz[0] = 1;
+    ptr[1]  = (uint8_t*)&(p->remote_keys_pressed)   ;     sz[1] = sizeof(keys_t);
+    ptr[2]  = (uint8_t*)&(p->remote_angle)          ;     sz[2] = sizeof(double);
     return nctp_send(3, ptr, sz);
 }
 
@@ -117,9 +115,9 @@ int hltp_send_bullet_info(const bullet_info_t *p) {
     return nctp_send(2, ptr, sz);
 }
 
-hltp_type hltp_interpret(const uint8_t *p, const size_t sz, void **dest){ printf("%s %d\n",__func__, rand());
+hltp_type hltp_interpret(const uint8_t *p, const size_t sz, void **dest){ //printf("%s %d\n",__func__, rand());
     uint8_t ret = p[0];
-    printf("    ret=%d\n", ret);
+    //printf("    ret=%d\n", ret);
     switch(ret){
         case hltp_type_string: *dest = hltp_interpret_string     (p+1, sz-1);   break;
         case hltp_type_host  : *dest = hltp_interpret_host_info  (p+1, sz-1);   break;
