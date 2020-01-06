@@ -20,7 +20,7 @@ static text_t      *t_text[CHAT_MAX_NUM] = {NULL};
 static rectangle_t *r_text               =  NULL;
 
 static void chat_process(const uint8_t *p, const size_t sz){
-    char buffer2[CHAT_MAX_NUM+3];
+    char buffer2[CHAT_MAX_SIZE+3];
     void *dest = NULL;
     hltp_type tp = hltp_interpret(p, sz, &dest);
     switch(tp){

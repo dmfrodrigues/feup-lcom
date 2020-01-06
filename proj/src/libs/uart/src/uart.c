@@ -81,8 +81,23 @@
 
 /// IIR
 #define UART_INT_PEND_POS                       1
-
 #define UART_INT_PEND                           (BIT(3)|BIT(2)|BIT(1))
+
+/// FCR
+#define UART_EN_FIFOS_POS                       0
+#define UART_CLEAR_RCVR_POS                     1
+#define UART_CLEAR_XMIT_POS                     2
+#define UART_FIFO_TRIGGER_POS                   6
+
+#define UART_EN_FIFOS                           (BIT(0))
+#define UART_CLEAR_RCVR                         (BIT(1))
+#define UART_CLEAR_XMIT                         (BIT(2))
+#define UART_FIFO_TRIGGER                       (BIT(6)|BIT(7))
+
+#define UART_TRIGGER_LEVEL01                    (0<<UART_FIFO_TRIGGER_POS)
+#define UART_TRIGGER_LEVEL04                    (1<<UART_FIFO_TRIGGER_POS)
+#define UART_TRIGGER_LEVEL08                    (2<<UART_FIFO_TRIGGER_POS)
+#define UART_TRIGGER_LEVEL14                    (3<<UART_FIFO_TRIGGER_POS)
 
 #define UART_GET_IF_INT_PEND(n)                 (!((n)&1))
 typedef enum {
@@ -276,24 +291,43 @@ int uart_disable_int_tx(int base_addr){
     return uart_set_ier(base_addr, ier);
 }
 
+static int uart_set_fcr(int base_addr, uint8_t n){
+    if(sys_outb(base_addr+UART_FCR, n)) return WRITE_ERROR;
+    return SUCCESS;
+}
+static int uart_enable_fifos(int base_addr, uint8_t trigger_lvl){
+    uint8_t fcr = UART_EN_FIFOS | UART_CLEAR_RCVR | UART_CLEAR_XMIT;
+    switch(trigger_lvl){
+        case  1: fcr |= UART_TRIGGER_LEVEL01; break;
+        case  4: fcr |= UART_TRIGGER_LEVEL04; break;
+        case  8: fcr |= UART_TRIGGER_LEVEL08; break;
+        case 14: fcr |= UART_TRIGGER_LEVEL14; break;
+        default: return INVALID_ARG;
+    }
+    return uart_set_fcr(base_addr, fcr);
+}
+static int uart_disable_fifos(int base_addr){
+    return uart_set_fcr(base_addr, UART_CLEAR_RCVR | UART_CLEAR_XMIT);
+}
+
 /// NCTP
 
 //#define NCTP_START      0x80
 //#define NCTP_END        0xFF
 #define NCTP_OK         0xFF
 #define NCTP_NOK        0x00
+#define NCTP_ALIGN      8
+#define NCTP_FILLER     0x4E
 
 static queue_t *out = NULL;
 static queue_t *in  = NULL;
 static void (*process)(const uint8_t*, const size_t) = NULL;
 
 int nctp_init(void){
-    //int r;
     out = queue_ctor(); if(out == NULL) return NULL_PTR;
     in  = queue_ctor(); if(in  == NULL) return NULL_PTR;
-    //if((r = uart_enable_fifos(COM1_ADDR))) return r;
-    //if((r = uart_set_rcvr_trigger_level(COM1_ADDR, 8))) return r;
-    return SUCCESS;
+    //return SUCCESS;
+    return uart_enable_fifos(COM1_ADDR, NCTP_ALIGN);
 }
 int nctp_dump(void){
     int ret;
@@ -305,15 +339,17 @@ int nctp_set_processor(void (*proc_func)(const uint8_t*, const size_t)){
     return SUCCESS;
 }
 int nctp_free(void){
+    int ret = SUCCESS; int r;
     while(!queue_empty(out)){
         free(queue_top(out));
         queue_pop(out);
-    }
+    } queue_dtor(out);
     while(!queue_empty(in)){
         free(queue_top(in));
         queue_pop(in);
-    }
-    return SUCCESS;
+    } queue_dtor(in);
+    if((r = uart_disable_fifos(COM1_ADDR))) ret = r;
+    return ret;
 }
 
 int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz){
@@ -331,6 +367,11 @@ int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz){
             tmp = malloc(sizeof(uint8_t)); *tmp = *p; queue_push(out, tmp);
         }
     }
+    uint32_t total_message = sz_total+2;
+    uint32_t num_fillers = (NCTP_ALIGN - total_message%NCTP_ALIGN)%NCTP_ALIGN;
+    for(size_t i = 0; i < num_fillers; ++i){
+        tmp = malloc(sizeof(uint8_t)); *tmp = NCTP_FILLER; queue_push(out, tmp);
+    }
 
     if(uart_transmitter_empty(COM1_ADDR)){
         if((ret = uart_send_char(COM1_ADDR, *(uint8_t*)queue_top(out)))) return ret;
@@ -339,11 +380,12 @@ int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz){
     return SUCCESS;
 }
 static int nctp_transmit(void){
-    if(!queue_empty(out)){
+    while(!queue_empty(out) && uart_transmitter_empty(COM1_ADDR)){
         int ret = uart_send_char(COM1_ADDR, *(uint8_t*)queue_top(out));
         queue_pop(out);
-        return ret;
-    }else return SUCCESS;
+        if(ret) return ret;
+        //return ret;
+    }/*else*/ return SUCCESS;
 }
 
 static void nctp_process_received(){
@@ -365,6 +407,7 @@ static void nctp_process_received(){
 static int num_bytes_to_receive = 0;
 static uint16_t szbytes_to_receive = 0;
 static uint8_t size0 = 0;
+static uint8_t received_so_far = 0;
 static int nctp_receive(void){
     int ret;
     uint8_t c;
@@ -374,23 +417,29 @@ static int nctp_receive(void){
         if((ret = uart_get_char(COM1_ADDR, &c))) return ret;
         uint8_t *tmp = malloc(sizeof(uint8_t)); *tmp = c;
 
-        queue_push(in, tmp);
-
         if       (szbytes_to_receive){ // gotta receive 2nd size byte and update num_bytes
             *((uint8_t*)(&num_bytes_to_receive)+0) = size0;
             *((uint8_t*)(&num_bytes_to_receive)+1) = c;
             szbytes_to_receive = 0;
         } else if(num_bytes_to_receive > 0){
             /* Now I know there are no more size bytes to receive.
-             * If there are normal bytes to receive*/
+             * If there are normal bytes to receive, do this*/
              --num_bytes_to_receive;
              if(num_bytes_to_receive == 0) ++counter_to_process;
         } else {
             /* Now I know I am not expecting anything.
-             * The fact I received something means it is the 1st size byte */
-             size0 = c;
-             szbytes_to_receive = 1;
+             * The fact I received something means it is a filler, or the 1st size byte.
+             * If received_so_far == 0, then it is not a filler, but rather the 1st size byte. */
+             if(received_so_far == 0){
+                 size0 = c;
+                 szbytes_to_receive = 1;
+             }else{
+                 received_so_far = (received_so_far+1)%NCTP_ALIGN;
+                 continue;
+             }
         }
+        queue_push(in, tmp);
+        received_so_far = (received_so_far+1)%NCTP_ALIGN;
     }
     while(counter_to_process-- > 0) nctp_process_received();
     return SUCCESS;
