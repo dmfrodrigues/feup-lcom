@@ -129,7 +129,7 @@ int (subscribe_all)(void) {
     uart_set_bits_per_character(COM1_ADDR, 8);
     uart_set_stop_bits         (COM1_ADDR, 2);
     uart_set_parity            (COM1_ADDR, uart_parity_even);
-    uart_set_bit_rate          (COM1_ADDR, 5760);
+    uart_set_bit_rate          (COM1_ADDR, 9600);
     uart_enable_int_rx (COM1_ADDR);
     uart_enable_int_tx(COM1_ADDR);
     if(subscribe_uart_interrupt(COM1_IRQ, &uart_id)) {
