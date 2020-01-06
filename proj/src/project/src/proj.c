@@ -41,6 +41,8 @@ int main(int argc, char* argv[]) {
 #include "singleplayer.h"
 static int (multiplayer)(void);
 #include "chat.h"
+
+#include "scoreboards.h"
 int(proj_main_loop)(int argc, char *argv[]) {
     (void)argc; (void)argv;
 

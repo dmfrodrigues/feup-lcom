@@ -245,6 +245,7 @@ void (text_timer_update)(text_timer_t *p){
     text_set_string(p->text, buffer);
 }
 void (text_timer_reset)(text_timer_t *p){
+    p->time = 0;
     text_set_string(p->text, "000s");
 }
 void (text_timer_dtor)(text_timer_t *p){

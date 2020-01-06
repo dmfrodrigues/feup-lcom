@@ -48,6 +48,14 @@ highscores_t* (highscores_ctor)(const font_t *fnt, const char *path);
  * @param   path    Path to file to be written
  */
 void (highscores_save)(const highscores_t *p, const char *path);
+
+/**
+ * @brief Checks if score is higher than any of the top 3, and if so replaces the highscores.
+ * @param   p               Pointer to highscores.
+ * @param   score           New score obtained.
+ * @param   time_played     Time played
+ */
+void (check_new_score)(highscores_t *p, int score, int time_played);
 /**
  * @brief Destruct menu.
  * @param   p   Pointer to menu to destruct
