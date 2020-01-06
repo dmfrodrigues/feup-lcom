@@ -132,6 +132,7 @@ while (good) {
                 graph_draw();
                 break;
                 case KBC_IRQ:
+                if(!keyboard_get_done()) break;
                 if      (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                 else if (keyboard_get_scancode()[0] == ENTER_MAKE_CODE) {
                     hltp_send_string(buffer);
