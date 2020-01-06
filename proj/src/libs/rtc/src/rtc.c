@@ -181,10 +181,8 @@ void rtc_ih() {
     if (rtc_read_register(RTC_REG_C, &data)) return;
 
     if (data & UF) {
-        printf("REACH\n");
         if (rtc_read_sec(&s)) return;
         if (rtc_read_min(&m)) return;
         if (rtc_read_hour(&h)) return;
-        printf("%x %x %x", h, m, s);
     }
 }

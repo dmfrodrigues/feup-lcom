@@ -368,12 +368,15 @@ static int (multiplayer_host)(void) {
                     break;
 
                     case COM1_IRQ:
+                        printf("Reach\n");
                         nctp_ih();
+                            printf("Reach2\n");
                         if (bullet_info->new_bullet) {
                             shoot_bullet(shooter2, bullet_list, bsp_bullet);
                             bullet_info->new_bullet = false;
                         }
                         break;
+                            printf("Reach1\n");
                 }
             }
         }
@@ -450,8 +453,11 @@ static int (multiplayer_remote)(void) {
 
                     double angle = get_mouse_angle(shooter1) - M_PI_2;
 
-                    build_remote_structure(remote_info, get_key_presses(), angle);
-                    hltp_send_remote_info(remote_info);
+                    if (timer_get_no_interrupts() % 6 ==0){
+                        build_remote_structure(remote_info, keys, angle);
+
+                        hltp_send_remote_info(remote_info);
+                    }
 
 
                     gunner_set_pos(shooter1, (double)host_info->remote_x, (double)host_info->remote_y);
