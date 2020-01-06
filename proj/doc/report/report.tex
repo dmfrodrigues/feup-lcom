@@ -193,7 +193,7 @@ The I/O devices used in the project are presented in the following table.
 	Keyboard        & Player movement, writing chat messages                   & Interrupts \\
 	Mouse           & Player orientation, shooting, selecting options in menus & Interrupts \\
 	Video card      & In-game drawing, menus                                   & None \\
-	RTC             & Scoreboards                                              & Polling \\
+	RTC             & Scoreboards                                              & Interrupts \\
 	Serial port     & Chat communication, multiplayer modes                    & Interrupts
 \end{tabular} \end{center}
 To manage all interrupt subscriptions, the general function \texttt{unsubscribe\_interrupt} was implemented and used.
