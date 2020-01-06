@@ -243,6 +243,7 @@ static int (multiplayer)(void) {
 
                     break;
                     case KBC_IRQ:
+                    if(!keyboard_get_done()) break;
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
                     case MOUSE_IRQ:
                     if (mouse_get_counter_mouse_ih() >= 3) {
@@ -352,6 +353,7 @@ static int (multiplayer_host)(void) {
 
                     break;
                     case KBC_IRQ:
+                    if(!keyboard_get_done()) break;
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }
@@ -497,6 +499,7 @@ static int (multiplayer_remote)(void) {
 
                     break;
                     case KBC_IRQ:
+                    if(!keyboard_get_done()) break;
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }

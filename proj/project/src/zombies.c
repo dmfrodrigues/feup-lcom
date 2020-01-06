@@ -101,6 +101,7 @@ int (zombies)(void){
 
                     break;
                     case KBC_IRQ:
+                    if(!keyboard_get_done()) break;
                     if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) {
                         good = false;
                     }
