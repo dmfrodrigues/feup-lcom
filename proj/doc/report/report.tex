@@ -235,11 +235,12 @@ Provides classes \texttt{list\_t} and \texttt{queue\_t}. These classes achieve g
 \subsection{\texttt{proj}}
 \textcolor{red}{MAKE PROJ MODULES}
 \section{Implementation details} \label{sec:details}
-\textcolor{red}{WRITE IMPLEMENTATION DETAILS}
+\subsection{Object-oriented programming}
 \subsection{XPM and XPM2}
-\textcolor{red}{WRITE STUFF}
+The extensive use of large XPMs by simply including them with an \texttt{\#include} directive gives rise to large executable files, besides making it harder to change the used XPMs without recompiling the project.\par
+The XPM2 file format is similar to XPM, except it is stripped from all the C syntax, making it a plain text file. This file format has the main advantage of being easy to load on runtime, unlike XPM that would require extensive parsing.\par
+To use the XPM2 file format, two functions \texttt{xpm\_save\_to\_xpm2} and \texttt{xpm\_load\_xpm2} were implemented; the first one to convert XPM files to XPM2 files, and the second one was used in the project to load the XPM data (as an array of C-strings) from the XPM2 file format.
 \subsection{Communication protocols}
 \textcolor{red}{WRITE IMPLEMENTATION DETAILS}
-\section{Conclusions}
-\textcolor{red}{WRITE CONCLUSION}
+\subsection{Path-finding}
 \end{document}
