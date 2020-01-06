@@ -54,7 +54,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     /// initialize graphics
     if(graph_init(GRAPH_MODE)){
         printf("%s: failed to initalize graphics.\n", __func__);
-        if (cleanup()) printf("%s: failed to cleanup.\n", __func__);
+        if (unsubscribe_all()) printf("%s: failed to unsubscribe all.\n", __func__);
         return 1;
     }
 
