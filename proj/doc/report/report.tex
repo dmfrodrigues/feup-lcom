@@ -145,11 +145,15 @@ In campaign mode the goal is to kill all the opponents in the map as fast as pos
 \end{figure}
 \pagebreak
 \subsubsection{Zombies}
-In zombie mode the goal is to kill as many zombies and survive as much time as possible. Zombies slowly follow the player and attack the player when in short range.\par
-Once the player kills a zombie, a new zombie spawns in a random part of the map, with more life than all previous zombies.
+In zombie mode the goal is to kill as many zombies and survive as much time as possible. Zombies slowly follow the player and attack the player when in short range. Once the player kills a zombie, a new zombie spawns in a random part of the map, with more life than all previous zombies.
 \begin{figure}[H] \centering
-	\includegraphics[scale=0.45]{zombies01}
+	\includegraphics[scale=0.39]{zombies01}
 	\caption{Zombies mode}
+\end{figure}
+After exiting zombie mode, the player can check the scoreboard by selecting  \textbf{Zombies Ranking}.
+\begin{figure}[H] \centering
+	\includegraphics[scale=0.39]{zombies_scoreboard01}
+	\caption{Zombies mode scoreboard}
 \end{figure}
 \pagebreak
 \subsection{Multiplayer}
@@ -204,7 +208,7 @@ To manage timer interrupt subscriptions, functions \texttt{subscribe\_timer\_int
 \subsection{Keyboard}
 The keyboard was configured to issue interrupts on key presses and releases. \par
 The keyboard is used to control some menus (namely using \textbf{ESC}), to input text in the chat, and to control player movement in the game and zoom in/out options.\par
-To manage keyboard interrupt subscription, function \texttt{subscribe\_kbc\_interrupt} was implemented. To manage keyboard interrupts, functions \texttt{kbc\_ih}, \texttt{keyboard\_get\_done}, \texttt{keyboard\_get\_scancode} and \linebreak \texttt{update\_key\_presses} were implemented and used. 
+To manage keyboard interrupt subscription, function \texttt{subscribe\_kbc\_interrupt} was implemented. To manage keyboard interrupts, functions \texttt{kbc\_ih}, \texttt{keyboard\_get\_done}, \texttt{keyboard\_get\_scancode} and \texttt{update\_key\_presses} were implemented and used. 
 \subsection{Mouse}
 The mouse was configured to issue interrupts on movement and button presses. \par
 The mouse is used to control all menus (position and buttons), as well as allowing the player to aim at the opponents (position) and shoot bullets (buttons). \par
@@ -223,7 +227,7 @@ To manage RTC interrupt subscription, function \texttt{subscribe\_rtc\_interrupt
 The RTC is used to obtain date and time for the scoreboards on the game-modes.
 
 \subsection{Serial port}
-The UART was configured to issue interrupts for Receiver Ready and Transmitter Empty. Communication is processed with the same parameters at both ends, at a bit-rate of 115200bps, 8 bits per char, 2 stop bits. UART FIFOs are not used. The protocols that were developed will be discussed in section \ref{sec:details}. \par
+The UART was configured to issue interrupts for Receiver Ready and Transmitter Empty. Communication is processed with the same parameters at both ends, at a bit-rate of 9600bps, 8 bits per char, 2 stop bits. UART FIFOs are used, with  trigger level of 4 bytes per interrupt. The protocols that were developed will be discussed in section \ref{sec:details}. \par
 In multiplayer mode, data is transferred from host to remote at a frequency of 60Hz, with each message having at least 24 bytes. Data transference from remote to host is made whenever needed, with each message having on average 9 bytes.
 \pagebreak
 \section{Code organization/structure}
@@ -257,6 +261,16 @@ The extensive use of large XPMs by simply including them with an \texttt{\#inclu
 The XPM2 file format is similar to XPM, except it is stripped from all the C syntax, making it a plain text file. This file format has the main advantage of being easy to load on runtime, unlike XPM that would require extensive parsing.\par
 To use the XPM2 file format, two functions \texttt{xpm\_save\_to\_xpm2} and \texttt{xpm\_load\_xpm2} were implemented; the first one to convert XPM files to XPM2 files, and the second one was used in the project to load the XPM data (as an array of C-strings) from the XPM2 file format.
 \subsection{Communication protocols}
-\textcolor{red}{WRITE IMPLEMENTATION DETAILS}
+\subsubsection{Non-Critical Transmission Protocol}
+NCTP was designed to encapsulate the basic UART functions that were developed, by providing a set of middle-level functions that allow communication between computers.\par
+NCTP allows to send a message to another computer through the function \texttt{nctp\_send}, which sends the contents of a set of memory blocks as a single message. The first argument is the number of memory blocks, followed by an array of pointers to void denoting the beginning of each memory block, and an array of sizes, where \texttt{sz[i]} is the number of bytes of the block starting at \texttt{ptr[i]} that should be sent. On receiving, NCTP calls a user-provided function to interpret the message.\par
+NCTP uses queues on transmission and receiving. When a Tx interrupt occurs, NCTP tries to send as many chars of the transmission queue as possible, and on a Rx interrupts NCTP tries to extract from the receiving register as many chars as possible, putting them in the receiving queue.\par
+When a complete message is detected, the chars of the message are popped out of the receiving queue, and passed to the user-provided function for interpretation.\par
+A message is composed of a header, a body and trailling filler chars. The header is a pair of bytes denoting the size of the body. Then comes the body, and finally the trailling filler chars, whose purpose is to make sure the total size of the message is a multiple of 4, to prevent problems like a number of final message chars smaller than the trigger level causing a timeout.
+\subsubsection{High-Level Transmission Protocol}
+HLTP fills the gap left by NCTP, by providing a way to interpret messages. For that, HLTP keeps an enumeration of all the data types it knows, and for each deta type a pair of functions for coding and decoding a message containing that data type.\par
+HLTP inserts at the beginning of the body a byte indicating the data type, so the message can then be decoded on the other computer.
 \subsection{Path-finding}
+The implementation of the following behaviour of zombies was made using a modified version of Dijkstra's path-finding algorithm. Because running a regular Dijkstra every frame causes tremendous lag, a modification was made; for each pixel, it is known the zombie should go to another pixel. At the beginning, a complete Dijkstra is ran, and each time the position of the player changes Dijkstra is only ran in the vicinity of the player.\par
+This solution does not always provide the shortest path, but is significantly more efficient and returns a working path to the player.
 \end{document}
