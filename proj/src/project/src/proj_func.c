@@ -9,16 +9,6 @@
 
 #include <math.h>
 
-int cleanup(void) {
-    int r = SUCCESS;
-    if ((r = unsubscribe_all()))
-        printf("%s: failed to unsubscribe drivers.\n", __func__);
-    if ((r = graph_cleanup()))
-        printf("%s: graph cleanup failed\n", __func__);
-
-    return r;
-}
-
 static keys_t key_presses;
 void update_key_presses(void) {
     if (keyboard_get_size() == 1) {
