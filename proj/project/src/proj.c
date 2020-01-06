@@ -338,7 +338,7 @@ static int (multiplayer_host)(void) {
                     gunner_set_angle(shooter2, remote_info->remote_angle);
                     build_host_structure(host_info, shooter1, shooter2);
 
-                    hltp_send_host_info(host_info);
+                    //hltp_send_host_info(host_info);
 
                     graph_clear_screen();
                     map_draw   (map1);
@@ -452,10 +452,10 @@ static int (multiplayer_remote)(void) {
 
                     double angle = get_mouse_angle(shooter1) - M_PI_2;
 
-                    build_remote_structure(remote_info, keys, angle);
+                    build_remote_structure(remote_info, get_key_presses(), angle);
+                    hltp_send_remote_info(remote_info);
 
 
-                    //hltp_send_remote_info(remote_info);
                     gunner_set_pos(shooter1, (double)host_info->remote_x, (double)host_info->remote_y);
                     gunner_set_angle(shooter1, (double)host_info->remote_angle);
                     gunner_set_health(shooter1, (double)host_info->remote_health);
