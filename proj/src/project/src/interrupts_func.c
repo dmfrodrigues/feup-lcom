@@ -7,6 +7,7 @@
 #include "hltp.h"
 #include "utils.h"
 #include "errors.h"
+#include "rtc.h"
 
 static int timer_subscribed = 0, timer_id;
 
@@ -16,6 +17,8 @@ static int mouse_subscribed = 0, mouse_id;
 
 static int uart_subscribed = 0, uart_id;
 
+static int rtc_subscribed = 0, rtc_id;
+
 static void (*const ih[])(void) =   {    timer_int_handler,
                                          kbc_ih,
                                          NULL,
@@ -24,7 +27,7 @@ static void (*const ih[])(void) =   {    timer_int_handler,
                                          NULL,
                                          NULL,
                                          NULL,
-                                         NULL,
+                                         rtc_ih,
                                          NULL,
                                          NULL,
                                          NULL,
@@ -110,6 +113,17 @@ int (subscribe_all)(void) {
         return SBCR_ERROR;
     }
 
+    if (subscribe_rtc_interrupt(RTC_IRQ, &rtc_id)){
+        printf("%s: failed to enable rtc interrupts.\n", __func__);
+        if (unsubscribe_all())
+            printf("%s: failed to unsubcribe driver, unexpected behaviour is expected.\n", __func__);
+        return SBCR_ERROR;
+    }
+    rtc_subscribed = 1;
+    rtc_set_updates_int(1);
+
+
+
     /// UART interrupt handling
     uart_id = 0;
     uart_set_bits_per_character(COM1_ADDR, 8);
@@ -168,6 +182,14 @@ int (unsubscribe_all)(void) {
             r = UNSBCR_ERROR;
         }
         mouse_subscribed = 0;
+    }
+
+    if (rtc_subscribed) {
+        if (unsubscribe_interrupt(&rtc_id)) {
+            printf("%s: failed to unsubcribe RTC interrupts.\n", __func__);
+            r = UNSBCR_ERROR;
+        }
+        rtc_subscribed = 0;
     }
 
     // Unsubscribe UART interrupts
