@@ -375,8 +375,8 @@ static int (multiplayer_host)(void) {
                             shoot_bullet(shooter2, bullet_list, bsp_bullet);
                             bullet_info->new_bullet = false;
                         }
-                        break;
                             printf("Reach1\n");
+                        break;
                 }
             }
         }
