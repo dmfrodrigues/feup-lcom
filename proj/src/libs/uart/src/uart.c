@@ -316,7 +316,7 @@ static int uart_disable_fifos(int base_addr){
 //#define NCTP_END        0xFF
 #define NCTP_OK         0xFF
 #define NCTP_NOK        0x00
-#define NCTP_ALIGN      8
+#define NCTP_ALIGN      4
 #define NCTP_FILLER     0x4E
 
 static queue_t *out = NULL;
@@ -372,6 +372,7 @@ int nctp_send(size_t num, const uint8_t *const *ptr, const size_t *const sz){
     for(size_t i = 0; i < num_fillers; ++i){
         tmp = malloc(sizeof(uint8_t)); *tmp = NCTP_FILLER; queue_push(out, tmp);
     }
+    printf("Sent message\n");
 
     if(uart_transmitter_empty(COM1_ADDR)){
         if((ret = uart_send_char(COM1_ADDR, *(uint8_t*)queue_top(out)))) return ret;
@@ -388,7 +389,7 @@ static int nctp_transmit(void){
     }/*else*/ return SUCCESS;
 }
 
-static void nctp_process_received(){
+static void nctp_process_received(){ printf("Process received");
     uint16_t sz = 0;{
         uint8_t sz0 = *(uint8_t*)queue_top(in); free(queue_top(in)); queue_pop(in);
         uint8_t sz1 = *(uint8_t*)queue_top(in); free(queue_top(in)); queue_pop(in);
@@ -416,6 +417,8 @@ static int nctp_receive(void){
     while(uart_receiver_ready(COM1_ADDR)){
         if((ret = uart_get_char(COM1_ADDR, &c))) return ret;
         uint8_t *tmp = malloc(sizeof(uint8_t)); *tmp = c;
+
+        printf("Received char 0x%02X\n", c);
 
         if       (szbytes_to_receive){ // gotta receive 2nd size byte and update num_bytes
             *((uint8_t*)(&num_bytes_to_receive)+0) = size0;
@@ -447,16 +450,16 @@ static int nctp_receive(void){
 
 static int nctp_ih_err = SUCCESS;
 int (nctp_get_ih_error)(void){ return nctp_ih_err; }
-void nctp_ih(void){
+void nctp_ih(void){ printf("Got UART interrupt: ");
     uint8_t iir;
     if((nctp_ih_err = uart_get_iir(COM1_ADDR, &iir))) return;
     if(UART_GET_IF_INT_PEND(iir)){
         switch(UART_GET_INT_PEND(iir)){
-            case uart_int_rx: nctp_receive (); break;
-            case uart_int_tx: nctp_transmit(); break;
-            case uart_int_receiver_line_stat: break;
-            case uart_int_modem_stat: break;
-            case uart_int_char_timeout_fifo: break;
+            case uart_int_rx: printf("receive\n"); nctp_receive (); break;
+            case uart_int_tx: printf("transmit\n"); nctp_transmit(); break;
+            case uart_int_receiver_line_stat: printf("receiver line stat\n"); break;
+            case uart_int_modem_stat: printf("modem state\n"); break;
+            case uart_int_char_timeout_fifo: printf("char timeout\n"); nctp_receive (); break;
             //default: break;
         }
     }
