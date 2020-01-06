@@ -41,6 +41,7 @@
 \newcommand\setrow[1]{\gdef\rowmac{#1}#1\ignorespaces}
 \newcommand\clearrow{\global\let\rowmac\relax}
 \clearrow
+\usepackage{multirow}
 % Math stuff
 \usepackage[mathscr]{euscript}
 \usepackage{amsmath,amssymb}
@@ -235,27 +236,65 @@ In multiplayer mode, data is transferred from host to remote at a frequency of 6
 Collection of useful classes and functions. This module was developed with the goal of being as general and independent from \texttt{proj} as possible, although there are rare occasions where sub-modules of \texttt{libs} include sub-modules of \texttt{proj}.
 \subsubsection{\texttt{classes}}
 Provides classes \texttt{list\_t} and \texttt{queue\_t}. These classes achieve generality by storing pointers to \texttt{void}, which have as major disadvantage requiring the use of \texttt{free}. \par
-Provides various classes to store information about entities (such as map, shooter, bullets)
-as well as structs to store player information, key presses, text.\par
-The class \texttt{keys\_t} holds information of the keys that are pressed, as well as if the left button of the mouse is pressed. This values are stored in 1 bit each, minimizing the space occupied in memory, and is updated on every KBC and Mouse interrupt.\par
-The class \texttt{rectangle\_t}	provides ease on drawing rectangles on the screen with functions to change its position, color, line width, fill color, among others.\par
-The class \texttt{glyph\_t} allows letters to be drawn, and is the base class to then represent text on screen.\par
-The class \texttt{font\_t} is an extension of the previous one, allowing multiple letters to be drawn.\par
-The class \texttt{text\_t} extends the previous class by creating an interface with strings, allowing to modify the string to be drawn, the size of each character, among other aspects.\par
-The class \texttt{menu\_t} allows the creation of menus with multiple click-able boxes with text.
-The class \texttt{basic\_sprite\_t} allows to load XPM maps and draw those onto the screen, it is the main class for all the entities, as it will hold the textures of each entity.\par
-The class \texttt{sprite\_t} improves the previous class by adding the capability of rotating and scaling the image to be rendered.\par
-The class \texttt{gunner\_t} represents an entity, this entity can assume melee or ranged form, and also can represent a person or a zombie. This entity also has other features for the game such as health bar and the team the entity is on.\par
-The class \texttt{bullet\_t} represents a bullet, characterized by the source of bullet, this is who shot the bullet, its velocity and damage in case it collides with a person or zombie.\par
-The class \texttt{map\_t} represents the map of the game, as well as being the interface for the path finding algorithm used for the autonomous opponents.\par
-The class \texttt{score\_info\_t} is used to store information about a score, such as the value of the score, the time played to obtain the score and the date and time it happened.\par
-The class \texttt{highscores\_t} uses the previous class to store information about the three best scores, and allows them to be drawn to the screen, similar to menu.\par
-The classes \texttt{host\_info\_t}, \texttt{remote\_info\_t} and \texttt{bullet\_info\_t} represent information to be transmitted to the serial port containing information about the game.
-\newpage
+\subsubsection{\texttt{graph}}
+Provides basic elements for screen drawing, like drawing pixels, rectangles, text. Manages screen buffering and VRAM.
+\subsubsection{\texttt{uart}}
+Provides basic functions and the NCTP protocol for communication between computers.
+\subsubsection{\texttt{utils}}
+Common functions, as well as functions for handling XPMs and XPM2 file format.
+\subsubsection{others}
+\begin{itemize}
+	\item \texttt{kbc}: Manage mouse and keyboard
+	\item \texttt{rtc}: Manage RTC, get current time
+	\item \texttt{timer}: Manage timer 0 interrupts and subscriptions
+\end{itemize}
 \subsection{\texttt{proj}}
-\textcolor{red}{MAKE PROJ MODULES}
+\subsubsection{\texttt{campaign}}
+
+\subsubsection{\texttt{chat}}
+
+\subsubsection{\texttt{ent}}
+
+\subsubsection{\texttt{hltp}}
+
+\subsubsection{\texttt{proj\_func}}
+
+\subsubsection{others}
+\begin{itemize}
+	\item \texttt{interrupts\_func}: group some interrupt handling functions together
+	\item \texttt{makecode\_map}: map makecodes to chars
+	\item \texttt{proj\_macros}: macros used throughout the project
+	\item \texttt{proj\_structures}: mostly structures for transmission via HLTP
+	\item \texttt{singplayer}: simple menu
+\end{itemize}
+\begin{center} \begin{tabular}{c | c | c | c | p{50mm} | p{50mm}}
+	& & Weight & Resp. & Contribution DR & Contribution TB \\ \hline
+	\multirow{7}{*}{libs}
+		& classes & 13\% & DR & Everything & - \\ \cline{2-6}
+		& graph   & 10\% & DR & Most part & Some contributions \\ \cline{2-6}
+		& kbc     & 2\% & TB & In labs & In labs, adapted to project \\ \cline{2-6}
+		& rtc     & 4\% & TB & - & Everything \\ \cline{2-6}
+		& timer   & 2\% & TB & In labs & In labs, adapted to project \\ \cline{2-6}
+		& uart    & 16\% & DR & Everything & - \\ \cline{2-6}
+		& utils   & 3\% & DR & In labs, most part & In labs, some contributions \\ \hline
+	\multirow{12}{*}{proj}
+		& campaign			& 3\% & DR & Most part & Some contributions \\ \cline{2-6}
+		& chat              & 7\% & DR & Everything & - \\ \cline{2-6}
+		& ent               & 10\% & DR & Everything except TB & \texttt{bullet\_t} \\ \cline{2-6} 
+		& hltp              & 4\% & DR & Most part & Some contributions \\ \cline{2-6}
+		& interrupts\_func  & 3\% & TB & Small contribution & Most part \\ \cline{2-6}
+		& makecode\_map     & 1\% & TB & - & Everything \\ \cline{2-6}
+		& proj\_func        & 9\% & TB & $1/2$ & $1/2$ \\ \cline{2-6}
+		& proj\_macros      & 1\% & TB & - & Everything \\ \cline{2-6}
+		& proj\_structures  & 1\% & TB & - & Everything \\ \cline{2-6}
+		& scoreboards       & 2\% & TB & - & Everything \\ \cline{2-6}
+		& singleplayer      & 1\% & DR & Everything & - \\ \cline{2-6}
+		& zombies           & 8\% & DR & Everything & -
+\end{tabular} \end{center}
 \section{Implementation details} \label{sec:details}
 \subsection{Object-oriented programming}
+Object-oriented programming was implemented to its greatest extent possible. Classes were declared using the \texttt{typedef struct} expression, and their public methods declared in the corresponding header file, always requiring as first argument a pointer/const pointer to that class. Classes were defined in the corresponding source file, and private member functions were defined as \texttt{static}.\par
+The majority of entities were encapsulated in classes.
 \subsection{XPM and XPM2}
 The extensive use of large XPMs by simply including them with an \texttt{\#include} directive gives rise to large executable files, besides making it harder to change the used XPMs without recompiling the project.\par
 The XPM2 file format is similar to XPM, except it is stripped from all the C syntax, making it a plain text file. This file format has the main advantage of being easy to load on runtime, unlike XPM that would require extensive parsing.\par
