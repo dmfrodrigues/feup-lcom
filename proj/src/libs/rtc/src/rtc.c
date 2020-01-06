@@ -5,10 +5,6 @@
 #include "utils.h"
 #include "errors.h"
 
-// RTC IRQ Line
-
-#define KBC_IRQ   8  /* @brief KBC IRQ Line */
-
 // RTC Ports
 
 #define RTC_ADDR_REG        0x70
@@ -61,10 +57,12 @@
 
 #define VRT     BIT(7)  /** @brief Valid RAM/time - If set to 0 RTC reading aren't valid */
 
+static uint8_t s = 0, m = 0, h = 0;
+
 int (subscribe_rtc_interrupt)(uint8_t interrupt_bit, int *interrupt_id) {
     if (interrupt_id == NULL) return NULL_PTR;
     *interrupt_id = interrupt_bit;
-    if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, interrupt_id)) return SBCR_ERROR;
+    if (sys_irqsetpolicy(RTC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, interrupt_id)) return SBCR_ERROR;
     return SUCCESS;
 }
 
@@ -93,62 +91,81 @@ int (rtc_check_update)(void) {
     return (data & UIP) != 0;
 }
 
-int (rtc_set_updates)(int on) {
+int (rtc_set_updates_int)(int on) {
     uint8_t data;
     int r;
     if (on) {
         if ((r = rtc_read_register(RTC_REG_B, &data))) return r;
 
-        data &= ~SET;
+        data |= UIE;
 
         if ((r = rtc_write_register(RTC_REG_B, data))) return r;
 
     } else {
-        while (rtc_check_update());
-
         if ((r = rtc_read_register(RTC_REG_B, &data))) return r;
 
-        data |= SET;
+        data &= ~UIE;
 
         if ((r = rtc_write_register(RTC_REG_B, data))) return r;
     }
     return SUCCESS;
 }
 
+int (rtc_read_sec)(uint8_t *sec) {
+    return rtc_read_register(RTC_SEC, sec);
+}
+
+int (rtc_read_min)(uint8_t *min) {
+    return rtc_read_register(RTC_MIN, min);
+}
+
+int (rtc_read_hour)(uint8_t *hour) {
+    return rtc_read_register(RTC_HOUR, hour);
+}
+
+int (rtc_read_weekday)(uint8_t *weekday) {
+    return rtc_read_register(RTC_WEEK_DAY, weekday);
+}
+
+int (rtc_read_day)(uint8_t *day) {
+    return rtc_read_register(RTC_MONTH_DAY, day);
+}
+
+int (rtc_read_month)(uint8_t *month) {
+    return rtc_read_register(RTC_MONTH, month);
+}
+
+int (rtc_read_year)(uint8_t *year) {
+    return rtc_read_register(RTC_YEAR, year);
+}
+
 int (rtc_read_time)(uint8_t *time) {
 
-    int r;
-    //if ((r = rtc_set_updates(false))) return r;
-    while (rtc_check_update());
-
-    uint8_t hour, min, sec;
-
-    if ((r = rtc_read_register(RTC_SEC, &sec)))    return r;
-    if ((r = rtc_read_register(RTC_MIN, &min)))    return r;
-    if ((r = rtc_read_register(RTC_HOUR, &hour)))  return r;
-
-    //if ((r = rtc_set_updates(true))) return r;
-
-    time[0] = BCD_FIRST(sec)*10   + BCD_SECOND(sec);
-    time[1] = BCD_FIRST(min)*10   + BCD_SECOND(min);
-    time[2] = BCD_FIRST(hour)*10  + BCD_SECOND(hour);
+    time[0] = BCD_FIRST(s)*10   + BCD_SECOND(s);
+    time[1] = BCD_FIRST(m)*10   + BCD_SECOND(m);
+    time[2] = BCD_FIRST(h)*10  + BCD_SECOND(h);
 
     return SUCCESS;
 }
 
 int (rtc_read_date)(uint8_t *date) {
     int r;
-    //if ((r = rtc_set_updates(false))) return r;
-    while (rtc_check_update());
 
-    uint8_t year, month, day, weekday;
+    uint8_t year=0, month=0, day=0, weekday=0;
+    uint8_t year2=0, month2=0, day2=0, weekday2=0;
 
-    if ((r = rtc_read_register(RTC_WEEK_DAY,    &weekday)))     return r;
-    if ((r = rtc_read_register(RTC_MONTH_DAY,   &day)))         return r;
-    if ((r = rtc_read_register(RTC_MONTH,       &month)))       return r;
-    if ((r = rtc_read_register(RTC_YEAR,        &year)))        return r;
+    do {
+        year2 = year;
+        month2 = month;
+        day2 = day;
+        weekday2 = weekday;
 
-    //if ((r = rtc_set_updates(true))) return r;
+        if ((r = rtc_read_weekday(&weekday))) return r;
+        if ((r = rtc_read_day(&day))) return r;
+        if ((r = rtc_read_month(&month))) return r;
+        if ((r = rtc_read_year(&year))) return r;
+
+    } while (year != year2 || month != month2 || day != day2 || weekday != weekday2);
 
     date[0] = weekday;
     date[1] = BCD_FIRST(day)*10     + BCD_SECOND(day);
@@ -156,4 +173,18 @@ int (rtc_read_date)(uint8_t *date) {
     date[3] = BCD_FIRST(year)*10    + BCD_SECOND(year);
 
     return SUCCESS;
+}
+
+void rtc_ih() {
+    uint8_t data;
+
+    if (rtc_read_register(RTC_REG_C, &data)) return;
+
+    if (data & UF) {
+        printf("REACH\n");
+        if (rtc_read_sec(&s)) return;
+        if (rtc_read_min(&m)) return;
+        if (rtc_read_hour(&h)) return;
+        printf("%x %x %x", h, m, s);
+    }
 }

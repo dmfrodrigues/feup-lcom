@@ -184,7 +184,7 @@ void (highscores_update_text)(highscores_t *p) {
         score_info_t *score = p->highscores[i];
         sprintf(buffer, "%02d/%02d/%02d %02d:%02d:%02d",
                     (score->day), (score->month), (score->year),
-                    (score->hour), (score->month), (score->sec));
+                    (score->hour), (score->min), (score->sec));
 
 
         text_set_string(p->t[MAX_HIGHSCORES + i*3], buffer);
@@ -254,7 +254,7 @@ void (highscores_save)(const highscores_t *p, const char *path) {
         score_info_t *score = p->highscores[i];
         fprintf(f, "%02d/%02d/%02d %02d:%02d:%02d - %d - %d\n",
                     (score->day), (score->month), (score->year),
-                    (score->hour), (score->month), (score->sec),
+                    (score->hour), (score->min), (score->sec),
                     (score->score), (score->time_played));
     }
     fclose(f);
