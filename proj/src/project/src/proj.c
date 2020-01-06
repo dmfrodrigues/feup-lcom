@@ -77,7 +77,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
         bsp_nothing   = get_nothing  (); if(bsp_nothing   == NULL) printf("Failed to get nothing\n");
         bsp_bullet    = get_bullet   (); if(bsp_bullet    == NULL) printf("Failed to get bullet\n");
         map1          = get_map1     (); if(map1          == NULL) printf("Failed to get map1\n");
-
         sp_crosshair = sprite_ctor(bsp_crosshair); if(sp_crosshair == NULL) printf("Failed to get crosshair sprite\n");
     }
 
@@ -148,31 +147,28 @@ int(proj_main_loop)(int argc, char *argv[]) {
         }
     }
 
+    if ((r = unsubscribe_all()))
+        printf("%s: failed to unsubscribe drivers.\n", __func__);
+    if ((r = graph_cleanup()))
+        printf("%s: graph cleanup failed\n", __func__);
+
     text_dtor(title);
     menu_dtor(main_menu);
 
     basic_sprite_dtor      (bsp_crosshair); bsp_crosshair = NULL;
     basic_sprite_dtor      (bsp_shooter  ); bsp_shooter   = NULL;
     basic_sprite_dtor      (bsp_zombie   ); bsp_zombie    = NULL;
-    sprite_dtor            (sp_crosshair ); sp_crosshair  = NULL;
     basic_sprite_dtor      (bsp_pistol   ); bsp_pistol    = NULL;
     basic_sprite_dtor      (bsp_nothing  ); bsp_nothing   = NULL;
+    basic_sprite_dtor      (bsp_bullet   ); bsp_bullet    = NULL;
     map_dtor               (map1         ); map1          = NULL;
+    sprite_dtor            (sp_crosshair ); sp_crosshair  = NULL;
+
+
+
     font_free();
 
-    // Unsubscribe interrupts
-    if (unsubscribe_all()) {
-        if (cleanup())
-        printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
-
-    if (cleanup()) {
-        printf("%s: failed to cleanup.\n", __func__);
-        return 1;
-    }
-
-    return 0;
+    return r;
 }
 
 static host_info_t     *host_info   = NULL;

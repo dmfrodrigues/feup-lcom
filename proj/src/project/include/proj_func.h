@@ -15,13 +15,6 @@
 //#include <stdint.h>
 
 /**
- * @brief Cleans up all memory, unsubscribes interrupts.
- * @return ERROR_CODE code representing the result of the operation, SUCCESS code is returned if everything is OK
- * @see {_ERRORS_H_::errors}
- */
-int cleanup(void);
-
-/**
  * @brief Update key presses.
  */
 void update_key_presses(void);
