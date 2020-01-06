@@ -22,7 +22,7 @@ int (zombies)(highscores_t *zombies_highscore);
  * @brief Zombies ranking.
  * @param zombies_highscore Highscores.
  */
-void (zombies_ranking)(highscores_t *zombie_highscore);
+int (zombies_ranking)(highscores_t *zombie_highscore);
 
 /**
  * @}

@@ -153,6 +153,70 @@ int (zombies)(highscores_t *zombies_highscore){
     return SUCCESS;
 }
 
-void (zombies_ranking)(highscores_t *zombies_highscore) {
+int (zombies_ranking)(highscores_t *zombies_highscore) {
 
+    int r;
+
+    text_t *title     = text_ctor(font_get_default(), "Zombies Ranking");
+    text_set_color(title, TEXT_COLOR);
+    text_set_size(title, 70);
+    text_set_pos(title, graph_get_XRes()/2, graph_get_YRes()*0.17);
+    text_set_valign(title, text_valign_center);
+    text_set_halign(title, text_halign_center);
+
+    highscores_update_text(zombies_highscore);
+
+    //uint32_t refresh_count_value = sys_hz() / REFRESH_RATE;
+    uint8_t last_lb = 0;
+    struct packet pp;
+    keys_t *keys = get_key_presses();
+
+    /// loop stuff
+    int click = 0;
+    uint64_t int_vector = 0;
+    int good = true;
+    while (good) {
+        /* Get a request message. */
+        if((r = get_interrupts_vector(&int_vector))) return r;
+        uint32_t n = 1;
+        for (uint8_t i = 0; i < 32; i++, n <<= 1) {
+            if (int_vector & n) {
+                interrupt_handler(i);
+                switch (i) {
+                    case TIMER0_IRQ:
+
+                    graph_clear_screen();
+                    switch(highscore_update_state(zombies_highscore, click)){
+                        case -1: break;
+                        case  0: good = false; break;
+                    }
+                    highscores_draw(zombies_highscore);
+                    text_draw(title);
+
+                    click = 0;
+
+                    sprite_set_pos(sp_crosshair, *get_mouse_X(), *get_mouse_Y());
+                    sprite_draw(sp_crosshair);
+                    graph_draw();
+
+                    break;
+                    case KBC_IRQ:
+                    if (keyboard_get_scancode()[0] == ESC_BREAK_CODE) good = false;
+                    case MOUSE_IRQ:
+                    if (mouse_get_counter_mouse_ih() >= 3) {
+                        mouse_parse_packet(mouse_get_packet_mouse_ih(), &pp);
+                        update_mouse(&pp);
+                        if (!click) click = last_lb ^ keys->lb_pressed && keys->lb_pressed;
+                        last_lb = keys->lb_pressed;
+                        mouse_set_counter_mouse_ih(0);
+                    }
+                    break;
+                    case COM1_IRQ: nctp_ih(); break;
+                }
+            }
+        }
+    }
+
+    text_dtor(title);
+    return 0;
 }
