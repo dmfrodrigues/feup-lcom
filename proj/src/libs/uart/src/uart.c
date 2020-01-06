@@ -288,8 +288,11 @@ static queue_t *in  = NULL;
 static void (*process)(const uint8_t*, const size_t) = NULL;
 
 int nctp_init(void){
+    //int r;
     out = queue_ctor(); if(out == NULL) return NULL_PTR;
     in  = queue_ctor(); if(in  == NULL) return NULL_PTR;
+    //if((r = uart_enable_fifos(COM1_ADDR))) return r;
+    //if((r = uart_set_rcvr_trigger_level(COM1_ADDR, 8))) return r;
     return SUCCESS;
 }
 int nctp_dump(void){
