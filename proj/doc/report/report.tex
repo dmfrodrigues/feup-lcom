@@ -132,6 +132,7 @@ Upon entering into single player mode, the user is presented with a menu from wh
 \begin{itemize}
 	\item \textbf{Campaign}: campaign mode; kill all autonomous opponents.
 	\item \textbf{Zombies}: zombies mode; kill as many zombies and survive as much time as possible.
+	\item \textbf{Zombies Ranking}: Scoreboard with the highest scores obtained on zombies mode.
 	\item \textbf{Back}: go back to main menu.
 \end{itemize}
 The user can also go back to main menu by pressing \textbf{ESC}.
@@ -216,7 +217,9 @@ The modules \texttt{font\_t} and \texttt{text\_t} were developed to allow for dy
 Configuration of the UART was made using the functions \texttt{graph\_init} and \texttt{graph\_cleanup} developed during the project. Drawing to the buffer is made primarily through the functions \texttt{graph\_get\_XRes}, \linebreak \texttt{graph\_get\_YRes}, \texttt{graph\_set\_pixel}, \texttt{graph\_clear\_screen} and \texttt{graph\_draw}.\par
 Basic sprites are constructed from small XPM files, or loaded at runtime from XPM2 files. A XPM2 file is a XPM file stripped from all the C syntax, leaving only the strings. This format is easier to load at runtime than XPM. A XPM file can be easily converted to a XPM2 file using the function \texttt{xpm\_save\_as\_xpm2}. All XPM arrays of strings are loaded to bitmaps using the function \texttt{xpm\_load} provided by the LCF.
 \subsection{Real-Time Clock (RTC)}
-\textcolor{red}{INCOMPLETE (TELMO)}
+The RTC was configured to poll the UIP (update in progress) bit of Register A, to check if any updates are occurring. While the the UIP bit is set, no reading operation over the registers containing the date and time information is done. As soon as the UIP bit has value zero, the reading operation will then be done.\par
+The RTC is used to obtain the date and time the high-scores were obtained for the game-modes.
+
 \subsection{Serial port}
 The UART was configured to issue interrupts for Receiver Ready and Transmitter Empty. Communication is processed with the same parameters at both ends, at a bit-rate of 115200bps, 8 bits per char, 2 stop bits. UART FIFOs are not used. The protocols that were developed will be discussed in section \ref{sec:details}. \par
 In multiplayer mode, data is transferred from host to remote at a frequency of 60Hz, with each message having at least 24 bytes. Data transference from remote to host is made whenever needed, with each message having on average 9 bytes.
