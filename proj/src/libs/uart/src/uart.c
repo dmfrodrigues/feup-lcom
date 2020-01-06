@@ -449,8 +449,12 @@ static int nctp_ih_err = SUCCESS;
 int (nctp_get_ih_error)(void){ return nctp_ih_err; }
 void nctp_ih(void){
     uint8_t iir;
+    printf("l452\n");
     if((nctp_ih_err = uart_get_iir(COM1_ADDR, &iir))) return;
+    printf("l454\n");
     if(UART_GET_IF_INT_PEND(iir)){
+
+        printf("l457\n");
         switch(UART_GET_INT_PEND(iir)){
             case uart_int_rx: nctp_receive (); break;
             case uart_int_tx: nctp_transmit(); break;
@@ -459,5 +463,9 @@ void nctp_ih(void){
             case uart_int_char_timeout_fifo: nctp_receive (); break;
             //default: break;
         }
+
+        printf("l467\n");
     }
+
+    printf("l466\n");
 }
