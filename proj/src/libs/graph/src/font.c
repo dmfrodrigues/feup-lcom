@@ -119,7 +119,7 @@ static font_t *consolas     = NULL;
 static font_t *default_font = NULL;
 
 int (font_init)(void){
-    consolas = font_ctor("/home/lcom/labs/proj/media/font/Consolas/xpm2");
+    consolas = font_ctor("/home/lcom/labs/proj/src/media/font/Consolas/xpm2");
     if(consolas == NULL) return NULL_PTR;
     default_font = consolas;
     return SUCCESS;

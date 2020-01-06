@@ -4,8 +4,8 @@
 #include "libs.h"
 
 static map_t* get_map1(void){
-    char **ret         = xpm_load_xpm2("/home/lcom/labs/proj/maps/xpm2/map1.xpm2");
-    char **ret_collide = xpm_load_xpm2("/home/lcom/labs/proj/maps/xpm2/map1_collide.xpm2");
+    char **ret         = xpm_load_xpm2("/home/lcom/labs/proj/src/maps/xpm2/map1.xpm2");
+    char **ret_collide = xpm_load_xpm2("/home/lcom/labs/proj/src/maps/xpm2/map1_collide.xpm2");
     map_t *r = NULL;
     if(ret != NULL && ret_collide != NULL){
         r = map_ctor((const char *const *)ret, (const char *const *)ret_collide);
