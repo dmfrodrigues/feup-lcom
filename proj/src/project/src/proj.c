@@ -368,14 +368,14 @@ static int (multiplayer_host)(void) {
                     break;
 
                     case COM1_IRQ:
-                        printf("Reach\n");
+                        printf("L371\n");
                         nctp_ih();
-                            printf("Reach2\n");
-                        if (bullet_info->new_bullet) {
+                        printf("L373\n");
+                        if (bullet_info->new_bullet) { printf("L374\n");
                             shoot_bullet(shooter2, bullet_list, bsp_bullet);
                             bullet_info->new_bullet = false;
                         }
-                            printf("Reach1\n");
+                        printf("L378\n");
                         break;
                 }
             }
