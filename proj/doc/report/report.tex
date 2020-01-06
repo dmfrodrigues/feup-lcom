@@ -231,7 +231,23 @@ In multiplayer mode, data is transferred from host to remote at a frequency of 6
 Collection of useful classes and functions. This module was developed with the goal of being as general and independent from \texttt{proj} as possible, although there are rare occasions where sub-modules of \texttt{libs} include sub-modules of \texttt{proj}.
 \subsubsection{\texttt{classes}}
 Provides classes \texttt{list\_t} and \texttt{queue\_t}. These classes achieve generality by storing pointers to \texttt{void}, which have as major disadvantage requiring the use of \texttt{free}. \par
-\textcolor{red}{CONTINUE LIBS MODULES}
+Provides various classes to store information about entities (such as map, shooter, bullets)
+as well as structs to store player information, key presses, text.\par
+The class \texttt{keys\_t} holds information of the keys that are pressed, as well as if the left button of the mouse is pressed. This values are stored in 1 bit each, minimizing the space occupied in memory, and is updated on every KBC and Mouse interrupt.\par
+The class \texttt{rectangle\_t}	provides ease on drawing rectangles on the screen with functions to change its position, color, line width, fill color, among others.\par
+The class \texttt{glyph\_t} allows letters to be drawn, and is the base class to then represent text on screen.\par
+The class \texttt{font\_t} is an extension of the previous one, allowing multiple letters to be drawn.\par
+The class \texttt{text\_t} extends the previous class by creating an interface with strings, allowing to modify the string to be drawn, the size of each character, among other aspects.\par
+The class \texttt{menu\_t} allows the creation of menus with multiple click-able boxes with text.
+The class \texttt{basic\_sprite\_t} allows to load XPM maps and draw those onto the screen, it is the main class for all the entities, as it will hold the textures of each entity.\par
+The class \texttt{sprite\_t} improves the previous class by adding the capability of rotating and scaling the image to be rendered.\par
+The class \texttt{gunner\_t} represents an entity, this entity can assume melee or ranged form, and also can represent a person or a zombie. This entity also has other features for the game such as health bar and the team the entity is on.\par
+The class \texttt{bullet\_t} represents a bullet, characterized by the source of bullet, this is who shot the bullet, its velocity and damage in case it collides with a person or zombie.\par
+The class \texttt{map\_t} represents the map of the game, as well as being the interface for the path finding algorithm used for the autonomous opponents.\par
+The class \texttt{score\_info\_t} is used to store information about a score, such as the value of the score, the time played to obtain the score and the date and time it happened.\par
+The class \texttt{highscores\_t} uses the previous class to store information about the three best scores, and allows them to be drawn to the screen, similar to menu.\par
+The classes \texttt{host\_info\_t}, \texttt{remote\_info\_t} and \texttt{bullet\_info\_t} represent information to be transmitted to the serial port containing information about the game.
+\newpage
 \subsection{\texttt{proj}}
 \textcolor{red}{MAKE PROJ MODULES}
 \section{Implementation details} \label{sec:details}
