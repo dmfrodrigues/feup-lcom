@@ -3,6 +3,7 @@
 
 /**
  * @defgroup    errors  errors
+ * @ingroup utils
  * @brief Error codes.
  *
  * @{

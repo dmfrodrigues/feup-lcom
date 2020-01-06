@@ -152,7 +152,7 @@ Once the player kills a zombie, a new zombie spawns in a random part of the map,
 \end{figure}
 \pagebreak
 \subsection{Multiplayer}
-In multiplayer mode, 
+In multiplayer mode, \textcolor{red}{INCOMPLETE}.
 \pagebreak
 \subsection{Chat}
 This chat tool was initially designed as a simple, text mode, test communication between different machines. We have however decided to include it as a functionality in the project for a number of reasons:
@@ -166,7 +166,7 @@ This chat tool was initially designed as a simple, text mode, test communication
 	\includegraphics[scale=0.45]{chat01}
 	\caption{Chat environment}
 \end{figure}
-The chat can be used for exchanging messages of up to 75 characters directy writable with the keyboard. The character limit was imposed to prevent strings from rendering as wider than the input box, and the fact they should be directy writable with the keyboard simplifies the process of capturing scancodes, having as downside not allowing to write characters that require more than one key press (like exclamation or question marks in a Portuguese keyboard). \par
+The chat can be used for exchanging messages of up to 75 characters directly writable with the keyboard. The character limit was imposed to prevent strings from rendering as wider than the input box, and the fact they should be directly writable with the keyboard simplifies the process of capturing scancodes, having as downside not allowing to write characters that require more than one key press (like exclamation or question marks in a Portuguese keyboard). \par
 \begin{figure}[H] \centering
 	\begin{subfigure}[b]{0.48\linewidth}
 		\includegraphics[width=\linewidth]{chat02_01}
@@ -201,24 +201,40 @@ Timer 0 is used to generate periodic interrupts at a rate of 60Hz, essentially c
 Timer interrupts regulate screen refreshing, which happens at a rate of 60Hz. In all game modes, timer interrupts serve not only the purpose of refreshing the screen, but also to process all the game data: collisions, movement, path-finding algorithms, etc. \par
 To manage timer interrupt subscriptions, functions \texttt{subscribe\_timer\_interrupt}, \texttt{timer\_int\_handler} and \texttt{timer\_get\_no\_interrupts} were implemented and used.
 \subsection{Keyboard}
-The keyboard was configured to issue interrupts on key presses and releases.
-
-To manage keyboard interrupt subscription, function \texttt{subscribe\_kbc\_interrupt, } was implemented. To manage keyboard interrupts, functions \texttt{kbc\_ih}, \texttt{keyboard\_get\_scancode} were implemented and used. 
-
-\func{Keyboard in interrupt mode.}
+The keyboard was configured to issue interrupts on key presses and releases. \par
+The keyboard is used to control some menus (namely using \textbf{ESC}), to input text in the chat, and to control player movement in the game and zoom in/out options.\par
+To manage keyboard interrupt subscription, function \texttt{subscribe\_kbc\_interrupt} was implemented. To manage keyboard interrupts, functions \texttt{kbc\_ih}, \texttt{keyboard\_get\_done}, \texttt{keyboard\_get\_scancode} and \linebreak \texttt{update\_key\_presses} were implemented and used. 
 \subsection{Mouse}
-\func{Mouse buttons and movement in interrupt mode.}
+The mouse was configured to issue interrupts on movement and button presses. \par
+The mouse is used to control all menus (position and buttons), as well as allowing the player to aim at the opponents (position) and shoot bullets (buttons). \par
+To manage mouse interrupt subscription, function \texttt{subscribe\_mouse\_interrupt} was implemented. To manage mouse interrupts, functions \texttt{mouse\_ih}, \texttt{mouse\_parse\_packet} and \texttt{update\_mouse}, among others, were implemented.
 \subsection{Video card}
-\func{Video Card in graphic mode with direct color encoding, dynamic updating of VRAM/screen.}
+The video card was configured to work in graphic mode with direct color encoding, with resolution 1024x768 pixels and 8 bits for each color component Red, Green and Blue, yielding a total of approximately 16.8 million colors. \par
+Simple buffering was used to eliminate flickering. All graphics are first drawn to the scree buffer, and only after all graphical operations (that is, at the end of the processing of the timer interrupt) is the buffer information copied to the VRAM. \par
+The modules \texttt{rectangle\_t} and \texttt{menu\_t} were developed for displaying simple shapes and menus. The modules \texttt{basic\_sprite\_t} and \texttt{sprite\_t} were developed for displaying moving sprites, allowing for rotation around the "center" of the image, as well as scaling and movement. \par
+The modules \texttt{font\_t} and \texttt{text\_t} were developed to allow for dynamic rendering of text, using as default (and, for now, sole) font Consolas. The only type of supported fonts are bitmap fonts. \par
+Configuration of the UART was made using the functions \texttt{graph\_init} and \texttt{graph\_cleanup} developed during the project. Drawing to the buffer is made primarily through the functions \texttt{graph\_get\_XRes}, \linebreak \texttt{graph\_get\_YRes}, \texttt{graph\_set\_pixel}, \texttt{graph\_clear\_screen} and \texttt{graph\_draw}.\par
+Basic sprites are constructed from small XPM files, or loaded at runtime from XPM2 files. A XPM2 file is a XPM file stripped from all the C syntax, leaving only the strings. This format is easier to load at runtime than XPM. A XPM file can be easily converted to a XPM2 file using the function \texttt{xpm\_save\_as\_xpm2}. All XPM arrays of strings are loaded to bitmaps using the function \texttt{xpm\_load} provided by the LCF.
 \subsection{Real-Time Clock (RTC)}
-\func{Use of the RTC functionalities needed to implement the requirements stated in the role of the device.}
+\textcolor{red}{INCOMPLETE (TELMO)}
 \subsection{Serial port}
-\func{Point-to-point communication between two computers.}
+The UART was configured to issue interrupts for Receiver Ready and Transmitter Empty. Communication is processed with the same parameters at both ends, at a bit-rate of 115200bps, 8 bits per char, 2 stop bits. UART FIFOs are not used. The protocols that were developed will be discussed in section \ref{sec:details}. \par
+In multiplayer mode, data is transferred from host to remote at a frequency of 60Hz, with each message having at least 24 bytes. Data transference from remote to host is made whenever needed, with each message having on average 9 bytes.
 \pagebreak
 \section{Code organization/structure}
-Hey
-\section{Implementation details}
-Hey
+\subsection{\texttt{libs}}
+Collection of useful classes and functions. This module was developed with the goal of being as general and independent from \texttt{proj} as possible, although there are rare occasions where sub-modules of \texttt{libs} include sub-modules of \texttt{proj}.
+\subsubsection{\texttt{classes}}
+Provides classes \texttt{list\_t} and \texttt{queue\_t}. These classes achieve generality by storing pointers to \texttt{void}, which have as major disadvantage requiring the use of \texttt{free}. \par
+\textcolor{red}{CONTINUE LIBS MODULES}
+\subsection{\texttt{proj}}
+\textcolor{red}{MAKE PROJ MODULES}
+\section{Implementation details} \label{sec:details}
+\textcolor{red}{WRITE IMPLEMENTATION DETAILS}
+\subsection{XPM and XPM2}
+\textcolor{red}{WRITE STUFF}
+\subsection{Communication protocols}
+\textcolor{red}{WRITE IMPLEMENTATION DETAILS}
 \section{Conclusions}
-Hey
+\textcolor{red}{WRITE CONCLUSION}
 \end{document}
