@@ -13,7 +13,7 @@
 ## Media
 ### Gallery
 <div align="center">
-    <table>
+    <table cellspacing="0" cellpadding="0" style="border: none">
         <tr align="center">
             <th>
                 Main menu
@@ -31,7 +31,7 @@
             </td>
         </tr>
     </table>
-    <table>
+    <table cellspacing="0" cellpadding="0" style="border: none">
         <tr align="center">
             <th>
                 Sinple-player/Campaign mode
@@ -53,7 +53,7 @@
 
 ### Video
 
-
+[![LabWars - LCOM Project 2019/20](https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/thumbnail.png)](https://youtu.be/p19NshuZql4 "LabWars - LCOM Project 2019/20")
 
 ## Make commands
 ### Setup and compile
