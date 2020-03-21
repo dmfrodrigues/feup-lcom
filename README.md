@@ -6,6 +6,7 @@
 - **Tools:** C low-level calls
 - **Institution:** [FEUP](https://sigarra.up.pt/feup/en/web_page.Inicial)
 - **Course:** [LCOM](https://sigarra.up.pt/feup/en/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=436435) (Computer Laboratory)
+- **Project grade:** 19.0/20.0
 - **Group members:**
     - Diogo Miguel Ferreira Rodrigues (diogo.rodrigues@fe.up.pt / up201806429@fe.up.pt)
     - Telmo Alexandre Espirito Santo Baptista (up201806554@fe.up.pt)
