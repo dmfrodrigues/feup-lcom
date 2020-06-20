@@ -1,5 +1,7 @@
 # LabWars
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 - **Project name:** LabWars
 - **Short description:** Top-down shooter supporting chat, zombie and multiplayer modes
 - **Environment:** [Minix](https://www.minix3.org/)
