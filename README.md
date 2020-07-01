@@ -15,69 +15,43 @@
 
 ## Media
 ### Gallery
-<div align="center">
-    <table cellspacing="0" cellpadding="0" style="border: none">
-        <tr align="center">
-            <th>
-                Main menu
-            </td>
-            <th>
-                Chat
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <img src="https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/main_menu.png" width="450">
-            </td>
-            <td>
-                <img src="https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/chat02_01.png" width="450">
-            </td>
-        </tr>
-    </table>
-    <table cellspacing="0" cellpadding="0" style="border: none">
-        <tr align="center">
-            <th>
-                Sinple-player/Campaign mode
-            </td>
-            <th>
-                Zombies mode
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <img src="https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/campaign01.png" width="450">
-            </td>
-            <td>
-                <img src="https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/zombies01.png" width="450">
-            </td>
-        </tr>
-    </table>
-</div>
+| Main menu | Chat |
+|-----------|------|
+| ![](https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/main_menu.png) | ![](https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/chat02_01.png) |
+
+| Sinple-player/Campaign mode | Zombies mode |
+|-----------------------------|--------------|
+| ![](https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/campaign01.png) | ![](https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/zombies01.png) |
 
 ### Video
 
 [![LabWars - LCOM Project 2019/20](https://raw.githubusercontent.com/dmfrodrigues/feup-lcom/master/proj/doc/report/images/thumbnail.png)](https://youtu.be/p19NshuZql4 "LabWars - LCOM Project 2019/20")
 
-## Make commands
-### Setup and compile
+## Install
+
+### Make commands
 
 ```sh
 cd proj
-./setup.sh
-make
+./setup.sh          # Setup before install
+make                # Install
+./setup_clean.sh    # Cleanup script
+make cleandir       # Cleanup files
 ```
 
-### Cleanup
-
-```sh
-cd proj
-./setup_clean.sh
-make cleandir
-```
-
-## Run me
+## Usage
 
 ```sh
 cd proj
 lcom_run proj
 ```
+
+## Report
+
+The final report is available [here](proj/doc/report/report.pdf).
+
+## License
+
+© 2020 Diogo Rodrigues, Telmo Baptista
+
+All files are licensed under [GNU General Public License v3](LICENSE).
