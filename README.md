@@ -52,6 +52,6 @@ The final report is available [here](proj/doc/report/report.pdf).
 
 ## License
 
-© 2020 Diogo Rodrigues, Telmo Baptista
+© 2019-2020 Diogo Rodrigues, Telmo Baptista
 
 All files are licensed under [GNU General Public License v3](LICENSE).
