@@ -13,6 +13,11 @@
     - Diogo Miguel Ferreira Rodrigues (diogo.rodrigues@fe.up.pt / up201806429@fe.up.pt)
     - Telmo Alexandre Espirito Santo Baptista (up201806554@fe.up.pt)
 
+## Contents
+
+- Theoretical-practical classes
+- [Final project](proj)
+
 ## Media
 ### Gallery
 | Main menu | Chat |
