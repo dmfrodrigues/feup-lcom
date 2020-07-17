@@ -15,7 +15,7 @@
 
 ## Contents
 
-- Theoretical-practical classes
+- Theoretical-practical classes (lab0-lab7)
 - [Final project](proj)
 
 ## Media
