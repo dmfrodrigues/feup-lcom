@@ -2,6 +2,8 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/b1b382892619488d9b6b03a9ec7168df)](https://www.codacy.com/gh/dmfrodrigues/feup-lcom/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dmfrodrigues/feup-lcom&amp;utm_campaign=Badge_Grade)
+
 - **Project name:** LabWars
 - **Short description:** Top-down shooter supporting chat, zombie and multiplayer modes
 - **Environment:** [Minix](https://www.minix3.org/)
